@@ -5,6 +5,8 @@
 
 <!-- ...................                  edited by Nasneen............................ -->
 
+<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+
 
 <!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> -->
 <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
@@ -296,7 +298,7 @@
 
   function cancelDialog() {
 
-    var frm = document.getElementById("forms");
+    var frm = document.getElementById("forms2");
     let customMsg = "Do you want to cancel?";
 
     if (confirm(customMsg)) {
@@ -306,13 +308,13 @@
 
   function saveAsDraftDialog() {
 
-    var frm = document.getElementById("forms");
+    var frm = document.getElementById("forms2");
     frm.action = ("{% url 'create_challan_draft'%}")
   }
 
   function saveAndSendDialog() {
 
-    var frm = document.getElementById("forms");
+    var frm = document.getElementById("forms2");
     frm.action = ("{% url 'create_and_send_challan'%}")
   }
   $(document).ready(function () {
@@ -569,7 +571,7 @@
 </div>
 
 
-<form method="POST" action="" enctype="multipart/form-data" novalidate id="forms">
+<form method="POST" action="" enctype="multipart/form-data" novalidate id="forms2">
   {% csrf_token %}
   <input class="hidden" id="state1" name="hidden_state1" value="{{ company.state }}">
   <input class="hidden" id="state" name="hidden_state" value="">
@@ -637,8 +639,13 @@
         data = response.email
         $('#customer_email').val(response.email);
         $('#gst_treatment').val(response.gstt);
-        $('#gst_number').val(response.gstno);
         $('#place_of_supply').val(response.cust_place_supply);
+        $('#gst_number').val(response.gstno);
+        
+        if(response.gstt == 'Unregistered Business-not Registered under GST'){
+          $('#gst_number_container').hide();
+        }
+        
 
       }
     });
@@ -672,7 +679,7 @@
     <div class="col-sm-6">
       <select name="place_of_supply" id="place_of_supply" class="form-control text-black" required>
         <option value=""></option>
-        <option value="[AN]-Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
+        <option value="[AN]-Andaman And Nicobar Islands">[AN] Andaman and Nicobar Islads</option>
                     <option value="[AD]-Andhra Predhesh">[AD] Andhra Predhesh</option>
                     <option value="[AR]-Arunachal Predesh">[AR] Arunachal Predesh</option>
                     <option value="[AS]-Assam">[AS] Assam</option>
@@ -1588,7 +1595,7 @@
       <div class="modal-body" style="background: rgb(32, 35, 37);">
         <!-- modalCustomer -->
         <div class="card p-3 m-3">
-          <form  method="POST" action=""  enctype="multipart/form-data" class="" novalidate id="forms">
+          <form  method="POST" action="{% url 'recurbills_customer' %}"  enctype="multipart/form-data" class="" novalidate id="forms">
             {% csrf_token %}
             
             <div class="form-group row mt-4">
@@ -2188,7 +2195,7 @@
           
           <div class="row mt-4">
               <div class="col-sm-12 col-md-2 col-lg-2">
-                  <input type="submit" class="form-control bg-warning text-dark" style="font-weight: bold;" value="save" id="customerSave">
+                  <input type="submit" class="form-control bg-warning text-dark"  style="font-weight: bold;" value="save" id="customerSave">
                   <!-- <a href="{% url 'add_vendor' %}" role="button" class="form-control bg-light text-dark"></a> -->
                   <!-- <button type="submit">save</button> -->
               </div>
@@ -2624,7 +2631,50 @@
     </div>
   </div>
 </div>
+<script>
+  $(document).ready(function () {
+      $("#forms").on("submit", function (e) {
+          console.log("submit")
+          e.preventDefault(); // Prevent the default form submission
 
+          $.ajax({
+              type: "POST",
+              url: $(this).attr("action"), // Get the URL from the form's action attribute
+              data: $(this).serialize(), // Serialize the form data
+              dataType: "json",
+
+              success: function (data) {
+                  console.log(data);
+                  document.getElementById("forms").reset();
+                  console.log("reset")
+                  // reloadCustomer();
+
+                  var selectize = $('#customer_sel')[0].selectize;
+                  selectize.clearOptions(); // Clear existing options
+
+                  // Add the default empty option
+                  selectize.addOption({ value: '', text: 'Select' });
+
+                  // Add new options
+                  $.each(data, function (key, value) {
+                      selectize.addOption({ value: key, text: value[0] });
+                  });
+
+                  // Refresh the Selectize dropdown to reflect the changes
+                  console.log("bef");
+                  selectize.refreshOptions(false);
+                  console.log("aft");
+                  // $('#newcustomer').hide();
+                  $('.modal').modal('hide');
+                  console.log("FINISH");
+              },
+                error: function(xhr, textStatus, errorThrown) {
+                console.error("Error:", textStatus, errorThrown);
+              }
+          });
+      });
+  });
+</script>
 
 
 <!-- ############################################################################################### -->
@@ -2693,6 +2743,7 @@
   </div>
 </div>
 <!-- ................................................  END PAYMENT TERMS MODAL..................................... -->
+
 
 
 <script>
@@ -2772,108 +2823,7 @@
 
   // ######################################################################
 
-  $(document).on("click", "#customerSave", function () {
 
-    if ($('input[name="radioCust"]:checked').val() == 'Business') {
-
-      custType = $('#business').val();
-    }
-    else {
-      custType = $('#individual').val();
-    }
-
-    if ($('input[name="radioCust1"]:checked').val() == 'Taxable') {
-      cust_tax = $('#custtax1').val();
-    }
-    else {
-      cust_tax = $('#custtax2').val();
-    }
-    $.ajax({
-
-      type: 'POST',
-      url: "{% url 'recurbills_customer' %}",
-
-      data: {
-        customer_type: custType,
-        display_name: $('#cdisplayname').text(),
-        company_name: $('#ccompany').val(),
-        email: $("#cemail").val(),
-        work_mobile: $("#cw_mobile").val(),
-        pers_mobile: $("#cp_mobile").val(),
-        facebook: $("#facebook").val(),
-        twitter: $("#twitter").val(),
-        website: $("#website").val(),
-        skype: $("#cskype").val(),
-        desg: $("#c_desg").val(),
-        dpt: $("#c_dpt").val(),
-        gsttype: $("#c_gsttype").val(),
-
-        gst_num: $("#gst_num").val(),
-        pan_number: $("#pan_number").val(),
-
-
-        placeofsupply: $("#placesupply").val(),
-        tax_preference: cust_tax,
-        currency: $("#c_curn").val(),
-        openingbalance: $("#c_open").val(),
-        paymentterms: $("#c_terms").val(),
-        street1: $("#cstreet1").val(),
-        street2: $("#cstreet2").val(),
-        city: $("#ccity").val(),
-        state: $("#cstate").val(),
-        pincode: $("#cpincode").val(),
-        fax: $("#cfax").val(),
-        phone: $("#cphone").val(),
-        country: $("ccountry").val(),
-        csrfmiddlewaretoken: '{{ csrf_token }}'
-
-      },
-
-      success: function (response) {
-        document.getElementById("modalCustomer").reset();
-        reloadCustomer();
-      },
-    });
-  });
-  function reloadCustomer() {
-    $.ajax({
-      url: "{% url 'customer_dropdown' %}",
-      type: "GET",
-      dataType: "json",
-      data: $(this).serialize(),
-      headers: { "X-CSRFToken": '{{ csrf_token }}' },
-      success: function (data) {
-        var dropdown = $('#customer_sel');
-        dropdown.empty();
-        dropdown.append($('<option></option>').attr('value', '').text('Select'));
-
-        $.each(data, function (key, value) {
-          var option = $('<option></option>').attr('value', key).text(value['customerName']).val(key);
-          option.data('email', value['customerEmail']);
-          option.data('gsttreatment', value['GSTTreatment']);
-          option.data('gstnumber', value['GSTIN']);
-          option.data('placeofsupply', value['placeofsupply']);
-
-          dropdown.append(option);
-
-          // Check GST type and hide/show GST number container
-          var gstNumberContainer = $('#gst_number_container');
-          var gstNumberField = $('#gst_number');
-
-          if (value['GSTTreatment'] === "Unregistered Business-not Registered under GST") {
-            gstNumberField.val('');  // Clear the value of the GST number field
-            gstNumberContainer.hide();  // Hide the GST number container
-          } else {
-            gstNumberField.val(value['GSTIN']);
-            gstNumberContainer.show();  // Show the GST number container
-          }
-        });
-      },
-      error: function (xhr, status, error) {
-        console.error(xhr.responseText);
-      }
-    });
-  }
 
   $(document).ready(function () {
     $("#cfname, #clname").change(function () {
@@ -3070,7 +3020,7 @@
   })()
 </script>
 
-<script>
+<!-- <script>
   function generateFullName() {
     document.getElementById('txtFullName').value =
       document.getElementById('sa').value +
@@ -3139,7 +3089,7 @@
   function closepop() {
     popu.classList.remove("open-popup-1");
   }
-</script>
+</script> -->
 
 
 <!-- ................................................  TABLE 1 ......................................................... -->
