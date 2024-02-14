@@ -432,6 +432,59 @@
       }
     });
   }
+  $(document).on('change', '.itm', function () {
+
+var n = $(this).attr("id").slice(7);
+console.log('item changed')
+console.log(n)
+$.ajax({
+    url: "{% url 'get_dl_item' %}",
+    type: 'GET',
+    data: {
+        id: $(this).val(),
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+    },
+
+    success: function (response) {
+        data = response.hsn
+        // data2 = response.qty
+        dataprice = response.price
+        datagst = response.gst
+        dataigst = response.igst
+
+
+
+        // document.getElementById('select_tax'+n).value = datagst;
+        if (document.getElementById('stateofsply').value == 'State') {
+            document.getElementById('select_tax' + n).value = datagst;
+            document.getElementById('hsn' + n).value = data;
+            document.getElementById('unit' + n).value = dataprice;
+
+            document.getElementById('intrataxval'+n).value = datagst;
+            document.getElementById('intertaxval'+n).value = dataigst;
+        }
+        else if (document.getElementById('stateofsply').value == 'Other state') {
+            document.getElementById('select_tax' + n).value = dataigst;
+            document.getElementById('hsn' + n).value = data;
+            document.getElementById('unit' + n).value = dataprice;
+
+            document.getElementById('intrataxval'+n).value = datagst;
+            document.getElementById('intertaxval'+n).value = dataigst;
+
+        }
+        // else {
+
+        //     alert('Please select a stateofsply before choosing a product.');
+        //     var $select = $(document.getElementById('product'+n));
+        //     var selectize = $select[0].selectize;
+        //     selectize.setValue("");
+        // }
+
+    },
+});
+
+});
+
 </script>
 
 
@@ -679,44 +732,24 @@
     <div class="col-sm-6">
       <select name="place_of_supply" id="place_of_supply" class="form-control text-black" required>
         <option value=""></option>
-        <option value="[AN]-Andaman And Nicobar Islands">[AN] Andaman and Nicobar Islads</option>
-                    <option value="[AD]-Andhra Predhesh">[AD] Andhra Predhesh</option>
-                    <option value="[AR]-Arunachal Predesh">[AR] Arunachal Predesh</option>
-                    <option value="[AS]-Assam">[AS] Assam</option>
-                    <option value="[BR]-Bihar">[BR] Bihar</option>
-                    <option value="[CH]-Chandigarh">[CH] Chandigarh</option>
-                    <option value="[CG]-Chhattisgarh">[CG] Chhattisgarh</option>
-                    <option value="[DNH]-Dadra and Nagar Haveli">[DNH] Dadra and Nagar Haveli</option>
-                    <option value="[DD]-Damn anad Diu">[DD] Damn anad Diu</option>
-                    <option value="[DL]-Delhi">[DL] Delhi</option>
-                    <option value="[GA]-Goa">[GA] Goa</option>
-                    <option value="[GJ]-Gujarat">[GJ] Gujarat</option>
-                    <option value="[HR]-Haryana">[HR] Haryana</option>
-                    <option value="[HP]-Himachal Predesh">[HP] Himachal Predesh</option>
-                    <option value="[JK]-Jammu and Kashmir">[JK] Jammu and Kashmir</option>
-                    <option value="[JH]-Jharkhand">[JH] Jharkhand</option>
-                    <option value="[KA]-Karnataka">[KA] Karnataka</option>
-                    <option value="[KL]-Kerala">[KL] Kerala</option>
-                    <option value="[LA]-Ladakh">[LA] Ladakh</option>
-                    <option value="[LD]-Lakshadweep">[LD] Lakshadweep</option>
-                    <option value="[MP]-Madhya Predesh">[MP] Madhya Predesh</option>
-                    <option value="[MH]-Maharashtra">[MH] Maharashtra</option>
-                    <option value="[MN]-Manipur">[MN] Manipur</option>
-                    <option value="[ML]-Meghalaya">[ML] Meghalaya</option>
-                    <option value="[MZ]-Mizoram">[MZ] Mizoram</option>
-                    <option value="[NL]-Nagaland">[NL] Nagaland</option>
-                    <option value="[OD]-Odisha">[OD] Odisha</option>
-                    <option value="[PY]-Puducherry">[PY] Puducherry</option>
-                    <option value="[PB]-Punjab">[PB] Punjab</option>
-                    <option value="[RJ]-Rajasthan">[RJ] Rajasthan</option>
-                    <option value="[SK]-Sikkim">[SK] Sikkim</option>
-                    <option value="[TN]-Tamil Nadu">[TN] Tamil Nadu</option>
-                    <option value="[TS]-Telangana">[TS] Telangana</option>
-                    <option value="[TR]-Tripura">[TR] Tripura</option>
-                    <option value="[UP]-Uttar Predesh">[UP] Uttar Predesh</option>
-                    <option value="[UK]-Uttarakhand">[UK] Uttarakhand</option>
-                    <option value="[WB]-West Bengal">[WB] West Bengal</option>
-                    <option value="[OT]-Other Territory">[OT] Other Territory</option>
+        <option value="value" selected></option>
+                    <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option> <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
+                    <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> <option value="[AS]-Assam">[AS]-Assam</option>
+                    <option value="[BR]-Bihar">[BR]-Bihar</option> <option value="[CH]-	Chandhigarh">[CH]-	Chandhigarh</option><option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
+                    <option value="[DD]-Daman Diu">[DD]-Daman Diu</option><option value="[DL]-	Delhi">[DL]-	Delhi</option><option value="[GA]-Goa">[GA]-Goa</option> <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
+                    <option value="[HR]-Haryana">[HR]-Haryana</option> <option value="[HP]-Himachal Pradesh">[HP]-Himachal Pradesh</option>
+                    <option value="[JK]-Jammu And Kashmir">[JK]-Jammu And Kashmir</option><option value="[JH]-Jharkand">[JH]-Jharkand</option>
+                    <option value="[KA]-Karnataka">[KA]-Karnataka</option><option value="[KL]-Kerala">[KL]-Kerala</option>
+                    <option value="[LA]-Ladakh">[LA]-Ladakh</option><option value="[LD]-Lakshadweep">[LD]-Lakshadweep</option>
+                    <option value="[MP]-Madhyapradesh">[MP]-Madhyapradesh</option><option value="[MH]-Maharashtra">[MH]-Maharashtra</option>
+                    <option value="[MN]-Manipur">[MN]-Manipur</option>  <option value="[ML]-Meghalaya">[ML]-Meghalaya</option>
+                  <option value="[MZ]-Mizoram">[MZ]-Mizoram</option> <option value="[NL]-Nagaland">[NL]-Nagaland</option> <option value="[NL]-Nagaland">[NL]-Nagaland</option>
+                   <option value="[OD]-Odisha">[OD]-Odisha</option><option value="[PY]-Puducherry">[PY]-Puducherry</option>
+                    <option value="[PB]-Punjab">[PB]-Punjab.</option><option value="[RL]-Rajasthan">[RL]-Rajasthan</option>
+                    <option value="[SK]-Sikkim">[SK]-Sikkim</option><option value="[TN]-Tamilnadu">[TN]-Tamilnadu</option>
+                    <option value="[TS]-Telenghana">[TS]-Telenghana</option><option value="[TR]-Tripura">[TR]-Tripura</option><option value="[UP]-Uttar Pradesh">[UP]-Uttar Pradesh</option>
+                    <option value="[UK]-Utharakhand">[UK]-Utharakhand</option><option value="[WB]-West Bengal">[WB]-West Bengal</option>
+                    <option value="[OT]-Other Territory">[OT]-Other Territory</option>
       </select>
       <!-- <input type="text" class="form-control text-black" id="place_of_supply" name="place_of_supply" readonly> -->
     </div>
@@ -757,18 +790,7 @@
 
   </script>
   <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-  <script>
-    $(document).ready(function () {
-      
-      $('#customer_sel').change(function () {
-        var selectedOption = $(this).find(':selected');
-        $('#customer_email').val(selectedOption.data('email'));
-        $('#gst_treatment').val(selectedOption.data('gsttreatment'));
-        $('#gst_number').val(selectedOption.data('gstnumber'));
-        $('#place_of_supply').val(selectedOption.data('placeofsupply'));
-      });
-    });
-  </script>
+  
 
 
 
@@ -822,7 +844,7 @@
     <div class="col-sm-12 col-md-12 col-lg-12">
       <label for="" id="label_tab1">Price List</label><br>
       <table class="table table-bordered text-white" id="item_table"
-        style="background-color: #b6b3b36b;table-layout: fixed;width: 100%;" onchange="calc()">
+        style="background-color: #b6b3b36b;table-layout: fixed;width: 100%;" >
         <thead>
           <tr>
             <th style="font-weight: bold;color: rgb(245, 154, 36);" class="d">Item  <a class="text-right" href="" data-toggle="modal"
@@ -836,13 +858,8 @@
             <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Amount</th>
           </tr>
         </thead>
-        <tbody>
-<style>
-  /* .selectize-control {
-    background: transparent !important;
-} */
+        <tbody id="items-table-body">
 
-</style>
           <tr id='row1'>
             <td>
               <div class='form-group'><select class='border-0 item_select itm'
@@ -913,92 +930,6 @@
 
   <!-- ................................................... TABLE 2 ......................................................... -->
 
-
-  <div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-12">
-      <label for="" id="label_tab2" style="display: none;">Price List</label><br>
-      <table class="table table-bordered text-white" id="item_tablee"
-        style="display: none; background-color: #b6b3b36b;table-layout: fixed;width: 100%;" onchange="calc()">
-        <thead>
-          <tr>
-            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="">Item Details <a href="" data-toggle="modal"
-                data-target="#newitem" style="text-decoration: none;"><i class="mdi mdi-plus p-2 rounded"
-                  style="color: white; background-color: rgb(210, 132, 30);"></i></a></th>
-
-
-            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">HSN</th>
-            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Quantity</th>
-            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Rate</th>
-            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Discount</th>
-            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Tax</th>
-            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          <tr id='row1'>
-            <td>
-              <div class='form-group'><select class='form-control bg-transparent text-light border-0 item_selectt itmm'
-                  name='itemm[]' id='itemm1'>
-                  <option class='text-dark'>Select</option>
-                  {% for i in items %}
-                  <option class="text-dark" value="{{i.Name}}">{{i.Name}}</option>
-                  {% endfor %}
-                  <option class='text-dark' id="items_nms"></option>
-                </select></div>
-            </td>
-
-            <td class='text-right'><input type='text' id='hsnn1'
-                class='form-control bg-transparent border-0 text-light text-right hsn' placeholder="6 Digit No"
-                pattern="[0-9]{6}" name='hsnn[]' value='' readonly>
-            </td>
-
-
-            <td class='text-right'><input type='number' id='qtyy1'
-                class='bg-transparent form-control border-0 text-light text-right qtyy' name='quantityy[]' value='0'>
-            </td>
-            <td class='text-right'><input type='number' id='ratee1'
-                class='bg-transparent form-control border-0 text-light text-right ratee' name='ratee[]' value='0.00'>
-            </td>
-            <td class='text-right'><input type='number' id='discountt1'
-                class='bg-transparent form-control border-0 text-light text-right discountt' name='discountt[]'
-                value='0.00'>
-            </td>
-            <td class='text-right'> <select name='taxx[]' id='taxx1'
-                class=' bg-transparent form-control text-light text-right border-0 taxx'>
-                <option value="" selected>Select</option>
-                <option class="form-control text-dark" value=0>0% IGST</option>
-                <option class="form-control text-dark" value=3>3% IGST</option>
-                <option class="form-control text-dark" value=5>5% IGST</option>
-                <option class="form-control text-dark" value=12>12% IGST</option>
-                <option class="form-control text-dark" value=18>18% IGST</option>
-                <option class="form-control text-dark" value=28>28% IGST</option>
-              </select>
-            </td>
-            <td style="display: none;">
-              <input type="number" name='taxamountt[]' id="taxamountt1" class="form-control taxamountt" />
-            </td>
-            <td class='text-right'><input type='number' id='amountt1'
-                class='bg-transparent form-control border-0 text-light text-right amountt' name='amountt[]'
-                value='0.00'></td>
-            <td class='text-center'><button type='button' id='del_btnn1'
-                class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-roww'
-                style='width:30px'><i class='fa fa-times'></i></button>
-              <button type='button'
-                class='btn btn-transparent text-primary btn-sm btn-outline-primary rounded-circle clone-roww' data-row=1
-                style='width:30px'><i class="fa fa-clone"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-
-      </table>
-      <button type="button" class="btn btn-sm text-white" style="background-color: rgb(210, 132, 30) ; display: none;"
-        id="add-roww"><i class="fa-solid  fa fa-plus rounded"
-          style="color: white; background-color: rgb(210, 132, 30);height: 20px;"></i></button>
-
-    </div>
-  </div>
 
   <!-- ..........................................................END TABLE 2 ..................................................... -->
 
@@ -1809,9 +1740,9 @@
                       <select name="posply" id="PLACE" class="form-control bg-light text-dark">
                       <option value="value" selected></option>
                     <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option> <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
-                    <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> <option value="volvo">[AS]-Assam</option>
-                    <option value="[BR]-Bihar">[BR]-Bihar</option> <option value="volvo">[CH]-	Chandhigarh</option><option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
-                    <option value="[DD]-Daman Diu">[DD]-Daman Diu</option><option value="volvo">[DL]-	Delhi</option><option value="[GA]-Goa">[GA]-Goa</option> <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
+                    <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> <option value="[AS]-Assam">[AS]-Assam</option>
+                    <option value="[BR]-Bihar">[BR]-Bihar</option> <option value="[CH]-	Chandhigarh">[CH]-	Chandhigarh</option><option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
+                    <option value="[DD]-Daman Diu">[DD]-Daman Diu</option><option value="[DL]-	Delhi">[DL]-	Delhi</option><option value="[GA]-Goa">[GA]-Goa</option> <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
                     <option value="[HR]-Haryana">[HR]-Haryana</option> <option value="[HP]-Himachal Pradesh">[HP]-Himachal Pradesh</option>
                     <option value="[JK]-Jammu And Kashmir">[JK]-Jammu And Kashmir</option><option value="[JH]-Jharkand">[JH]-Jharkand</option>
                     <option value="[KA]-Karnataka">[KA]-Karnataka</option><option value="[KL]-Kerala">[KL]-Kerala</option>
@@ -3095,18 +3026,51 @@
 <!-- ................................................  TABLE 1 ......................................................... -->
 
 <script>
+  jQuery(document).ready(function ($) {
+    // Initialize Selectize
+    $('.itm').selectize({
+        sortField: 'value',
+        render: {
+            item: function (item, escape) {
+                if (item.value === '') {
+                    return '';
+                }
+                return '<div>' + escape(item.text) + '</div>';
+            }
+        }
+    });
+    
+  
+  function productsearch(RowCount) {
+    
+    console.log("item"+RowCount);
+    // Initialize Selectize for the select element
+    $(RowCount).selectize({
+        sortField: 'value',
+        render: {
+            item: function (item, escape) {
+                if (item.value === '') {
+                    return '';
+                }
+                return '<div>' + escape(item.text) + '</div>';
+            }
+        }
+    });
+}
 
 
-  $(document).ready(function () {
-
+  
 
 
     $('#add-row').click(function () {
-      var table = document.getElementById("item_table");
-      var RowCount = table.rows.length;
+      
+      var RowCount = $('#items-table-body tr').length;
+      RowCount++;
+        // var RowCount = tableBody.children().length;
+      
       console.log(RowCount);
-      var newRow = $(`
-        <tr id='row${RowCount}' >
+      $('#items-table-body').append(`
+        <tr id='row${RowCount}' class='table-bordered'>
             <td>
                 <div class='form-group'>
                     <select
@@ -3158,15 +3122,10 @@
                     </td>
         </tr>`);
 
-      //             $(document).on("input", ".hsn", function() {
-      //     var hsn_value = $(this).val();
-      //     var hsn_length = hsn_value.length;
-      //     if (hsn_length > 6) {
-      //         $(this).val(hsn_value.substring(0, 6));
-      //         alert("HSN should not be more than 6 digits!");
-      //     }
-      // });
-      $('#item_table').append(newRow);
+        
+      
+        var newItemId = 'item' + RowCount;
+      productsearch(newItemId);
     });
 
     $('#item_table').on('click', '.delete-row', function () {
@@ -3174,116 +3133,12 @@
       calc();
     });
 
-  });
-
-
-</script>
-
-<script>
-function productsearch(RowCountt) {
-        $(`#item${RowCountt}`).selectize({
-            sortField: 'value',
-
-            render: {
-                item: function (item, escape) {
-                    if (item.value === '') {
-                        return '';
-                    }
-                    return '<div>' + escape(item.text) + '</div>';
-                }
-            }
-        });
-        // console.log("product" + roinc);
-    }
-  $(document).ready(function () {
-    $('#add-roww').click(function () {
-      var tablee = document.getElementById("item_tablee");
-      var RowCountt = tablee.rows.length;
-      console.log(RowCountt);
-      var newRoww = $(`
-     <tr id='row${RowCountt}' >
-         <td>
-             <div class='form-group'>
-                 <select
-                     class='form-control  bg-transparent  text-white border-0 item_selectt itmm' name='itemm[]'
-                     id='itemm${RowCountt}'>
-                     <option class="text-dark" value="">Select</option>
-                     {% for i in p %}
-                     
-                     <option class="text-dark" value="{{i.Name}}">{{i.Name}}</option>
-                     {% endfor %}
-                 </select></div>
-         </td>
-         <td class='text-right'>
-     <input type='text' id='hsnn${RowCountt}'  class='form-control bg-transparent  text-white border-0  text-right hsnn' name='hsnn[]' value='' placeholder="6 Digit No" pattern="[0-9]{6}" readonly required>
-     <span class='hsn-validation'></span>
- </td>
-         <td class='text-right'><input type='number' id='qtyy${RowCountt}'
-                 class='form-control border-0 bg-transparent  text-white text-right qtyy' name='quantityy[]' value='0' onchange="calc()">
-         </td>
-         <td class='text-right'><input type='number' id='ratee${RowCountt}'
-                 class='form-control border-0 bg-transparent  text-white text-right ratee' name='ratee[]' value='0.00'>
-            </td>
-            <td class='text-right'><input type='number' id='discountt${RowCountt}'
-                    class='form_control bg-transparent border-0 text-light text-right discountt' name='discountt[]' value='0.00' style="width:85%">
-            </td>
-         <td class='text-right'> <select name='taxx[]' id='taxx${RowCountt}'
-                 class="form-control  bg-transparent  text-white text-right border-0 taxx">
-                 <option>Select Tax</option>
-             
-             <option value="0" class="text-dark">IGST 0%</option>
-             <option value="3" class="text-dark">IGST 3%</option>
-               <option value="5" class="text-dark">IGST 5%</option>
-               <option value="12" class="text-dark">IGST 12%</option>
-               <option value="18" class="text-dark">IGST 18%</option>
-               <option value="28" class="text-dark">IGST 28%</option>
-                
-             </select></td>
-         <td style="display: none;">
-             <input type="text" name='taxamountt1' id="taxamountt${RowCountt}" class="form-control taxamountt" />
-                     </td>
-         <td class='text-right'><input type='number' id='amountt${RowCountt}'
-                 class='form-control border-0 bg-transparent  text-white text-right amountt' name='amountt[]' value='0.00'></td>
-         <td class='text-center'><button type='button' id='del_btn${RowCountt}'
-                 class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-roww'
-                 style='width:30px'><i class='fa fa-times'></i></button>
-                 <button type='button' class='btn btn-transparent text-primary btn-sm btn-outline-primary rounded-circle clone-roww' data-row=1 style='width:30px'><i class="fa fa-clone"></i>
-                     </button>
-                 </td>
-     </tr>`);
-    productsearch(RowCountt);
-
-      $('#item_tablee').append(newRoww);
-      
-    });
-
-    $('#item_tablee').on('click', '.delete-roww', function () {
-      $(this).closest('tr').remove();
-      calc();
-    });
-
-  });
-
-
-  jQuery(document).ready(function ($) {
-    // Initialize Selectize
-    $('.itm').selectize({
-        sortField: 'value',
-        render: {
-            item: function (item, escape) {
-                if (item.value === '') {
-                    return '';
-                }
-                return '<div>' + escape(item.text) + '</div>';
-            }
-        }
-    });
-    
+ 
   });
   
-
-
 </script>
+
+
 
 
 <script>
