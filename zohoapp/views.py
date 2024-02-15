@@ -29291,7 +29291,7 @@ def get_dl_item(request):
     cur_user = request.user
     user = User.objects.get(id=cur_user.id)
     company = company_details.objects.get(user=user)
-    print("ppppppppppppppppppppppppppppp")
+    print("dddddddddddddddddd")
   
     id = request.GET.get('id')
     print(id)
@@ -29299,6 +29299,6 @@ def get_dl_item(request):
 
     item = AddItem.objects.get(id=id, user=user)
 
-    data7 = {'hsn': item.hsn,'price':item.s_price,'gst':item.item_gst,'igst':item.item_igst}
+    data7 = {'hsn': item.hsn,'price':item.s_price,'gst':item.intrastate,'igst':item.interstate}
 
     return JsonResponse(data7)

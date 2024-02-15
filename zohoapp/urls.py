@@ -1274,6 +1274,10 @@ urlpatterns = [
     path('delet_manual/<int:id>',views.delet_manual,name='delet_manual'),
 
     path('sharePricelistToEmail/<int:id>/', views.sharePricelistToEmail, name='sharePricelistToEmail'),
+    
+    path("get_dl_item",views.get_dl_item,name="get_dl_item"),
+
+    
        
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     
