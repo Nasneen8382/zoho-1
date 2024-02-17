@@ -1276,6 +1276,7 @@ urlpatterns = [
     path('sharePricelistToEmail/<int:id>/', views.sharePricelistToEmail, name='sharePricelistToEmail'),
     
     path("get_dl_item",views.get_dl_item,name="get_dl_item"),
+    path('import_excel_dl', views.import_excel_dl, name='import_excel_dl'),
 
     
        

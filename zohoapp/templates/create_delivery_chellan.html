@@ -135,76 +135,69 @@
 
 
 $(document).ready(function () {
-  
+  function extractTaxRate(label) {
+            var match = label.match(/\[(\d+)%\]/);
+            if (match && match[1]) {
+                return parseFloat(match[1]);
+            } else {
+                return 0;
+            }
+        }
             
   function performCalculations(row) {
           var qty = row.find('.qty').val();
-          var price = row.find('.price').val();
-          var dis = row.find('.disc').val();
-          var taxlabel = row.find('.seltax').val();
+          var price = row.find('.rate').val();
+          var dis = row.find('.discount').val();
+
+          if ($('#state1').val() == $('#place_of_supply').val()) {
+            var taxlabel = row.find('.tax').val();
+          }else{
+            var taxlabel = row.find('.itax').val();
+          }
+
           var tax = extractTaxRate(taxlabel);
 
           console.log(qty);
           console.log(price);
           console.log("====================");
-          console.log(tax);
           
-          row.find('.total').val((parseFloat(qty) * parseFloat(price)) - parseFloat(dis));
+          row.find('.amount').val((parseFloat(qty) * parseFloat(price)) - parseFloat(dis));
           row.find('.taxamount').val(((qty * price) - dis) * (tax / 100));
-
           // Your additional calculations here
           calc_total();
       }
 
       // Event handler for input change on qty, price, disc, and seltax
-      $(document).on('input change keyup', '#tab_logic tbody tr .qty, #tab_logic tbody tr .price, #tab_logic tbody tr .disc, #tab_logic tbody tr .seltax', function () {
-          var row = $(this).closest('tr');
+      $(document).on('input change keyup', '#item_table tbody tr .qty, #item_table tbody tr .price, #item_table tbody tr .disc, #item_table tbody tr .tax, #item_table tbody tr .itax, #item_table tbody tr .discount', function () {
+          console.log("clicked");
+        var row = $(this).closest('tr');
           performCalculations(row);
       });
     });
 
+
+
+    
   function calc() {
-    var x = document.getElementById("place_of_supply").value
-    var y = document.getElementById("state1").value
-    if (x == y) {
+   
       $('#item_table tbody tr').each(function () {
-        var html = $(this).html();
-        if (html != '') {
-          console.log('rows');
-          var qty = $(this).find('.qty').val();
-          var rate = $(this).find('.rate').val();
-          var discount = $(this).find('.discount').val();
-          var tax = $(this).find('.tax').val();
+        var qty = row.find('.qty').val();
+          var price = row.find('.rate').val();
+          var dis = row.find('.discount').val();
 
-          $(this).find('.taxamount').val(((qty * rate) - discount) * (tax / 100));
-          var taxamount = parseFloat($(this).find('.taxamount').val());
-          $(this).find('.amount').val(qty * rate - discount);
+          if ($('#state1').val() == $('#place_of_supply').val()) {
+            var taxlabel = row.find('.tax').val();
+          }else{
+            var taxlabel = row.find('.itax').val();
+          }
 
+          var tax = extractTaxRate(taxlabel);
+
+          row.find('.amount').val((parseFloat(qty) * parseFloat(price)) - parseFloat(dis));
+          row.find('.taxamount').val(((qty * price) - dis) * (tax / 100));
+          // Your additional calculations here
           calc_total();
-        }
-      });
-    }
-    if (x != y) {
-      $('#item_tablee tbody tr').each(function () {
-        var html = $(this).html();
-        if (html != '') {
-          console.log('rows');
-          var qtyy = $(this).find('.qtyy').val();
-          var ratee = $(this).find('.ratee').val();
-          var discountt = $(this).find('.discountt').val();
-          var taxx = $(this).find('.taxx').val();
-          console.log(qtyy);
-          console.log(ratee);
-          console.log(discountt);
-          console.log(taxx);
-          $(this).find('.taxamountt').val(((qtyy * ratee) - discountt) * (taxx / 100));
-          var taxamountt = parseFloat($(this).find('.taxamountt').val());
-          $(this).find('.amountt').val(qtyy * ratee - discountt);
-
-          calc_total();
-        }
-      });
-    }
+        });
 
   }
 
@@ -262,8 +255,8 @@ $(document).ready(function () {
   function test() {
     console.log('test');
     d = 0;
-    var pos = document.getElementById("cus_place").value;
-    var state = document.getElementById("state").value;
+    var pos = document.getElementById("place_of_supply").value;
+    var state = document.getElementById("state1").value;
 
     if (pos == state) {
 
@@ -481,30 +474,30 @@ $.ajax({
         dataigst = response.igst
        
         
-
+        document.getElementById('discount' + n).value = "0";
 
         // document.getElementById('select_tax'+n).value = datagst;
         if (document.getElementById('state1').value == document.getElementById('place_of_supply').value) {
           document.getElementById('tax' + n).style.display = 'block';
           document.getElementById('itax' + n).style.display = 'none';
 
+
           document.getElementById('tax' + n).value = datagst;
+          document.getElementById('itax' + n).value = dataigst;
           document.getElementById('hsn' + n).value = datahsn;
             document.getElementById('rate' + n).value = dataprice;
 
-            document.getElementById('intrataxval'+n).value = datagst;
-            document.getElementById('intertaxval'+n).value = dataigst;
+            
         }
         else {
           document.getElementById('itax' + n).value = dataigst;
+          document.getElementById('tax' + n).value = datagst;
           document.getElementById('tax' + n).style.display = 'none';
           document.getElementById('itax' + n).style.display = 'block';
             document.getElementById('hsn' + n).value = datahsn;
             document.getElementById('rate' + n).value = dataprice;
 
-            document.getElementById('intrataxval'+n).value = datagst;
-            document.getElementById('intertaxval'+n).value = dataigst;
-
+            
         }
         // else {
 
@@ -756,6 +749,8 @@ $.ajax({
           $('.itax').show();
           $('.tax').hide();
         }
+        calc()
+        test();
   });
 
 });
@@ -908,14 +903,14 @@ $.ajax({
 
 
             <td class='text-right'><input type='number' id='qty1'
-                class='bg-transparent form-control border-0 text-light text-right qty' name='quantity[]' value='0' onchange="calc()">
+                class='bg-transparent form-control border-0 text-light text-right qty' name='quantity[]' value='0' >
             </td>
             <td class='text-right'><input type='number' id='rate1'
                 class='bg-transparent form-control border-0 text-light text-right rate' name='rate[]' value='0.00'>
             </td>
             <td class='text-right'><input type='number' id='discount1'
                 class='bg-transparent form-control border-0 text-light text-right discount' name='discount[]'
-                value='0.00'>
+                >
             </td>
             <td class='text-right'> <select name='tax[]' id='tax1'
                 class=' bg-transparent form-control text-light text-right border-0 tax'>
@@ -938,8 +933,8 @@ $.ajax({
                     <option class="text-dark" value="IGST28[28%]">IGST28[28%]</option>
               </select>
             </td>
-            <td style="display: none;">
-              <input type="number" name='taxamount[]' id="taxamount1" class="form-control taxamount" />
+            <td style="display: block;">
+              <input type="number" name='taxamount[]' id="taxamount1" class="form-control taxamount bg-transparent form-control text-light text-right" />
               <input type="text" id="intrataxval1" hidden>
               <input type="text" id="intertaxval1" hidden>
             </td>
@@ -2817,7 +2812,6 @@ $.ajax({
 
     $('#item_table tbody').append(clonedRow);
     var row = $(this).closest('tr');
-    calc();
     calc_total();
   });
 
@@ -2850,8 +2844,7 @@ $.ajax({
 
     $('#item_tablee tbody').append(clonedRow);
     var row = $(this).closest('tr');
-    calc();
-    calc_total();
+          performCalculations(row);
   });
 
 
@@ -3023,7 +3016,7 @@ $.ajax({
         <span class='hsn-validation'></span>
     </td>
             <td class='text-right'><input type='number' id='qty${RowCount}'
-                    class='form-control border-0 bg-transparent  text-white text-right qty' name="quantity[]" value='0' onchange="calc()">
+                    class='form-control border-0 bg-transparent  text-white text-right qty' name="quantity[]" value='0' >
             </td>
             <td class='text-right'><input type='number' id='rate${RowCount}'
                     class='form-control border-0 bg-transparent  text-white text-right rate' name="rate[]" value='0.00'
@@ -3043,7 +3036,7 @@ $.ajax({
                     <option class="text-dark" value="GST28[28%]">GST28[28%]</option>
               </select>
               <select name='itax[]' id='itax${RowCount}' style="display: none;"
-                class=' bg-transparent form-control text-light text-right border-0 tax'>
+                class=' bg-transparent form-control text-light text-right border-0 itax'>
                 <option value="" selected>Select</option>
                     <option class="text-dark" value="IGST0[0%]">IGST0[0%]</option>
                     <option class="text-dark" value="IGST3[3%]">IGST3[3%]</option>
@@ -3053,8 +3046,8 @@ $.ajax({
                     <option class="text-dark" value="IGST28[28%]">IGST28[28%]</option>
               </select>
             </td>
-            <td style="display: none;">
-                <input type="text" name="taxamount1[]" id="taxamount${RowCount}" class="form-control taxamount" />
+            <td style="display: block;">
+                <input type="text" name="taxamount1[]" id="taxamount${RowCount}" class="form-control bg-transparent  text-white text-right taxamount" />
                         </td>
             <td class='text-right'><input type='number' id='amount${RowCount}'
                     class='form-control border-0 bg-transparent  text-white text-right amount' name="amount[]" value='0.00'></td>
@@ -3074,7 +3067,8 @@ $.ajax({
 
     $('#item_table').on('click', '.delete-row', function () {
       $(this).closest('tr').remove();
-      calc();
+      var row = $(this).closest('tr');
+          performCalculations(row);
     });
 
  
