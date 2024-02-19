@@ -6580,19 +6580,29 @@ def recurbills_item(request):    #updation
         cost_price=request.POST.get('cost_price')
         cost_acc=request.POST.get('cost_acc')      
         cost_desc=request.POST.get('cost_desc')
+        minimum_stock=request.POST.get('minimum_stock')
         hsn_number = request.POST.get('hsn_number')
+        status = request.POST.get('status')
+        status_stock = request.POST.get('satus')
+
         
-        
+        if status_stock == None:
+            status_stock = 'active'
+        if status == None:
+            status = 'active'
+            
         units=Unit.objects.get(id=ut)
         sel=Sales.objects.get(id=sell_acc)
         cost=Purchase.objects.get(id=cost_acc)
 
         history="Created by " + str(request.user)
+        user =request.user
+        u  = User.objects.get(id = user.id)
 
-        u  = User.objects.get(id = request.user.id)
-
-        item=AddItem(type=type,Name=name,p_desc=cost_desc,s_desc=sell_desc,s_price=sell_price,p_price=cost_price,
-                     user=u ,creat=history,interstate=inter,intrastate=intra,unit = units,sales = sel, purchase = cost, hsn=hsn_number)
+        print(user.id)
+        item=AddItem(type=type,Name=name,p_desc=cost_desc,s_desc=sell_desc,s_price=sell_price,p_price=cost_price,minimum_stock=minimum_stock,
+                     user=u ,creat=history,interstate=inter,intrastate=intra,unit = units,sales = sel, purchase = cost, hsn=hsn_number,
+                     satus=status,status_stock=status_stock)
 
         item.save()
 

@@ -10,6 +10,8 @@
 
 <!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> -->
 <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+
+
 <style>
   .modal {
     z-index: 9999;
@@ -171,6 +173,7 @@ $(document).ready(function () {
       $(document).on('input change keyup', '#item_table tbody tr .qty, #item_table tbody tr .price, #item_table tbody tr .disc, #item_table tbody tr .tax, #item_table tbody tr .itax, #item_table tbody tr .discount', function () {
           console.log("clicked");
         var row = $(this).closest('tr');
+        console.log(row);
           performCalculations(row);
       });
     });
@@ -438,15 +441,24 @@ $(document).ready(function () {
       csrfmiddlewaretoken: '{{ csrf_token }}',
 
       success: function (data) {
-        var dropdown = $('.itm');
-        var dropdown1 = $('.itmm');
-        dropdown.empty();
-        dropdown1.empty();
+        // var dropdown = $('.itm');
+        var table = document.getElementById('item_table');
+        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        console.log(rows.length);
+                    for (var i = 1; i <= rows.length; i++) {
+                      console.log("entry",i);
+                        var selectize = $(`#item${i}`)[0].selectize;
+                        selectize.clearOptions();
+                        selectize.addOption({ value: '', text: 'Select item' });
+                        $.each(data, function (key, value) {
+                            console.log(key);
+                            selectize.addOption({ value: key, text: value });
+                        });
 
-        $.each(data, function (key, value) {
-          dropdown.append($('<option  class="text-dark"></option>').attr('value', key).text(value).val(value));
-          dropdown1.append($('<option  class="text-dark"></option>').attr('value', key).text(value).val(value));
-        });
+                        selectize.refreshOptions(false);
+                    }
+
+                console.log("end");
       },
       error: function (xhr, status, error) {
         console.error(xhr.responseText);
@@ -467,13 +479,21 @@ $.ajax({
     },
 
     success: function (response) {
+      console.log(response);
         datahsn = response.hsn
         // data2 = response.qty
         dataprice = response.price
         datagst = response.gst
         dataigst = response.igst
+        if(datagst == "0"){
+          datagst ='GST0[0%]'
+        }
+        if(dataigst == "0"){
+          dataigst ='IGST0[0%]'
+        }
        
-        
+        console.log(datagst);
+        console.log(dataigst);
         document.getElementById('discount' + n).value = "0";
 
         // document.getElementById('select_tax'+n).value = datagst;
@@ -499,13 +519,18 @@ $.ajax({
 
             
         }
-        // else {
-
-        //     alert('Please select a stateofsply before choosing a product.');
-        //     var $select = $(document.getElementById('product'+n));
-        //     var selectize = $select[0].selectize;
-        //     selectize.setValue("");
-        // }
+        if (document.getElementById('place_of_supply').value == '') {
+            alert('Please select a stateofsply before choosing a product.');
+            var $select = $(document.getElementById('item'+n));
+            var selectize = $select[0].selectize;
+            selectize.setValue("");
+          //   document.getElementById('itax' + n).value = 'GST0[0%]';
+          // document.getElementById('tax' + n).value = 'GST0[0%]';
+          
+          //   document.getElementById('hsn' + n).value = '';
+          //   document.getElementById('rate' + n).value = '0';
+        }
+        
 
     },
 });
@@ -783,7 +808,7 @@ $.ajax({
     <div class="col-sm-6">
       <select name="place_of_supply" id="place_of_supply" class="form-control text-black" required>
         <option value=""></option>
-        <option value="value" selected></option>
+        
                     <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option> <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
                     <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> <option value="[AS]-Assam">[AS]-Assam</option>
                     <option value="[BR]-Bihar">[BR]-Bihar</option> <option value="[CH]-	Chandhigarh">[CH]-	Chandhigarh</option><option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
@@ -2625,10 +2650,8 @@ $.ajax({
                       selectize.addOption({ value: key, text: value[0] });
                   });
 
-                  // Refresh the Selectize dropdown to reflect the changes
-                  console.log("bef");
+                  
                   selectize.refreshOptions(false);
-                  console.log("aft");
                   // $('#newcustomer').hide();
                   $('.modal').modal('hide');
                   console.log("FINISH");
