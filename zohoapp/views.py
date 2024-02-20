@@ -4600,8 +4600,9 @@ def create_challan_draft(request):
             mapped = zip(item, hsn, quantity, rate, discount, tax, amount)
             mapped = list(mapped)
             for element in mapped:
+                itm= AddItem.objects.get(id=element[0])
                 created = ChallanItems.objects.create(
-                    chellan=challan, item_name=element[0], hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
+                    chellan=challan, item_name=itm.Name, hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
         print("end=================")
 
         return redirect('delivery_chellan_home')
@@ -4702,8 +4703,9 @@ def create_and_send_challan(request):
             mapped = zip(item, hsn, quantity, rate, discount, tax, amount)
             mapped = list(mapped)
             for element in mapped:
+                itm= AddItem.objects.get(id=element[0])
                 created = ChallanItems.objects.create(
-                    chellan=challan, item_name=element[0], hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
+                    chellan=challan, item_name=itm.Name, hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
         print("end=================")
         # cust_email = customer.objects.get(user=user, customerName=cust_name).customerEmail
       
@@ -29343,3 +29345,144 @@ def import_excel_dl(request):
         return redirect('delivery_chellan_home')  # Redirect to a success page
     print("end===========================")
     return redirect('delivery_chellan_home')
+
+
+def dc_to_recur(request,id):
+    banks=Bankcreation.objects.all()
+
+    item=AddItem.objects.all()
+    cus=customer.objects.all()
+    pay=payments_recur.objects.all()
+    banks=Bankcreation.objects.all()
+    unit=Unit.objects.all()
+    sales=Sales.objects.all()
+    purchase=Purchase.objects.all()
+    every=repeat_everyterms.objects.all()
+    # editr=Recurring_invoice.objects.get(id=id)
+    # tab=recur_itemtable.objects.filter(ri=id)
+    
+    dl = DeliveryChellan.objects.get(id=id)
+    dlitem = ChallanItems.objects.filter(chellan=dl)
+    company=company_details.objects.get(user_id=request.user.id)
+    # print(type(editr.payment_type))
+
+    return render(request,'dc_to_recur.html',{'dlitem':dlitem,'banks':banks,'cus':cus,'editr':dl,'item':item,'pay':pay,'every':every,'company':company,'unit':unit,'sales':sales,'purchase':purchase})  
+   
+   
+   
+def dl_change_recur(request,id):
+
+    if request.method=='POST':
+        
+        custname=request.POST.get('customer')
+        cus=customer.objects.get(customerName=custname)   
+        custo=cus.id 
+        cusemail=request.POST.get('mails')
+        cusadd=request.POST.get('addr')
+        gsttr=request.POST.get('gst')
+        gstn=request.POST.get('gstnum')
+        pos=request.POST.get('supply')
+        e_type=request.POST.get('type')
+        profile=request.POST.get('name')
+        invoice=request.POST.get('recurno')
+        onumber=request.POST.get('order')
+        repeat=request.POST.get('every')
+        pay_method=request.POST.get('method')
+        sdate=request.POST.get('start')
+        edate=request.POST.get('end')
+        pay=request.POST.get('terms')
+        pay_term_type =request.POST.get('terms_data_source')
+        print(pay_term_type)
+        notes=request.POST.get('customer_note')
+        terms=request.POST.get('ter_cond')
+        attach=request.POST.get('file')
+        sub=request.POST.get('subtotal')
+        i=request.POST.get('igst')
+        c=request.POST.get('cgst')
+        s=request.POST.get('sgst')
+        taxamt=request.POST.get('total_taxamount')
+        ship=request.POST.get('shipping_charge')
+        adj=request.POST.get('adjustment_charge')
+        tot=request.POST.get('total')
+        paid=request.POST.get('paids')
+        balance=request.POST.get('balance')
+        status='Save'
+       
+        recur=Recurring_invoice(
+            cname=custname,
+            cemail=cusemail,
+            cadrs=cusadd,
+            gsttr=gsttr,
+            gstnum=gstn,
+            reinvoiceno=invoice,
+            p_supply=pos,
+            entry_type=e_type,
+            name=profile,
+            order_num=onumber,
+            every=repeat,
+            payment_method=pay_method,
+            start=sdate,
+            end=edate,
+            terms=pay,
+            payment_type=pay_term_type,
+            attachment=attach,
+            cust_note=notes,
+            conditions=terms,
+            sub_total=sub,
+            igst=i,
+            cgst=c,
+            sgst=s,
+            tax_amount=taxamt,
+            shipping_charge=ship,
+            adjustment=adj,
+            total=tot,
+            paid=paid,
+            balance=balance,
+            status=status,
+            user = request.user,
+            cust_name_id=custo,
+            # cust_name=cus,
+
+            # custname=request.cust_name
+
+        )
+        recur.save()
+        items=request.POST.getlist('item[]')
+        print(items)
+        quantity1 = request.POST.getlist('quantity[]')
+        quantity = [float(x) for x in quantity1]
+        print(quantity)
+        hsnc1 = request.POST.getlist('hsn[]')
+        hsnc = [float(x) for x in hsnc1]
+        rate1 = request.POST.getlist('rate[]')
+        rate = [float(x) for x in rate1]
+        print(rate)
+        discount1 = request.POST.getlist('discount[]')
+        discount = [float(x) for x in discount1]
+        print(discount)
+        tax1 = request.POST.getlist('tax[]')
+        tax = [float(x) for x in tax1]
+        print(tax)
+        amount1 = request.POST.getlist('amount[]')
+        amount = [float(x) for x in amount1]
+        print(amount)
+        
+        if len(items)==len(quantity)==len(hsnc)==len(rate)==len(discount)==len(tax)==len(amount):
+            print('testing')
+            print(items)
+            print(quantity)
+            print(rate)
+            print(discount)
+            print(tax)
+            print(amount)
+            mapped1 = zip(items,quantity,hsnc,rate,discount,tax,amount)
+            mapped = list(mapped1)
+            for element in mapped:
+                created =recur_itemtable.objects.get_or_create(
+                    iname=element[0], quantity=element[1],hsncode=element[2], rate=element[3], discount=element[4], tax=element[5],amt=element[6],ri=recur)
+        d = del
+                
+        return redirect('view_recurpage')
+    else:
+        return render(request,'samrecurpage.html')
+    

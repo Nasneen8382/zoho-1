@@ -524,11 +524,11 @@ $.ajax({
             var $select = $(document.getElementById('item'+n));
             var selectize = $select[0].selectize;
             selectize.setValue("");
-          //   document.getElementById('itax' + n).value = 'GST0[0%]';
-          // document.getElementById('tax' + n).value = 'GST0[0%]';
+            document.getElementById('itax' + n).value = '';
+          document.getElementById('tax' + n).value = '';
           
-          //   document.getElementById('hsn' + n).value = '';
-          //   document.getElementById('rate' + n).value = '0';
+            document.getElementById('hsn' + n).value = '';
+            document.getElementById('rate' + n).value = '0.00';
         }
         
 
@@ -934,7 +934,7 @@ $.ajax({
                 class='bg-transparent form-control border-0 text-light text-right rate' name='rate[]' value='0.00'>
             </td>
             <td class='text-right'><input type='number' id='discount1'
-                class='bg-transparent form-control border-0 text-light text-right discount' name='discount[]'
+                class='bg-transparent form-control border-0 text-light text-right discount' name='discount[]' value='0'
                 >
             </td>
             <td class='text-right'> <select name='tax[]' id='tax1'
@@ -958,7 +958,7 @@ $.ajax({
                     <option class="text-dark" value="IGST28[28%]">IGST28[28%]</option>
               </select>
             </td>
-            <td style="display: block;">
+            <td style="display: none;">
               <input type="number" name='taxamount[]' id="taxamount1" class="form-control taxamount bg-transparent form-control text-light text-right" />
               <input type="text" id="intrataxval1" hidden>
               <input type="text" id="intertaxval1" hidden>
@@ -3045,7 +3045,7 @@ $.ajax({
                     class='form-control border-0 bg-transparent  text-white text-right rate' name="rate[]" value='0.00'
                     ></td>
               <td class='text-right'><input type='number' id='discount${RowCount}'
-                    class='form_control bg-transparent border-0 text-light text-right discount' name="discount[]" value='0.00' style="width:85%">
+                    class='form_control bg-transparent border-0 text-light text-right discount' name="discount[]"  value='0' style="width:85%">
             </td>
             
               <td class='text-right'> <select name='tax[]' id='tax${RowCount}'
@@ -3069,8 +3069,8 @@ $.ajax({
                     <option class="text-dark" value="IGST28[28%]">IGST28[28%]</option>
               </select>
             </td>
-            <td style="display: block;">
-                <input type="text" name="taxamount1[]" id="taxamount${RowCount}" class="form-control bg-transparent  text-white text-right taxamount" />
+            <td style="display: none;">
+                <input type="text" name="taxamount[]" id="taxamount${RowCount}" class="form-control bg-transparent  text-white text-right taxamount" />
                         </td>
             <td class='text-right'><input type='number' id='amount${RowCount}'
                     class='form-control border-0 bg-transparent  text-white text-right amount' name="amount[]" value='0.00'></td>
