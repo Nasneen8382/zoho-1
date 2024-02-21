@@ -542,6 +542,7 @@ class DeliveryChellan(models.Model):
     customer_notes = models.CharField(max_length=250,null=True,blank=True)
     terms_conditions = models.CharField(max_length=250,null=True,blank=True)
     attachment = models.ImageField(upload_to="image/", null=True)  
+    balance = models.FloatField(null=True,blank=True,default=0)
 
 class ChallanItems(models.Model):
     chellan = models.ForeignKey(DeliveryChellan,on_delete=models.CASCADE,null=True,blank=True)

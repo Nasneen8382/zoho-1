@@ -151,7 +151,7 @@
             <td class="text-light"><a href="{% url 'delivery_challan_overview' v.id %}">{{v.customer_mailid}}</a>
             </td>
             <td class="text-light"><a href="{% url 'delivery_challan_overview' v.id %}">{{v.total}}</a></td>
-            <td class="text-light"><a href="{% url 'delivery_challan_overview' v.id %}">0</a></td>
+            <td class="text-light"><a href="{% url 'delivery_challan_overview' v.id %}">{{v.balance}}</a></td>
             <td class="text-light"><a href="{% url 'delivery_challan_overview' v.id %}">{{v.status}}</a></td>
             <td class="text-light">
               <div class="btn-group mb-1">

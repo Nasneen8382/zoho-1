@@ -29374,9 +29374,9 @@ def dl_change_recur(request,id):
 
     if request.method=='POST':
         
-        custname=request.POST.get('customer')
-        cus=customer.objects.get(customerName=custname)   
-        custo=cus.id 
+        custid=request.POST.get('customer')
+        cus=customer.objects.get(id=custid) 
+        cust_name = cus.customerName  
         cusemail=request.POST.get('mails')
         cusadd=request.POST.get('addr')
         gsttr=request.POST.get('gst')
@@ -29409,7 +29409,7 @@ def dl_change_recur(request,id):
         status='Save'
        
         recur=Recurring_invoice(
-            cname=custname,
+            cname=cust_name,
             cemail=cusemail,
             cadrs=cusadd,
             gsttr=gsttr,
@@ -29440,7 +29440,7 @@ def dl_change_recur(request,id):
             balance=balance,
             status=status,
             user = request.user,
-            cust_name_id=custo,
+            cust_name_id=custid,
             # cust_name=cus,
 
             # custname=request.cust_name
@@ -29464,6 +29464,8 @@ def dl_change_recur(request,id):
         tax = [float(x) for x in tax1]
         print(tax)
         amount1 = request.POST.getlist('amount[]')
+        for i in amount1:
+            print("amt"+i)
         amount = [float(x) for x in amount1]
         print(amount)
         
@@ -29480,9 +29482,12 @@ def dl_change_recur(request,id):
             for element in mapped:
                 created =recur_itemtable.objects.get_or_create(
                     iname=element[0], quantity=element[1],hsncode=element[2], rate=element[3], discount=element[4], tax=element[5],amt=element[6],ri=recur)
-        d = del
+        d = DeliveryChellan.objects.get(id=id)
+        d.balance= recur.balance
+        
+        d.save()
                 
-        return redirect('view_recurpage')
+        return redirect('delivery_chellan_home')
     else:
-        return render(request,'samrecurpage.html')
+        return redirect('delivery_chellan_home')
     

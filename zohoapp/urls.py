@@ -1278,6 +1278,7 @@ urlpatterns = [
     path("get_dl_item",views.get_dl_item,name="get_dl_item"),
     path('import_excel_dl', views.import_excel_dl, name='import_excel_dl'),
     path('dc_to_recur/<int:id>', views.dc_to_recur, name='dc_to_recur'),
+    path('dl_change_recur/<int:id>', views.dl_change_recur, name='dl_change_recur'),
 
     
        
