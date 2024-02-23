@@ -161,11 +161,24 @@
                     <span class="fa fa-ellipsis-v text-light fs-0 ps-2"></span>
                 </button>
                 <ul class="dropdown-menu" style="z-index: 9999;">
-                    <li><a class="dropdown-item fw-bold tb"
-                            href="">Convert to  invoice</a>
+                    <li>{% if v.to_inv == 'Convert to invoice' %}
+                      <a class="dropdown-item fw-bold tb"
+                            href="">{{v.to_inv}}</a>
+                      {% else %}
+                      <a class="dropdown-item fw-bold tb disabled"
+                            href="">{{v.to_inv}}</a>
+                      {%endif%}
+                      
                     </li>
-                    <li><a class="dropdown-item fw-bold tb"
-                            href="{% url 'dc_to_recur' v.id %}">Convert to Reccuring invoice</a></li>
+                    <li>
+                      {% if v.to_recinv == 'Convert to reccuring invoice' %}
+                      <a class="dropdown-item fw-bold tb"
+                            href="{% url 'dc_to_recur' v.id %}">{{v.to_recinv}}</a>
+                            {% else %}
+                            <a class="dropdown-item fw-bold tb disabled"
+                            href="">{{v.to_recinv}}</a>
+                            {% endif %}
+                      </li>
 
                 </ul>
             </div>

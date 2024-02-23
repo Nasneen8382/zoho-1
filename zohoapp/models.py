@@ -527,7 +527,7 @@ class DeliveryChellan(models.Model):
     customer_name = models.CharField(max_length=100,null=True,blank=True)
     customer_mailid = models.CharField(max_length=100,null=True,blank=True)
     chellan_no = models.CharField(max_length=100,null=True,blank=True)
-    reference = models.CharField(max_length=100,null=True,blank=True)
+    reference = models.IntegerField(max_length=100,null=True,blank=True)
     chellan_date = models.DateField(null=True)
     chellan_type = models.CharField(max_length=100,null=True,blank=True)    
     sub_total = models.FloatField(null=True,blank=True)
@@ -543,6 +543,8 @@ class DeliveryChellan(models.Model):
     terms_conditions = models.CharField(max_length=250,null=True,blank=True)
     attachment = models.ImageField(upload_to="image/", null=True)  
     balance = models.FloatField(null=True,blank=True,default=0)
+    to_inv =models.CharField(max_length=100,null=True,blank=True,default='Convert to invoice')
+    to_recinv=models.CharField(max_length=100,null=True,blank=True,default='Convert to reccuring invoice')
 
 class ChallanItems(models.Model):
     chellan = models.ForeignKey(DeliveryChellan,on_delete=models.CASCADE,null=True,blank=True)

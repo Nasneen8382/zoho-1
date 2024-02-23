@@ -4440,7 +4440,7 @@ def create_delivery_chellan(request):
     user = request.user
     try:
         company = company_details.objects.get(user=user)
-        items = AddItem.objects.filter(user_id=user.id)
+        items = AddItem.objects.filter(user_id=user.id,satus='active')
         customers = customer.objects.filter(user_id=user.id)
         p = AddItem.objects.filter(user = request.user)
 
@@ -4452,15 +4452,15 @@ def create_delivery_chellan(request):
         if max_chellan_no is not None:
             next_count = int(max_chellan_no) + 1
         else:
-            next_count = 1
+            next_count = ''
         
         print(next_count)
 
-        # Count the number of DeliveryChellan objects
-        chellan_count = DeliveryChellan.objects.count()
-
-        if chellan_count > 0:
-            count = chellan_count + 1
+        
+        
+        last_record = DeliveryChellan.objects.order_by('-id').first()
+        if last_record:
+            count = last_record.id + 1
         else:
             count = 1
 
@@ -5034,13 +5034,14 @@ def get_cust_mail(request):
     mob=item.customerMobile
     gstt=item.GSTTreatment
     gstno=item.GSTIN
+    address = item.Address1 +" "+item.Address2
 
     if gstt=="Unregistered Business-not Registered under GST":
         gstno="null"
     cust_id=item.id
 
     
-    return JsonResponse({"status": " not", 'email': email,'ads':ads,'mob':mob,'cust_id':cust_id,'cust_place_supply':place_supply,'gstt':gstt,'gstno':gstno})
+    return JsonResponse({"status": " not", 'email': email,'ads':ads,'mob':mob,'cust_id':cust_id,'cust_place_supply':place_supply,'gstt':gstt,'gstno':gstno,'address':address})
     return redirect('/')
     
 def add_customer_edit_challan(request):
@@ -29484,6 +29485,7 @@ def dl_change_recur(request,id):
                     iname=element[0], quantity=element[1],hsncode=element[2], rate=element[3], discount=element[4], tax=element[5],amt=element[6],ri=recur)
         d = DeliveryChellan.objects.get(id=id)
         d.balance= recur.balance
+        d.to_recinv ="Converted to Reccuring invoice no."+ recur.reinvoiceno
         
         d.save()
                 

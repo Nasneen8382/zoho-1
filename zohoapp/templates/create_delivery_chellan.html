@@ -696,7 +696,7 @@ $.ajax({
         <option value="" selected>select</option>
 
         {% for cust in customers %}
-        <option value="{{cust.id}}" data-email="{{ cust.customerEmail }}" data-gsttreatment="{{ cust.GSTTreatment }}" data-gstnumber="{{ cust.GSTIN }}" data-placeofsupply="{{ cust.placeofsupply }}"   >{{cust.customerName}}</option>
+        <option value="{{cust.id}}">{{cust.customerName}}</option>
         {% endfor %}
         <!-- <option value="customer">Register as a customer</option> -->
         <!-- <option value="{{cust.id}}" data-email="{{ cust.customerEmail }}" data-gsttreatment="{{ cust.GSTTreatment }}" data-gstnumber="{{ cust.GSTIN }}" data-placeofsupply="{{ cust.placeofsupply }}"   >{{cust.customerName}}</option> -->
@@ -746,6 +746,12 @@ $.ajax({
         $('#gst_treatment').val(response.gstt);
         $('#place_of_supply').val(response.cust_place_supply);
         $('#gst_number').val(response.gstno);
+        $('#customer_adrs').val(response.address);
+        console.log(response.address);
+
+        if(response.address==' '){
+          $('#adrs_container').hide();
+        }
         
         if(response.gstt == 'Unregistered Business-not Registered under GST'){
           $('#gst_number_container').hide();
@@ -786,6 +792,12 @@ $.ajax({
     <div class="col-sm-2"><label for="customer_email">Customer Email</label></div>
     <div class="col-sm-6">
       <input type="text" class="form-control text-black" id="customer_email" name="customer_email" readonly required>
+    </div>
+  </div>
+  <div class="row mb-4" id="adrs_container">
+    <div class="col-sm-2"><label for="customer_email">Address </label></div>
+    <div class="col-sm-6">
+      <input type="text" class="form-control text-black" id="customer_adrs" name="customer_adrs" readonly >
     </div>
   </div>
 
@@ -850,7 +862,7 @@ $.ajax({
   <div class="row mb-4 ">
     <div class="col-sm-2"><label for="chellan_number">Delivery Challan#*</label></div>
     <div class="col-sm-6 col-md-6 col-lg-6"><input type="text" id="chellan_number" name="chellan_number"
-        class="form-control text-dark" value="{{next_count}}" required>
+        class="form-control text-dark" value="{{next_count}}" required onclick="challanNumber()">
 
     </div>
   </div>
@@ -884,7 +896,13 @@ $.ajax({
       </select>
     </div>
   </div>
-
+<script>
+   function challanNumber () {
+     var num = '{{next_count}}'
+     
+     alert("Next Delivery Challan number is "+num+" . You can change it or use the same Number!")
+   }
+</script>
   <!-- ..................................................... TABLE 1 .........................................   -->
 
   <div class="row">
@@ -908,14 +926,15 @@ $.ajax({
         <tbody id="items-table-body">
 
           <tr id='row1'>
+            <td class="text-center">1</td>
             <td>
               <div class='form-group'><select class='border-0 item_select itm'
                   name='item[]' id='item1'>
-                  <option class='text-dark'>Select</option>
+                  <option value="" selected hidden>Select</option>
                   {% for i in items %}
                   <option class="text-dark" value="{{i.id}}">{{i.Name}}</option>
                   {% endfor %}
-                  <option class='text-dark' id="items_nms"></option>
+                  
                 </select></div>
             </td>
             <td class='text-right'><input type='text' id='hsn1'
@@ -940,22 +959,24 @@ $.ajax({
             <td class='text-right'> <select name='tax[]' id='tax1'
                 class=' bg-transparent form-control text-light text-right border-0 tax'>
                 <option value="" selected>Select</option>
-                <option class="text-dark" value="GST0[0%]">GST0[0%]</option>
-                    <option class="text-dark" value="GST3[3%]">GST3[3%]</option>
-                    <option class="text-dark" value="GST5[5%]">GST5[5%]</option>
-                    <option class="text-dark" value="GST12[12%]">GST12[12%]</option>
-                    <option class="text-dark" value="GST18[18%]">GST18[18%]</option>
-                    <option class="text-dark" value="GST28[28%]">GST28[28%]</option>
+                
+
+                <option class="text-dark" value="GST0[0%]">0% GST</option>
+                    <option class="text-dark" value="GST3[3%]">3% GST</option>
+                    <option class="text-dark" value="GST5[5%]">5% GST</option>
+                    <option class="text-dark" value="GST12[12%]">12% GST</option>
+                    <option class="text-dark" value="GST18[18%]">18% GST</option>
+                    <option class="text-dark" value="GST28[28%]">28% GST</option>
               </select>
               <select name='itax[]' id='itax1' style="display: none;"
                 class=' bg-transparent form-control text-light text-right border-0 itax'>
                 <option value="" selected>Select</option>
-                    <option class="text-dark" value="IGST0[0%]">IGST0[0%]</option>
-                    <option class="text-dark" value="IGST3[3%]">IGST3[3%]</option>
-                    <option class="text-dark" value="IGST5[5%]">IGST5[5%]</option>
-                    <option class="text-dark" value="IGST12[12%]">IGST12[12%]</option>
-                    <option class="text-dark" value="IGST18[18%]">IGST18[18%]]</option>
-                    <option class="text-dark" value="IGST28[28%]">IGST28[28%]</option>
+                    <option class="text-dark" value="IGST0[0%]">0% IGST</option>
+                    <option class="text-dark" value="IGST3[3%]">3% IGST</option>
+                    <option class="text-dark" value="IGST5[5%]">5% IGST</option>
+                    <option class="text-dark" value="IGST12[12%]">12% IGST</option>
+                    <option class="text-dark" value="IGST18[18%]">18% IGST</option>
+                    <option class="text-dark" value="IGST28[28%]">28% IGST</option>
               </select>
             </td>
             <td style="display: none;">
@@ -2994,19 +3015,21 @@ $.ajax({
   
   function productsearch(RowCount) {
     
-    console.log("item"+RowCount);
+    console.log(RowCount);
     // Initialize Selectize for the select element
     $(RowCount).selectize({
         sortField: 'value',
         render: {
             item: function (item, escape) {
                 if (item.value === '') {
+                  console.log("count");
                     return '';
                 }
                 return '<div>' + escape(item.text) + '</div>';
             }
         }
     });
+    console.log("finish");
 }
 
 
@@ -3022,17 +3045,16 @@ $.ajax({
       console.log(RowCount);
       $('#items-table-body').append(`
         <tr id='row${RowCount}' class='table-bordered'>
+          <td  class="text-center">${RowCount}</td>
             <td>
-                <div class='form-group'>
-                    <select
-                        class='form-control  bg-transparent  text-white border-0 item_select itm' name="item[]"
-                        id='item${RowCount}'>
-                        <option class="text-dark" value="">Select</option>
-                        {% for i in p %}
-                        <option class="text-dark" value="{{i.id}}">{{i.Name}}</option>
-                       
-                        {% endfor %}
-                    </select></div>
+              <div class='form-group'><select class='border-0 item_select itm'
+                  name='item[]' id='item${RowCount}'>
+                  <option value="" selected hidden>Select</option>
+                  {% for i in items %}
+                  <option class="text-dark" value="{{i.id}}">{{i.Name}}</option>
+                  {% endfor %}
+                  
+                </select></div>
             </td>
             <td class='text-right'>
         <input type='text' id='hsn${RowCount}'  class='form-control bg-transparent  text-white border-0  text-right hsn' name="hsn[]" placeholder="6 Digit No" pattern="[0-9]{6}" value='' readonly required>
@@ -3083,7 +3105,17 @@ $.ajax({
         </tr>`);
 
         
-      
+    //     $(`item${RowCount}`).selectize({
+    //     sortField: 'value',
+    //     render: {
+    //         item: function (item, escape) {
+    //             if (item.value === '') {
+    //                 return '';
+    //             }
+    //             return '<div>' + escape(item.text) + '</div>';
+    //         }
+    //     }
+    // });
         var newItemId = 'item' + RowCount;
       productsearch(newItemId);
     });
