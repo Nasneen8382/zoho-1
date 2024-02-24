@@ -213,10 +213,18 @@
                             class="fas fa-list"></i>&nbsp;View List</a>
 
                 </div>
-                <a class=" text-dark" >
+                <a class=" text-dark" data-bs-toggle="dropdown" id="attachDropdown" aria-haspopup="true"
+                    aria-expanded="false" >
                     <button class="btn btn-outline-warning" title="attachment"><i class="fas fa-paperclip"></i>
                     </button>
                 </a>
+                <div class="dropdown-menu" aria-labelledby="attachDropdown" style="width: 15vw;">
+                    <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal" data-target="#cmnts"><i
+                            class="fa-solid fa fa-plus"></i>Add</a>
+                    <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal" data-target="#cmt_list"><i
+                            class="fas fa-list"></i>&nbsp;View List</a>
+
+                </div>
                 <a class="text-dark" onclick="show_slip()">
                     <button class="btn btn-outline-warning" title="Slip"><i class="fas fa-receipt"></i></button></a>
             </div>
@@ -567,8 +575,7 @@
 
                                             </div>
 
-                                            {% if estimate.cu.GSTTreatment != "Unregistered Business-not Registered
-                                            under GST" %}
+                                            {% if estimate.cu.GSTTreatment != "Unregistered Business-not Registered under GST" %}
                                             <div class="row">
 
                                                 <div class="col-6"><label for="">GST Number:</label></div>
