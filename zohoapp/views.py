@@ -29493,3 +29493,30 @@ def dl_change_recur(request,id):
     else:
         return redirect('delivery_chellan_home')
     
+
+def dl_attach_upload(request, id):
+    print(id)
+    if request.method == 'POST' and request.FILES['file']:
+        file = request.FILES['file']
+        d= DeliveryChellan.objects.get(id=id)
+        d.attachment=file
+        d.save()
+        print("saved")
+        
+        return redirect('delivery_challan_overview',id)
+
+    # Handle the case where no file is uploaded
+    return redirect('delivery_challan_overview',id)
+def dl_attach_download(request, id):
+    print(id)
+    if request.method == 'POST' and request.FILES['file']:
+        file = request.FILES['file']
+        d= DeliveryChellan.objects.get(id=id)
+        d.attachment=file
+        d.save()
+        print("saved")
+        
+        return redirect('delivery_challan_overview',id)
+
+    # Handle the case where no file is uploaded
+    return redirect('delivery_challan_overview',id)

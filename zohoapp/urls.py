@@ -1279,6 +1279,8 @@ urlpatterns = [
     path('import_excel_dl', views.import_excel_dl, name='import_excel_dl'),
     path('dc_to_recur/<int:id>', views.dc_to_recur, name='dc_to_recur'),
     path('dl_change_recur/<int:id>', views.dl_change_recur, name='dl_change_recur'),
+    path('dl_attach_upload/<int:id>', views.dl_attach_upload, name='dl_attach_upload'),
+    path('dl_attach_download/<int:id>', views.dl_attach_download, name='dl_attach_download'),
 
     
        
