@@ -15467,7 +15467,7 @@ def add_delivery_chellan_comment(request,pk):
         comment.comments=request.POST.get('comments')
        
         comment.save()
-    return redirect('delivery_challan_view',chellan.id)
+    return redirect('delivery_challan_overview',pk)
     
     
 def purchase_customer_eway(request):
@@ -29507,16 +29507,14 @@ def dl_attach_upload(request, id):
 
     # Handle the case where no file is uploaded
     return redirect('delivery_challan_overview',id)
+
+
 def dl_attach_download(request, id):
     print(id)
-    if request.method == 'POST' and request.FILES['file']:
-        file = request.FILES['file']
-        d= DeliveryChellan.objects.get(id=id)
-        d.attachment=file
-        d.save()
-        print("saved")
-        
-        return redirect('delivery_challan_overview',id)
+    d= DeliveryChellan.objects.get(id=id)
+    file = d.attachment
+    response = FileResponse(file)
+    response['Content-Disposition'] = f'attachment; filename="{file.name}"'
+    return response
 
-    # Handle the case where no file is uploaded
-    return redirect('delivery_challan_overview',id)
+    
