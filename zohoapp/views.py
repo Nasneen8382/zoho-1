@@ -15467,8 +15467,14 @@ def add_delivery_chellan_comment(request,pk):
         comment.comments=request.POST.get('comments')
        
         comment.save()
+        return redirect('delivery_challan_overview',pk)
     return redirect('delivery_challan_overview',pk)
     
+def delete_delivery_chellan_comment(request,pk):
+    comment=delivery_chellan_comments.objects.get(id=pk)
+    did= comment.chellan
+    comment.delete()
+    return redirect('delivery_challan_overview',did.id)
     
 def purchase_customer_eway(request):
     if request.user.is_authenticated:
@@ -29518,3 +29524,33 @@ def dl_attach_download(request, id):
     return response
 
     
+
+def email_delivery_challan(request,id):
+  if request.method == 'POST':
+    print("ggggggggggggggggggggg")
+    emails_string = request.POST['email_ids']
+                # Split the string by commas and remove any leading or trailing whitespace
+    emails_list = [email.strip() for email in emails_string.split(',')]
+    email_message = request.POST['email_message']
+    print(emails_list)
+
+    cmp=company_details.objects.get(user_id=request.user.id)
+
+     
+    dc = DeliveryChellan.objects.get(id=id)
+    item= ChallanItems.objects.filter(chellan=dc)
+    context = {'dc':dc, 'item':item,'cmp':cmp}
+    template_path = 'delivery_challan_mail.html'
+    
+    template = get_template(template_path)
+    html  = template.render(context)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    pdf = result.getvalue()
+    filename = f'DELIVERY CHALLAN - {dc.chellan_no}.pdf'
+    subject = f"DELIVERY CHALLAN - {dc.chellan_no}"
+    email = EmailMessage(subject, f"Hi,\nPlease find the attached DELIVERY CHALLAN - File-{dc.chellan_no}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+    email.attach(filename, pdf, "application/pdf")
+    email.send(fail_silently=False)
+    # msg = messages.success(request, 'Debit note file has been shared via email successfully..!')
+    return redirect(delivery_challan_overview,id)

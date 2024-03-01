@@ -1281,6 +1281,8 @@ urlpatterns = [
     path('dl_change_recur/<int:id>', views.dl_change_recur, name='dl_change_recur'),
     path('dl_attach_upload/<int:id>', views.dl_attach_upload, name='dl_attach_upload'),
     path('dl_attach_download/<int:id>', views.dl_attach_download, name='dl_attach_download'),
+    path('delete_delivery_chellan_comment/<int:pk>', views.delete_delivery_chellan_comment, name='delete_delivery_chellan_comment'),
+    path('email_delivery_challan/<int:id>', views.email_delivery_challan, name='email_delivery_challan'),
 
     
        
