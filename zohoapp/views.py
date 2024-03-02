@@ -6426,18 +6426,21 @@ def get_vendordet(request):
 @login_required(login_url='login')
 def get_customerdet(request):
     company= company_details.objects.get(user = request.user)
-    name = request.POST.get('name')
+    # name = request.POST.get('name')
     id = request.POST.get('id')
+    print(id)
     cust = customer.objects.get(user=company.user_id,id=id)
     email = cust.customerEmail
+    print(email)
     cust_id=id
     cust_address=cust.Address1
     cust_place_supply=cust.placeofsupply
     gstin = cust.GSTIN
     gsttr = cust.GSTTreatment
-    cstate = cust.placeofsupply.split("] ")[1:]
+    cstate = cust.placeofsupply
     state = 'Not Specified' if cstate == "" else cstate
-    return JsonResponse({'customer_email' :email, 'gst_treatment':gsttr, 'gstin': gstin , 'state' : state,'cust_id':cust_id,'cust_place_supply':cust_place_supply,'cust_address':cust_address},safe=False)
+    print(cstate)
+    return JsonResponse({'customer_email' :email, 'gst_treatment':gsttr, 'gstin': gstin , 'cstate' : state,'cust_id':cust_id,'cust_place_supply':cust_place_supply,'cust_address':cust_address},safe=False)
 
 
 @login_required(login_url='login')

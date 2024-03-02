@@ -655,7 +655,7 @@ function calc_ship()
                   <div class="col-sm-2"><label for="customer_name">Customer Name*</label></div>
                   
                   <div class="col-sm-6">
-                    <select class="registration-type form-control text-dark" id="customer_sel" name="customer_name">
+                    <select class="registration-type text-dark" id="customer_sel" name="customer_name">
                       <option value="{{i.cu.id}}" data-email="{{ i.cu.customerEmail }}" data-gsttreatment="{{ i.cu.GSTTreatment }}" data-gstnumber="{{ i.cu.GSTIN }}" data-placeofsupply="{{ i.cu.placeofsupply }}" selected>{{i.customer_name}}</option>
                       {% for cust in c %}
                           {% if cust.customerName != i.customer_name %}
@@ -667,11 +667,99 @@ function calc_ship()
                   
                   
                   </div>
+           
                   <div class="col-sm-4">
                    
                 </div>
               </div>
-           
+              <script>
+                $(document).ready(function ($) {
+// Initialize Selectize
+                    $('#customer_sel').selectize({
+                        sortField: 'value',
+                        render: {
+                            item: function (item, escape) {
+                                if (item.value === '') {
+                                    return '';
+                                }
+                                return '<div>' + escape(item.text) + '</div>';
+                            }
+                        }
+                    });
+                 
+$('#customer_sel').change(function() {
+
+  var name = $('#customer_sel').val();
+  console.log(name);
+    var na = name.split(' ')[0];
+    var table = document.getElementById("item_table");
+    $.ajax({
+
+        url: "{% url 'get_customerdet' %}", 
+
+        data: { 
+                id : na,
+                csrfmiddlewaretoken: '{{ csrf_token }}' 
+            },
+
+        type : 'POST',
+
+        success: function(data) {
+
+          // $("#cemail_row").removeClass('d-none');
+          // $("#cemail_row").addClass('d-flex');
+          console.log(data);
+          
+          
+          $('#customer_mail').val(data.customer_email);
+          console.log(data.customer_email);
+          $('#samp').val(data.cust_place_supply);
+          $('#customer_id').val(data.cust_id);
+          var plc=document.getElementById("samp").value
+          
+          var ste=document.getElementById("state1").value
+          var y=ste.toLowerCase();  
+          var inputstring=plc;
+          const parts = inputstring.split("-");   
+          var extractedWord = parts[1];  
+          var extractedWord1= extractedWord.trim();
+          var x=extractedWord1.toLowerCase();  
+          $('#cus_place').val(x);
+          $('#state').val(y);
+                            if ( x == y )
+                            {
+                               document.getElementById("item_table").style.display="block"
+                               document.getElementById("item_tablee").style.display="none"
+                               document.getElementById("label_tab1").style.display="block"
+                               document.getElementById("label_tab2").style.display="none"
+                               document.getElementById("add-row").style.display="block"
+                               document.getElementById("add-roww").style.display="none"
+                              
+
+
+                                
+                    
+                            }
+                            else
+                            {
+                               document.getElementById("item_table").style.display="none"
+                               document.getElementById("item_tablee").style.display="block"
+                               document.getElementById("label_tab1").style.display="none"
+                               document.getElementById("label_tab2").style.display="block"
+                               document.getElementById("add-row").style.display="none"
+                               document.getElementById("add-roww").style.display="block"
+                                
+                                
+                            }
+                
+          
+        }
+       
+    });
+});
+});
+
+              </script>
               <div class="row mb-4">
                 <div class="col-sm-2"><label for="customer_email">Customer Email</label></div>
                 <div class="col-sm-6">
@@ -776,7 +864,7 @@ function calc_ship()
     <div class="row mb-4 border-bottom pb-4">
         <div class="col-sm-2"><label for="chellan_type">Challan type</label></div>
         <div class="col-sm-6 col-md-6 col-lg-6">
-            <select class="form-control text-dark" id="customer_sel" name="chellan_type" >
+            <select class="form-control text-dark"  name="chellan_type" >
                 <option value="{{i.chellan_type}}" >{{i.chellan_type}}</option>
               
                 <option value="Supplay Of Liquid Gas">Supplay Of Liquid Gas</option>
@@ -2849,75 +2937,6 @@ $.ajax({
 
 
 
-$(document).ready(function() {
-    $('#customer_sel').change(function() {
-
-        var name = $("#customer_sel").val();
-        var na = name.split(' ')[0];
-        var table = document.getElementById("item_table");
-        $.ajax({
-
-            url: "{% url 'get_customerdet' %}", 
-
-            data: { 
-                    id : na,
-                    csrfmiddlewaretoken: '{{ csrf_token }}' 
-                },
-
-            type : 'POST',
-
-            success: function(data) {
-
-              // $("#cemail_row").removeClass('d-none');
-              // $("#cemail_row").addClass('d-flex');
-              
-              
-              $('#customer_mail').val(' '+ data.customer_email);
-              $('#samp').val(data.cust_place_supply);
-              $('#customer_id').val(data.cust_id);
-              var plc=document.getElementById("samp").value
-              
-              var ste=document.getElementById("state1").value
-              var y=ste.toLowerCase();  
-              var inputstring=plc;
-              const parts = inputstring.split("-");   
-              var extractedWord = parts[1];  
-              var extractedWord1= extractedWord.trim();
-              var x=extractedWord1.toLowerCase();  
-              $('#cus_place').val(x);
-              $('#state').val(y);
-                                if ( x == y )
-                                {
-                                   document.getElementById("item_table").style.display="block"
-                                   document.getElementById("item_tablee").style.display="none"
-                                   document.getElementById("label_tab1").style.display="block"
-                                   document.getElementById("label_tab2").style.display="none"
-                                   document.getElementById("add-row").style.display="block"
-                                   document.getElementById("add-roww").style.display="none"
-                                  
-
-
-                                    
-                        
-                                }
-                                else
-                                {
-                                   document.getElementById("item_table").style.display="none"
-                                   document.getElementById("item_tablee").style.display="block"
-                                   document.getElementById("label_tab1").style.display="none"
-                                   document.getElementById("label_tab2").style.display="block"
-                                   document.getElementById("add-row").style.display="none"
-                                   document.getElementById("add-roww").style.display="block"
-                                    
-                                    
-                                }
-                    
-              
-            }
-           
-        });
-    });
-});
 
 
 // ......................payment term modal
