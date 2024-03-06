@@ -4439,7 +4439,8 @@ def edit_sales_order(request,id):
 def create_delivery_chellan(request):
     user = request.user
     try:
-        company = company_details.objects.get(user=user)
+        company = company_details.objects.get(user=request.user)
+        print(company.state)
         items = AddItem.objects.filter(user_id=user.id,satus='active')
         customers = customer.objects.filter(user_id=user.id)
         p = AddItem.objects.filter(user = request.user)
@@ -5023,9 +5024,10 @@ def get_cust_mail(request):
 
     
     email = item.customerEmail
-    
+    state = item.placeofsupply.split("]-")[1]
+    cstate = state.strip()
     place_supply=item.placeofsupply
-    print(item.placeofsupply)
+    print(cstate)
     print(place_supply)
 
     ads=item.Address1
@@ -5041,7 +5043,7 @@ def get_cust_mail(request):
     cust_id=item.id
 
     
-    return JsonResponse({"status": " not", 'email': email,'ads':ads,'mob':mob,'cust_id':cust_id,'cust_place_supply':place_supply,'gstt':gstt,'gstno':gstno,'address':address})
+    return JsonResponse({"status": " not", 'email': email,'ads':ads,'mob':mob,'cust_id':cust_id,'cust_place_supply':place_supply,'gstt':gstt,'gstno':gstno,'address':address,'cstate':cstate})
     return redirect('/')
     
 def add_customer_edit_challan(request):
@@ -6437,10 +6439,10 @@ def get_customerdet(request):
     cust_place_supply=cust.placeofsupply
     gstin = cust.GSTIN
     gsttr = cust.GSTTreatment
-    cstate = cust.placeofsupply
+    cstate = cust.placeofsupply.split("] ")[1:]
     state = 'Not Specified' if cstate == "" else cstate
-    print(cstate)
-    return JsonResponse({'customer_email' :email, 'gst_treatment':gsttr, 'gstin': gstin , 'cstate' : state,'cust_id':cust_id,'cust_place_supply':cust_place_supply,'cust_address':cust_address},safe=False)
+    
+    return JsonResponse({'customer_email' :email, 'gst_treatment':gsttr, 'gstin': gstin , 'state' : state,'cust_id':cust_id,'cust_place_supply':cust_place_supply,'cust_address':cust_address},safe=False)
 
 
 @login_required(login_url='login')

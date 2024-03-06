@@ -118,9 +118,10 @@ transition: transform 0.4s ,top 0.4s;
         document.getElementById("cus_place").value=y;
         document.getElementById("state").value=x;
         document.getElementById("customer_id").value="{{ custo_id }}";
-        var ig="{{ estimate.igst }}";
-        var cg="{{ estimate.cgst }}";
-        var sg="{{ estimate.sgst }}";
+        var ig="{{ i.igst }}";
+        var cg="{{ i.cgst }}";
+        var sg="{{ i.sgst }}";
+        console.log("ig is"+ig);
       if ( x == y )
                               {
                                  document.getElementById("item_table").style.display="block"
@@ -675,6 +676,11 @@ function calc_ship()
               <script>
                 $(document).ready(function ($) {
 // Initialize Selectize
+                  var gstno =$('#gst_number').val();
+                  if (gstno  == 'null'){
+
+                    $('#gst_number_container').hide()
+                  }else{$('#gst_number_container').show()}
                     $('#customer_sel').selectize({
                         sortField: 'value',
                         render: {
@@ -711,10 +717,25 @@ $('#customer_sel').change(function() {
           console.log(data);
           
           
-          $('#customer_mail').val(data.customer_email);
-          console.log(data.customer_email);
-          $('#samp').val(data.cust_place_supply);
+          $('#customer_email').val(data.customer_email);
+          $('#gst_treatment').val(data.gst_treatment);
+          $('#place_of_supply').val(data.cust_place_supply);
           $('#customer_id').val(data.cust_id);
+          if (data.gstin == 'null'){
+            $('#gst_number_container').hide();
+            $('#gst_number').val('null');
+
+          }else{$('#gst_number_container').show();
+          $('#gst_number').val(data.gstin);}
+          if (data.cust_address == ''){
+            $('#adrs_container').hide();
+          }
+          else{
+            $('#adrs_container').show();
+            $('#customer_adrs').val(data.cust_address);
+          }
+          
+
           var plc=document.getElementById("samp").value
           
           var ste=document.getElementById("state1").value
@@ -726,7 +747,7 @@ $('#customer_sel').change(function() {
           var x=extractedWord1.toLowerCase();  
           $('#cus_place').val(x);
           $('#state').val(y);
-                            if ( x == y )
+                            if ( document.getElementById("state1").value == document.getElementById("place_of_supply").value )
                             {
                                document.getElementById("item_table").style.display="block"
                                document.getElementById("item_tablee").style.display="none"
@@ -763,17 +784,21 @@ $('#customer_sel').change(function() {
               <div class="row mb-4">
                 <div class="col-sm-2"><label for="customer_email">Customer Email</label></div>
                 <div class="col-sm-6">
-                    <input type="text" class="form-control text-black" id="customer_email" name="customer_email" value="{{i.customer_mailid}}" readonly>
+                  <input type="text" class="form-control text-black" id="customer_email" name="customer_email" value="{{i.customer_mailid}}" readonly>
                 </div>
             </div>
-            
+            <div class="row mb-4" id="adrs_container">
+              <div class="col-sm-2"><label for="customer_email">Address </label></div>
+              <div class="col-sm-6">
+                <input type="text" class="form-control text-black" id="customer_adrs" name="customer_adrs"  value="{{i.cu.Address1}}" readonly >
+              </div>
+            </div>
             <div class="row mb-4">
                 <div class="col-sm-2"><label for="gst_treatment">GST Treatment</label></div>
                 <div class="col-sm-6">
                     <input type="text" class="form-control text-black" id="gst_treatment" name="gst_treatment" value="{{i.cu.GSTTreatment}}" readonly>
                 </div>
             </div>
-            
             <div class="row mb-4"  id="gst_number_container">
                 <div class="col-sm-2"><label for="gst_number">GST Number</label></div>
                 <div class="col-sm-6">
@@ -788,12 +813,7 @@ $('#customer_sel').change(function() {
                 </div>
             </div>
             
-            <style>
-              #gst_number_container {
-                  height: auto;
-                  display: none;
-              }
-          </style>
+            
           
           <script>
               // Add an event listener to the customer selection dropdown
@@ -824,15 +844,15 @@ $('#customer_sel').change(function() {
       
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
       <script>
-          $(document).ready(function () {
-              $('#customer_sel').change(function () {
-                  var selectedOption = $(this).find(':selected');
-                  $('#customer_email').val(selectedOption.data('email'));
-                  $('#gst_treatment').val(selectedOption.data('gsttreatment'));
-                  $('#gst_number').val(selectedOption.data('gstnumber'));
-                  $('#place_of_supply').val(selectedOption.data('placeofsupply'));
-              });
-          });
+          // $(document).ready(function () {
+          //     $('#customer_sel').change(function () {
+          //         var selectedOption = $(this).find(':selected');
+          //         $('#customer_email').val(selectedOption.data('email'));
+          //         $('#gst_treatment').val(selectedOption.data('gsttreatment'));
+          //         $('#gst_number').val(selectedOption.data('gstnumber'));
+          //         $('#place_of_supply').val(selectedOption.data('placeofsupply'));
+          //     });
+          // });
       </script>
             
          
