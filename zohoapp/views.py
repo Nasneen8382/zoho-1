@@ -4513,7 +4513,7 @@ def create_challan_draft(request):
     
     if request.method == 'POST':
         x = request.POST["hidden_state1"]
-        y = request.POST["place_of_supply"]
+        y = request.POST["hidden_state"]
         
         c = request.POST['customer_name']
         print(c)
@@ -4616,7 +4616,7 @@ def create_and_send_challan(request):
     
     if request.method == 'POST':
         x = request.POST["hidden_state1"]
-        y = request.POST["place_of_supply"]
+        y = request.POST["hidden_state"]
         
         c = request.POST['customer_name']
         print(c)

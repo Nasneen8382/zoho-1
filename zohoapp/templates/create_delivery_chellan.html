@@ -207,9 +207,9 @@
   }
 
   function calc_total() {
-    var x = document.getElementById("cus_place").value
-    var y = document.getElementById("state").value
-    if (x == y) {
+    // var x = document.getElementById("cstate").value
+    // var y = document.getElementById("state1").value
+    // if (x == y) {
       total = 0;
       $('.amount').each(function () {
         total += parseFloat($(this).val());
@@ -232,29 +232,8 @@
       test();
       calc_ship();
 
-    }
-    else {
-      total = 0;
-      $('.amountt').each(function () {
-        total += parseFloat($(this).val());
-
-      });
-      taxamount = 0;
-      $('.taxamountt').each(function () {
-        taxamount += parseFloat($(this).val());
-
-      });
-
-
-      $('#subtotal').val(total.toFixed(2));
-      $('#total_taxamount').val(taxamount.toFixed(2));
-
-      $('#total').val((taxamount + total).toFixed(2));
-
-      test();
-      calc_ship();
-
-    }
+    
+  
   }
 
   function test() {
@@ -262,7 +241,11 @@
     d = 0;
     var pos = document.getElementById("cstate").value;
     var state = document.getElementById("state1").value;
+    var taxamount=0;
+    $('.taxamount').each(function () {
+        taxamount += parseFloat($(this).val());
 
+      });
     if (pos == state) {
 
       gst = taxamount / 2;
@@ -271,8 +254,11 @@
       $('#cgst').val(parseFloat(gst.toFixed(2)));
       $('#sgst').val(parseFloat(gst.toFixed(2)));
       $('#igst').val(parseFloat(d.toFixed(2)));
-      document.getElementById("tr_cgst").style.display = "table-row";
-      document.getElementById("tr_sgst").style.display = "table-row";
+      $('#tr_cgst').show();
+      $('#tr_sgst').show();
+      $('#tr_igst').hide();
+      // document.getElementById("tr_cgst").style.display = "table-row";
+      // document.getElementById("tr_sgst").style.display = "table-row";
 
 
     }
@@ -283,7 +269,10 @@
       $('#igst').val(taxamount.toFixed(2));
       $('#cgst').val(d.toFixed(2));
       $('#sgst').val(d.toFixed(2));
-      document.getElementById('tr_igst').style.display = "table-row";
+      // document.getElementById('tr_igst').style.display = "table-row";
+      $('#tr_cgst').hide();
+      $('#tr_sgst').hide();
+      $('#tr_igst').show();
 
     }
   }
@@ -466,9 +455,12 @@
         error: function (xhr, status, error) {
           console.error(xhr.responseText);
         }
-      })
+      });
     }
-    $(document).on('change', '.itm', function () {
+  });
+  
+    $(document).on('change', '.item_select', function () {
+    console.log("-------------------------");
 
       var $closestRow = $(this).closest('tr');
       var n = $closestRow.attr('id').replace('row', '');
@@ -539,8 +531,6 @@
       });
 
     });
-  });
-
 </script>
 
 
@@ -777,7 +767,8 @@
       });
 
       $(document).on('change', '#place_of_supply', function () {
-        if ($('#state1').val == $(this).val()) {
+        console.log($(this).val());
+        if ($('#state1').val() == $('#cstate').val()) {
           $('.tax').show();
           $('.itax').hide();
 
@@ -943,6 +934,7 @@
                 data-toggle="modal" data-target="#newitem" style="text-decoration: none;"><i
                   class="mdi mdi-plus p-2 rounded" style="color: white; background-color: rgb(210, 132, 30);"></i></a>
             </th>
+            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">SL NO.</th>
             <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">HSN</th>
             <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Quantity</th>
             <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Rate</th>
@@ -3079,7 +3071,7 @@
 <script>
     jQuery(document).ready(function ($) {
       // Initialize Selectize
-      $('.itm').selectize({
+      $('.item_select').selectize({
         sortField: 'value',
         render: {
           item: function (item, escape) {

@@ -905,7 +905,7 @@
               <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.sub_total}}</p>
             </div>
           </div>
-          {% if estimate.cu.place_of_supply == company.state %}
+          {% if estimate.igst != 0 %}
           <div class="row mt-2">
             <div class="col-6"><label class="" for="">IGST :</label></div>
             <div class="col-6">

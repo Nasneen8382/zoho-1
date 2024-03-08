@@ -108,6 +108,8 @@ transition: transform 0.4s ,top 0.4s;
 
         var ste="{{comp}}";
         var plc="{{cust}}";
+        var st1 ="{{company.state}}"
+        var z= st1.toLowerCase(); 
         var x=ste.toLowerCase(); 
 
         var inputstring=plc;
@@ -117,31 +119,22 @@ transition: transform 0.4s ,top 0.4s;
         var y=extractedWord1.toLowerCase();  
         document.getElementById("cus_place").value=y;
         document.getElementById("state").value=x;
+        document.getElementById("state1").value=z;
         document.getElementById("customer_id").value="{{ custo_id }}";
         var ig="{{ i.igst }}";
         var cg="{{ i.cgst }}";
         var sg="{{ i.sgst }}";
         console.log("ig is"+ig);
-      if ( x == y )
-                              {
-                                 document.getElementById("item_table").style.display="block"
-                                 document.getElementById("item_tablee").style.display="none"
-                                 document.getElementById("label_tab1").style.display="block"
-                                 document.getElementById("label_tab2").style.display="none"
-                                 document.getElementById("add-row").style.display="block"
-                                 document.getElementById("add-roww").style.display="none"
-                                  
-                      
-                              }
-                              else
-                              {
-                                 document.getElementById("item_table").style.display="none"
-                                 document.getElementById("item_tablee").style.display="block"
-                                 document.getElementById("label_tab1").style.display="none"
-                                 document.getElementById("label_tab2").style.display="block"
-                                 document.getElementById("add-row").style.display="none"
-                                 document.getElementById("add-roww").style.display="block"
-                              }
+      if ( z == y )
+      {
+              $('.tax').show();
+              $('.itax').hide();
+
+            }
+            else {
+              $('.itax').show();
+              $('.tax').hide();
+            }
 
       if ( ig != 0 ){
         document.getElementById("tr_igst").style.display = "table-row";
@@ -189,7 +182,7 @@ transition: transform 0.4s ,top 0.4s;
     
     function calc() {
       var x=document.getElementById("cus_place").value
-      var y=document.getElementById("state").value
+      var y=document.getElementById("state1").value
       if ( x == y )
     {
         $('#item_table tbody tr').each(function () {
@@ -214,21 +207,21 @@ transition: transform 0.4s ,top 0.4s;
       }
       if ( x != y )
     {
-        $('#item_tablee tbody tr').each(function () {
+      $('#item_table tbody tr').each(function () {
             var html = $(this).html();
             if (html != '') {
                 console.log('rows');
-                var qtyy = $(this).find('.qtyy').val();
-                var ratee = $(this).find('.ratee').val();
-                var discountt = $(this).find('.discountt').val();
-                var taxx = $(this).find('.taxx').val();
-                console.log(qtyy);
-                console.log(ratee);
-                console.log(discountt);
-                console.log(taxx);
-                $(this).find('.taxamountt').val(((qtyy * ratee) - discountt) * (taxx / 100));
-                var taxamountt = parseFloat($(this).find('.taxamountt').val());
-                $(this).find('.amountt').val(qtyy * ratee - discountt);
+                var qty = $(this).find('.qty').val();
+                var rate = $(this).find('.rate').val();
+                var discount = $(this).find('.discount').val();
+                var tax = $(this).find('.itax').val();
+                console.log(qty);
+                console.log(rate);
+                console.log(discount);
+                console.log(tax);
+                $(this).find('.taxamount').val(((qty * rate) - discount) * (tax / 100));
+                var taxamount = parseFloat($(this).find('.taxamount').val());
+                $(this).find('.amount').val(qty * rate - discount);
 
                 calc_total();
             }
@@ -258,9 +251,13 @@ transition: transform 0.4s ,top 0.4s;
     
     function calc_total() {
       var x=document.getElementById("cus_place").value
-      var y=document.getElementById("state").value
+      var y=document.getElementById("state1").value
+      console.log(x);
+      console.log(y);
+      console.log("pppppppppppppppppp");
       if ( x == y )
       {
+        console.log("same");
         total = 0;
         $('.amount').each(function () {
             total += parseFloat($(this).val()) ;
@@ -271,6 +268,7 @@ transition: transform 0.4s ,top 0.4s;
             taxamount += parseFloat($(this).val()) ;
 
         });
+        console.log(taxamount);
        
         // total = Math.round(total);
         // taxamount = Math.round(taxamount);
@@ -286,13 +284,16 @@ transition: transform 0.4s ,top 0.4s;
       }
       else
       {
+        console.log("deff");
         total = 0;
         $('.amountt').each(function () {
+          
             total += parseFloat($(this).val()) ;
             
         });
         taxamount = 0;
         $('.taxamountt').each(function () {
+          console.log(parseFloat($(this).val()));
             taxamount += parseFloat($(this).val()) ;
 
         });
@@ -315,7 +316,7 @@ transition: transform 0.4s ,top 0.4s;
         console.log('test');
         d = 0;
         var pos = document.getElementById("cus_place").value;
-        var state = document.getElementById("state").value;
+        var state = document.getElementById("state1").value;
 
         if (pos == state) {
             console.log(pos);
@@ -647,10 +648,10 @@ function calc_ship()
 <form method="POST" action="{% url 'update_challan' i.id %}" class="p-5" enctype="multipart/form-data" novalidate
     id="forms">
     {% csrf_token %}
-    <input class="hidden"  id="state1" name="hidden_state1" value="{{ company.state }}">
+    <input    id="state1" name="hidden_state1" >
     <input class="hidden"  id="state" name="hidden_state" value="">
         <input class="hidden" type="text" name="samp" id="samp" >
-    <input class="hidden"  id="cus_place" name="hidden_cus_place"  value="">
+    <input    id="cus_place" name="hidden_cus_place"  value="">
                 <input type="number" id="customer_id" name="customer_id" style="display: none;"  readonly>
                 <div class="row mb-4 border-top pt-5">
                   <div class="col-sm-2"><label for="customer_name">Customer Name*</label></div>
@@ -746,38 +747,99 @@ $('#customer_sel').change(function() {
           var extractedWord1= extractedWord.trim();
           var x=extractedWord1.toLowerCase();  
           $('#cus_place').val(x);
-          $('#state').val(y);
-                            if ( document.getElementById("state1").value == document.getElementById("place_of_supply").value )
-                            {
-                               document.getElementById("item_table").style.display="block"
-                               document.getElementById("item_tablee").style.display="none"
-                               document.getElementById("label_tab1").style.display="block"
-                               document.getElementById("label_tab2").style.display="none"
-                               document.getElementById("add-row").style.display="block"
-                               document.getElementById("add-roww").style.display="none"
-                              
+          $('#state1').val(y);
+          if (document.getElementById('state1').value == document.getElementById('cus_place').value) {
+              $('.tax').show();
+              $('.itax').hide();
 
-
-                                
-                    
-                            }
-                            else
-                            {
-                               document.getElementById("item_table").style.display="none"
-                               document.getElementById("item_tablee").style.display="block"
-                               document.getElementById("label_tab1").style.display="none"
-                               document.getElementById("label_tab2").style.display="block"
-                               document.getElementById("add-row").style.display="none"
-                               document.getElementById("add-roww").style.display="block"
-                                
-                                
-                            }
+            }
+            else {
+              $('.itax').show();
+              $('.tax').hide();
+            }
                 
           
         }
        
     });
 });
+$(document).on('change', '.itm', function () {
+    console.log("-------------------------");
+
+      var $closestRow = $(this).closest('tr');
+      var n = $closestRow.attr('id').replace('row', '');
+      console.log("Row number:", n);
+      console.log($(this).val());
+      $.ajax({
+        url: "{% url 'get_dl_item' %}",
+        type: 'GET',
+        data: {
+          id: $(this).val(),
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+
+        success: function (response) {
+          console.log(response);
+          datahsn = response.hsn
+          // data2 = response.qty
+          dataprice = response.price
+          datagst = response.gst
+          dataigst = response.igst
+          // if (datagst == "0") {
+          //   datagst = 'GST0[0%]'
+          // }
+          // if (dataigst == "0") {
+          //   dataigst = 'IGST0[0%]'
+          // }
+
+          
+          var datagst = parseInt(datagst.match(/\d+/)[0]);
+          var dataigst = parseInt(dataigst.match(/\d+/)[0]);
+          console.log(datagst);
+          console.log(dataigst);
+          // document.getElementById('discount' + n).value = "0";
+
+          // document.getElementById('select_tax'+n).value = datagst;
+          if (document.getElementById('state1').value == document.getElementById('cus_place').value)  {
+            console.log("same");
+            document.getElementById('tax' + n).style.display = 'block';
+            document.getElementById('itax' + n).style.display = 'none';
+
+
+            document.getElementById('tax' + n).value = datagst;
+            document.getElementById('itax' + n).value = dataigst;
+            document.getElementById('hsn' + n).value = datahsn;
+            document.getElementById('rate' + n).value = dataprice;
+
+
+          }
+          else {
+            document.getElementById('itax' + n).value = dataigst;
+            document.getElementById('tax' + n).value = datagst;
+            document.getElementById('tax' + n).style.display = 'none';
+            document.getElementById('itax' + n).style.display = 'block';
+            document.getElementById('hsn' + n).value = datahsn;
+            document.getElementById('rate' + n).value = dataprice;
+
+
+          }
+          // if (document.getElementById('place_of_supply').value == '') {
+          //   alert('Please select a stateofsply before choosing a product.');
+          //   var $select = $(document.getElementById('item' + n));
+          //   var selectize = $select[0].selectize;
+          //   selectize.setValue("");
+          //   document.getElementById('itax' + n).value = '';
+          //   document.getElementById('tax' + n).value = '';
+
+          //   document.getElementById('hsn' + n).value = '';
+          //   document.getElementById('rate' + n).value = '0.00';
+          // }
+
+
+        },
+      });
+
+    });
 });
 
               </script>
@@ -924,11 +986,11 @@ $('#customer_sel').change(function() {
                   <div class='form-group'><select
                           class='form-control bg-transparent text-light border-0 item_select itm'
                           name='item[]' id='item1'>
-                          <option class='text-dark'  value="{{est.item_name}}">{{est.item_name}}</option>
+                          <option class='text-dark'  value="{{est.id}}">{{est.item_name}}</option>
                           {% for i in items %}
-                          <option class="text-dark" value="{{i.Name}}">{{i.Name}}</option>
+                          <option class="text-dark" value="{{i.id}}">{{i.Name}}</option>
                           {% endfor %}
-                          <option class='text-dark' id="items_nms"></option>
+                          
                       </select></div>
               </td>
               <td class='text-right'><input type='text' id='hsn1'
@@ -952,7 +1014,8 @@ $('#customer_sel').change(function() {
                       class='bg-transparent form-control border-0 text-light text-right discount' name='discount[]'
                       value='{{est.discount}}'>
               </td>
-              <td class='text-right'> <select name='tax[]' id='tax1'
+              <td class='text-right'>
+                 <select name='tax[]' id='tax1'
                       class=' bg-transparent form-control text-light text-right border-0 tax'>
                      
                       <option  value='{{est.tax_percentage}}'>{{est.tax_percentage}} %GST</option>
@@ -963,6 +1026,17 @@ $('#customer_sel').change(function() {
                       <option class="form-control text-dark" value=18>18% GST</option>
                       <option class="form-control text-dark" value=28>28% GST</option>
                   </select>
+                  <select name='itax[]' id='itax1' style="display: none;"
+                class=' bg-transparent form-control text-light text-right border-0 itax'>
+                  <option  value='{{est.tax_percentage}}'>{{est.tax_percentage}} %IGST</option>
+                  <option class="form-control text-dark" value=0>0% IGST</option>
+                  <option class="form-control text-dark" value=3>3% IGST</option>
+                  <option class="form-control text-dark" value=5>5% IGST</option>
+                  <option class="form-control text-dark" value=12>12% IGST</option>
+                  <option class="form-control text-dark" value=18>18% IGST</option>
+                  <option class="form-control text-dark" value=28>28% IGST</option>
+                  </select>
+
                 </td>
               <td style="display: none;">
                   <input type="number" name='taxamount[]' id="taxamount1"
@@ -994,7 +1068,7 @@ $('#customer_sel').change(function() {
 <!-- ................................................... TABLE 2 ......................................................... -->
 
 
-<div class="row">
+<!-- <div class="row">
 <div class="col-sm-12 col-md-12 col-lg-12">
 <label for="" id="label_tab2" style="display: none;">Price List</label><br>
 <table class="table table-bordered text-white"  id="item_tablee" style="display: none; background-color: #b6b3b36b;table-layout: fixed;width: 100%;"
@@ -1084,7 +1158,7 @@ $('#customer_sel').change(function() {
   style="color: white; background-color: rgb(210, 132, 30);height: 20px;"></i></button>
 
 </div>
-</div>
+</div> -->
 
 <!-- ..........................................................END TABLE 2 ..................................................... -->
 
@@ -3174,6 +3248,7 @@ function reloadPayment() {
 <!-- ................................................  TABLE 1 ......................................................... -->
 
 <script>
+   
 
 
   $(document).ready(function () {
@@ -3193,7 +3268,7 @@ function reloadPayment() {
                         id='item${RowCount}'>
                         <option class="text-dark" value="">Select</option>
                        {% for i in items %}
-                        <option class="text-dark" value="{{i.Name}}">{{i.Name}}</option>
+                        <option class="text-dark" value="{{i.id}}">{{i.Name}}</option>
                        
                         {% endfor %}
                     </select></div>
@@ -3223,7 +3298,18 @@ function reloadPayment() {
                    <option value="12" class="text-dark">GST 12%</option>
                    <option value="18" class="text-dark">GST 18%</option>
                    <option value="28" class="text-dark">GST 28%</option>
-                </select></td>
+                </select>
+                <select name='itax[]' id='itax${RowCount}' style="display: none;"
+                class=' bg-transparent form-control text-light text-right border-0 itax'>
+                  <option  value='{{est.tax_percentage}}'>{{est.tax_percentage}} %IGST</option>
+                  <option class="form-control text-dark" value=0>0% IGST</option>
+                  <option class="form-control text-dark" value=3>3% IGST</option>
+                  <option class="form-control text-dark" value=5>5% IGST</option>
+                  <option class="form-control text-dark" value=12>12% IGST</option>
+                  <option class="form-control text-dark" value=18>18% IGST</option>
+                  <option class="form-control text-dark" value=28>28% IGST</option>
+                  </select>
+                </td>
             <td style="display: none;">
                 <input type="text" name="taxamount1[]" id="taxamount${RowCount}" class="form-control taxamount" />
                         </td>
@@ -3337,7 +3423,7 @@ $(document).ready(function () {
 
 
 <script>
-    $(document).ready(function () {
+    // $(document).ready(function () {
 
 
     var roinc = 0
