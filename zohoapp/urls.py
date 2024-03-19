@@ -1283,6 +1283,9 @@ urlpatterns = [
     path('dl_attach_download/<int:id>', views.dl_attach_download, name='dl_attach_download'),
     path('delete_delivery_chellan_comment/<int:pk>', views.delete_delivery_chellan_comment, name='delete_delivery_chellan_comment'),
     path('email_delivery_challan/<int:id>', views.email_delivery_challan, name='email_delivery_challan'),
+    path('dl_draft_send/<int:id>', views.dl_draft_send, name='dl_draft_send'),
+    path('dc_to_inv/<int:id>', views.dc_to_inv, name='dc_to_inv'),
+    path('dl_change_inv/<int:id>', views.dl_change_inv, name='dl_change_inv'),
 
     
        

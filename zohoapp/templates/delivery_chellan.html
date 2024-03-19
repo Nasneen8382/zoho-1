@@ -163,7 +163,7 @@
                 <ul class="dropdown-menu" style="z-index: 9999;">
                     <li>{% if v.to_inv == 'Convert to invoice' %}
                       <a class="dropdown-item fw-bold tb"
-                            href="">{{v.to_inv}}</a>
+                            href="{% url 'dc_to_inv' v.id %}">{{v.to_inv}}</a>
                       {% else %}
                       <a class="dropdown-item fw-bold tb disabled"
                             href="">{{v.to_inv}}</a>

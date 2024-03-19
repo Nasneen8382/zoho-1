@@ -672,8 +672,8 @@
 
 <form method="POST" action="" enctype="multipart/form-data" novalidate id="forms2">
   {% csrf_token %}
-  <input  id="state1" name="hidden_state1" value="{{ company.state }}">
-  <input  id="cstate" name="hidden_state" >
+  <input class="hidden" id="state1" name="hidden_state1" value="{{ company.state }}">
+  <input class="hidden" id="cstate" name="hidden_state" >
 
   <input class="hidden" type="text" name="samp" id="samp">
   <input class="hidden" id="cus_place" name="hidden_cus_place" value="">

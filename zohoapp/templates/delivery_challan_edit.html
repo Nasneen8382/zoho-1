@@ -7,6 +7,14 @@
 
 
 <style>
+  .table .selectize-control.single .selectize-input {
+    border: none;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    color: white;
+    /* background-repeat: repeat-x; */
+  }
     .buton {
     background-color: rgba(0, 0, 0, 0.1);
 
@@ -255,8 +263,7 @@ transition: transform 0.4s ,top 0.4s;
       console.log(x);
       console.log(y);
       console.log("pppppppppppppppppp");
-      if ( x == y )
-      {
+      
         console.log("same");
         total = 0;
         $('.amount').each(function () {
@@ -281,33 +288,9 @@ transition: transform 0.4s ,top 0.4s;
         test();
         calc_ship();
 
+      
       }
-      else
-      {
-        console.log("deff");
-        total = 0;
-        $('.amountt').each(function () {
-          
-            total += parseFloat($(this).val()) ;
-            
-        });
-        taxamount = 0;
-        $('.taxamountt').each(function () {
-          console.log(parseFloat($(this).val()));
-            taxamount += parseFloat($(this).val()) ;
-
-        });
-       
-       
-        $('#subtotal').val(total.toFixed(2));
-        $('#total_taxamount').val(taxamount.toFixed(2));
-
-        $('#total').val((taxamount + total).toFixed(2));
-
-        test();
-        calc_ship();
-      }
-    }
+    
 
 
 
@@ -648,10 +631,10 @@ function calc_ship()
 <form method="POST" action="{% url 'update_challan' i.id %}" class="p-5" enctype="multipart/form-data" novalidate
     id="forms">
     {% csrf_token %}
-    <input    id="state1" name="hidden_state1" >
+    <input class="hidden"    id="state1" name="hidden_state1" >
     <input class="hidden"  id="state" name="hidden_state" value="">
         <input class="hidden" type="text" name="samp" id="samp" >
-    <input    id="cus_place" name="hidden_cus_place"  value="">
+    <input  class="hidden"   id="cus_place" name="hidden_cus_place"  value="">
                 <input type="number" id="customer_id" name="customer_id" style="display: none;"  readonly>
                 <div class="row mb-4 border-top pt-5">
                   <div class="col-sm-2"><label for="customer_name">Customer Name*</label></div>
@@ -675,6 +658,19 @@ function calc_ship()
                 </div>
               </div>
               <script>
+                function productsearch(roinc) {
+                                            $(`#item${roinc}`).selectize({
+                                                sortField: 'value',
+                                                render: {
+                                                    item: function (item, escape) {
+                                                        if (item.value === '') {
+                                                            return '';
+                                                        }
+                                                        return '<div>' + escape(item.text) + '</div>';
+                                                    }
+                                                }
+                                            });
+                                        }
                 $(document).ready(function ($) {
 // Initialize Selectize
                   var gstno =$('#gst_number').val();
@@ -693,6 +689,19 @@ function calc_ship()
                             }
                         }
                     });
+                    $('.itm').selectize({
+                                                sortField: 'value',
+
+                                                render: {
+                                                    item: function (item, escape) {
+                                                        if (item.value === '') {
+                                                            return '';
+                                                        }
+                                                        return '<div>' + escape(item.text) + '</div>';
+                                                    }
+                                                }
+                                            });
+                      
                  
 $('#customer_sel').change(function() {
 
@@ -968,7 +977,8 @@ $(document).on('change', '.itm', function () {
       onchange="calc()">
       <thead>
           <tr>
-              <th style="font-weight: bold;color: rgb(245, 154, 36);" class="">Item Details <a href="" data-toggle="modal"  data-target="#newitem"
+            <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">Sl No.</th>
+              <th style="font-weight: bold;color: rgb(245, 154, 36);" class="">Item  <a href="" data-toggle="modal"  data-target="#newitem"
                 style="text-decoration: none;"><i class="mdi mdi-plus p-2 rounded"
                           style="color: white; background-color: rgb(210, 132, 30);"></i></a></th>
                           <th style="font-weight: bold;color: rgb(245, 154, 36);" class="text-right">HSN</th>
@@ -982,9 +992,10 @@ $(document).on('change', '.itm', function () {
       <tbody>
         {% for est in est %}
           <tr id='row1'>
+            <td class="text-center">{{forloop.counter}}</td>
               <td>
                   <div class='form-group'><select
-                          class='form-control bg-transparent text-light border-0 item_select itm'
+                          class=' border-0 item_select itm'
                           name='item[]' id='item1'>
                           <option class='text-dark'  value="{{est.id}}">{{est.item_name}}</option>
                           {% for i in items %}
@@ -1043,7 +1054,7 @@ $(document).on('change', '.itm', function () {
                       class="form-control taxamount" />
               </td>
               <td class='text-right'><input type='number' id='amount1'
-                      class='bg-transparent form-control border-0 text-light text-right amount' name='amount[]'
+                      class='bg-transparent form-control border-0 text-light text-right amount px-0' name='amount[]'
                       value="{{est.amount}}"></td>
               <td class='text-center'><button type='button' id='del_btn1'
                       class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-row'
@@ -1062,6 +1073,7 @@ $(document).on('change', '.itm', function () {
 
     </div>
   </div>
+  
 
 <!-- ........................................................ END TABLE 1 .............................................. -->
 
@@ -3248,11 +3260,14 @@ function reloadPayment() {
 <!-- ................................................  TABLE 1 ......................................................... -->
 
 <script>
+
+  
    
 
 
-  $(document).ready(function () {
+  jQuery(document).ready(function () {
 
+   
 
 
     $('#add-row').click(function () {
@@ -3261,6 +3276,7 @@ function reloadPayment() {
         console.log(RowCount);
         var newRow = $(`
         <tr id='row${RowCount}' >
+          <td class='text-center'>${RowCount}</td>
             <td>
                 <div class='form-group'>
                     <select
@@ -3314,7 +3330,7 @@ function reloadPayment() {
                 <input type="text" name="taxamount1[]" id="taxamount${RowCount}" class="form-control taxamount" />
                         </td>
             <td class='text-right'><input type='number' id='amount${RowCount}'
-                    class='form-control border-0 bg-transparent  text-white text-right amount' name="amount[]" value='0.00'></td>
+                    class='form-control border-0 bg-transparent  text-white text-right amount  px-0' name="amount[]" value='0.00'></td>
             <td class='text-center'><button type='button' id='del_btn${RowCount}'
                     class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-row'
                     style='width:30px'><i class='fa fa-times'></i></button>
@@ -3332,6 +3348,7 @@ function reloadPayment() {
 //     }
 // });
         $('#item_table').append(newRow);
+        productsearch(RowCount)
     });
 
     $('#item_table').on('click', '.delete-row', function () {

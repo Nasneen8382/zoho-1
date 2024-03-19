@@ -4915,7 +4915,7 @@ def update_challan(request,id):
     c = customer.objects.all()
 
     if request.method == "POST":
-        x=request.POST["hidden_state"]
+        x=request.POST["hidden_state1"]
         y=request.POST["hidden_cus_place"]
         c=request.POST['customer_id']
         cus=customer.objects.get(id=c) 
@@ -4941,7 +4941,14 @@ def update_challan(request,id):
         estimate.adjustment = float(request.POST['adjustment_charge'])
         estimate.total = float(request.POST['total'])
         estimate.terms_conditions = request.POST['tearms_conditions']
-        estimate.status = 'Draft'
+        if x==y:
+            estimate.sgst = float(request.POST['sgst'])
+            estimate.cgst = float(request.POST['cgst'])
+            estimate.igst = 0
+        else:
+            estimate.igst =float(request.POST['igst'])
+            estimate.sgst = 0
+            estimate.cgst = 0
 
         old=estimate.attachment
         new=request.FILES.get('file')
@@ -4953,56 +4960,55 @@ def update_challan(request,id):
         estimate.save()
         est_items = ChallanItems.objects.filter(chellan=estimate)
         est_items.delete()
-        if x==y:
-
-            est_items.item = request.POST.getlist('item[]')
-            est_items.hsn = request.POST.getlist('hsn[]')
-            est_items.quantity1 = request.POST.getlist('quantity[]')
-            est_items.quantity = [float(x) for x in est_items.quantity1]
-            est_items.rate1 = request.POST.getlist('rate[]')
-            est_items.rate = [float(x) for x in est_items.rate1]
-            est_items.discount1 = request.POST.getlist('discount[]')
-            est_items.discount = [float(x) for x in est_items.discount1]
-            est_items.tax1 = request.POST.getlist('tax[]')
-            est_items.tax = [float(x) for x in est_items.tax1]
-            est_items.amount1 = request.POST.getlist('amount[]')
-            est_items.amount = [float(x) for x in est_items.amount1]
         
+
+        if x==y:
+            
+            item = request.POST.getlist('item[]')
+            hsn = request.POST.getlist('hsn[]')
+            quantity1 = request.POST.getlist('quantity[]')
+            quantity = [float(x) for x in quantity1]
+            rate1 = request.POST.getlist('rate[]')
+            rate = [float(x) for x in rate1]
+            discount1 = request.POST.getlist('discount[]')
+            discount = [float(x) for x in discount1]
+            tax1 = request.POST.getlist('tax[]')
+            tax = [float(x) for x in tax1]
+            amount1 = request.POST.getlist('amount[]')
+            amount = [float(x) for x in amount1]
+
+            
         else:
 
-            est_items.itemm = request.POST.getlist('itemm[]')
-            est_items.hsnn = request.POST.getlist('hsnn[]')
-            est_items.quantityy1 = request.POST.getlist('quantityy[]')
-            est_items.quantityy = [float(x) for x in est_items.quantityy1]
-            est_items.ratee1 = request.POST.getlist('ratee[]')
-            est_items.ratee = [float(x) for x in est_items.ratee1]
-            est_items.discountt1 = request.POST.getlist('discountt[]')
-            est_items.discountt = [float(x) for x in est_items.discountt1]
-            est_items.taxx1 = request.POST.getlist('taxx[]')
-            est_items.taxx = [float(x) for x in est_items.taxx1]
-            est_items.amountt1 = request.POST.getlist('amountt[]')
-            est_items.amountt = [float(x) for x in est_items.amountt1]
+            item = request.POST.getlist('item[]')
+            hsn = request.POST.getlist('hsn[]')
+            quantity1 = request.POST.getlist('quantity[]')
+            quantity = [float(x) for x in quantity1]
+            rate1 = request.POST.getlist('rate[]')
+            rate = [float(x) for x in rate1]
+            discount1 = request.POST.getlist('discount[]')
+            discount = [float(x) for x in discount1]
+            tax1 = request.POST.getlist('itax[]')
+            tax = [float(x) for x in tax1]
+            amount1 = request.POST.getlist('amount[]')
+            amount = [float(x) for x in amount1]
+
        
 
         
 
-        if x==y:
-            if len(est_items.item) == len(est_items.hsn) ==  len(est_items.quantity) == len(est_items.rate) == len(est_items.discount) == len(est_items.tax) == len(est_items.amount):
-                mapped = zip(est_items.item,est_items.hsn, est_items.quantity, est_items.rate, est_items.discount, est_items.tax, est_items.amount)
-                mapped = list(mapped)
-                for element in mapped:
-                    created = ChallanItems.objects.create(
-                        chellan=estimate, item_name=element[0], hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
-            return redirect('delivery_challan_overview', id=id)
+        if len(item) == len(hsn) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
+            mapped = zip(item, hsn, quantity, rate, discount, tax, amount)
+            mapped = list(mapped)
+            for element in mapped:
+                itm= AddItem.objects.get(id=element[0])
+                created = ChallanItems.objects.create(
+                    chellan=estimate, item_name=itm.Name, hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
+        print("end=================")
+       
+        return redirect('delivery_challan_overview', id=id)
 
-        else:
-            if len(est_items.itemm) == len(est_items.hsnn) == len(est_items.quantityy) == len(est_items.ratee) == len(est_items.discountt) == len(est_items.taxx) == len(est_items.amountt):
-                mapped = zip(est_items.itemm, est_items.hsnn, est_items.quantityy, est_items.ratee, est_items.discountt, est_items.taxx, est_items.amountt1)
-                mapped = list(mapped)
-                for element in mapped:
-                    created = ChallanItems.objects.create(
-                        chellan=estimate, item_name=element[0],  hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
-            return redirect('delivery_challan_overview', id=id)
+      
     context = {
         'c': c,
         'i': estimate,
@@ -29559,3 +29565,257 @@ def email_delivery_challan(request,id):
     email.send(fail_silently=False)
     # msg = messages.success(request, 'Debit note file has been shared via email successfully..!')
     return redirect(delivery_challan_overview,id)
+
+def dl_draft_send(request, id):
+    d= DeliveryChellan.objects.get(id=id)
+    d.status = 'Send'
+    d.save()
+    return redirect(delivery_challan_overview,id)
+
+def dc_to_inv(request, id):
+    
+    
+    dl = DeliveryChellan.objects.get(id=id)
+    dlitem = ChallanItems.objects.filter(chellan=dl)
+    print(dl.cu.customerName)
+
+    user = request.user
+    c = customer.objects.filter(user = request.user)
+    p = AddItem.objects.filter(user = request.user)
+    # invoiceitem = invoice_item.objects.filter(inv_id=id)
+    # invoic = invoice.objects.get(id=id)
+    # cust = invoic.customer.placeofsupply
+    # cust_id = invoic.customer.id
+    pay = payment_terms.objects.filter(user = request.user)
+    sales = Sales.objects.all()
+    purchase = Purchase.objects.all()
+    # invpay = InvoicePayment.objects.filter(invoice_id=id)
+    ip = InvoicePayment.objects.filter(invoice__user=request.user)
+
+
+
+    # invp = invpay[0] if invpay else None
+    banks = Bankcreation.objects.all()
+    unit = Unit.objects.all()
+    
+    company = company_details.objects.get(user=request.user.id)
+    comp = company.state
+    
+    
+    
+    
+    user = request.user
+    company = company_details.objects.get(user=user)
+    customers = customer.objects.filter(user_id=user.id)
+    
+    c = customer.objects.all()
+
+    items = AddItem.objects.filter(user = request.user)
+    # estimate = invoice.objects.get(id=id)
+    # cust = estimate.customer.placeofsupply 
+    # cust_id = estimate.customer.id
+    payments=payment_terms.objects.filter(user = request.user)
+    
+    # pls= customer.objects.get(customerName=estimate.customer.customerName)
+    
+    # est_items = invoice_item.objects.filter(inv=estimate)
+
+    unit=Unit.objects.all()
+    sale=Sales.objects.all()
+    purchase=Purchase.objects.all()
+    accounts = Purchase.objects.all()
+    account_types = set(Purchase.objects.values_list('Account_type', flat=True))
+
+    
+    account = Sales.objects.all()
+    account_type = set(Sales.objects.values_list('Account_type', flat=True))
+    
+    
+    
+    cur_user = request.user
+    user = User.objects.get(id=cur_user.id)
+    
+    c = customer.objects.all()
+
+    
+        
+    context = {
+        'c': c,
+        'company': company,
+        
+        'customers': customers,
+        
+       
+        
+        
+        'items': items,
+        'units':  unit,
+        'sales':sale,
+        'purchase':purchase,
+        "account":account,
+        "account_type":account_type,
+        "accounts":accounts,
+        "account_types":account_types,
+        'payments':payments,  
+        'banks': banks,
+        'ip':ip,
+        'p':p,
+        'dl':dl,
+        'dlitem':dlitem,
+    
+    }
+    return render(request, 'dc_to_inv.html', context)
+
+def dl_change_inv(request,id):
+    if request.method == 'POST':
+        items = request.POST.getlist('item[]')
+                
+        print(items)
+        
+        c = request.POST['cx_name']
+        
+        print(c)
+        cus = customer.objects.get(id=c)
+        print(cus.id)
+        custo = cus
+        invoice_no = request.POST['inv_no']
+        terms = request.POST['term']
+        pterms = payment_terms.objects.get(id=terms)
+        
+        # term=payment_terms.objects.get(id=terms)
+        order_no = request.POST['ord_no']
+        cheque_number = ''
+        upi_id = ''
+        payment_method = request.POST['payment_method']
+        account_number = ''  # Initialize account_number
+        
+        if payment_method == 'cash':
+            pass
+            # Handle cash related operations here
+        elif payment_method == 'cheque':
+            cheque_number = request.POST.get('cheque_number', '')
+            # Handle cheque related operations here
+        elif payment_method == 'upi':
+            upi_id = request.POST.get('upi_id', '')
+            # Handle UPI related operations here
+        elif payment_method == 'bank':
+            bank_id = request.POST.get('bank_name', '')
+            cheque_number = request.POST.get('cheque_number', '')
+            upi_id = request.POST.get('upi_id', '')
+            if bank_id:
+                try:
+                    bank_instance = Bankcreation.objects.get(id=bank_id)
+                    account_number = bank_instance.ac_no
+                except Bankcreation.DoesNotExist:
+                    print(f"Bank with ID {bank_id} does not exist.")
+            else:
+                print("No bank ID provided.")
+        else:
+            pass
+
+        print(f"Bank ID: {bank_id}")
+        print(f"Account Number: {account_number}")
+    
+
+        
+        inv_date_str = request.POST['inv_date']  
+        due_date_str = request.POST['due_date']  
+        
+        inv_date_str = request.POST.get('inv_date', "")
+        due_date_str = request.POST.get('due_date', "")
+
+        inv_date = None
+        due_date = None
+
+        if inv_date_str and due_date_str:
+           
+                inv_date = datetime.strptime(inv_date_str, '%Y-%m-%d')
+                due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
+
+                cxnote = request.POST.get('customer_note', "")
+                subtotal = request.POST.get('subtotal', "")
+                igst = request.POST.get('igst', "")
+                cgst = request.POST.get('cgst', "")
+                sgst = request.POST.get('sgst', "")
+                totaltax = request.POST.get('totaltax', "")
+                t_total = request.POST.get('t_total', "")
+                file = request.FILES.get('file', None)
+                tc = request.POST.get('ter_cond', "")
+                if 'Draft' in request.POST:
+                    status="draft"
+                if "Save" in request.POST:
+                    status = "approved"
+                shipping_charge = request.POST.get('shipping_charge', "")
+                adjustment_charge = request.POST.get('adjustment_charge', "")
+                paid_amount = request.POST.get('paid_amount', "")
+                balance = request.POST.get('balance', "")
+                reference=request.POST['ord_no']
+                invn = invoice(user=request.user, customer=custo, invoice_no=invoice_no, terms=terms, order_no=order_no, 
+                                inv_date=inv_date, due_date=due_date, cxnote=cxnote, subtotal=subtotal, 
+                                igst=igst, cgst=cgst, sgst=sgst, t_tax=totaltax, grandtotal=t_total, 
+                                status=status, terms_condition=tc, file=file, adjustment=adjustment_charge, 
+                                shipping_charge=shipping_charge, paid_amount=paid_amount, balance=balance, reference=reference,
+                                pterms=pterms)
+                invn.save()
+                account_number = bank_instance.ac_no if bank_instance else ''
+
+                
+                invoice_payment = InvoicePayment(
+                                    invoice=invn,
+                                    payment_method=payment_method,
+                                    cheque_number=cheque_number,
+                                    upi_id=upi_id,
+                                    account_number=account_number,
+                                    banking=bank_instance
+                                    
+                                )
+                
+                invoice_payment.save()
+                
+                
+                
+                
+
+                # Additional code for creating invoice items
+
+            
+        
+            
+                
+                items = request.POST.getlist('item[]')
+                hsns = request.POST.getlist('hsn[]')
+                quantity1 = request.POST.getlist('quantity[]')
+                quantities = [float(x) for x in quantity1]
+                rate1 = request.POST.getlist('rate[]')
+                rates = [float(x) for x in rate1]
+                discount1 = request.POST.getlist('desc[]')
+                discounts = [float(x) for x in discount1]
+                tax1 = request.POST.getlist('tax[]')
+                taxes = [float(x) for x in tax1]
+                amount1 = request.POST.getlist('amount[]')
+                amounts = [float(x) for x in amount1]
+                
+                
+                for i in range(len(items)):
+                    print("Items:", i)
+            
+                    invoice_item.objects.create(
+                        inv=invn,
+                        product=items[i],
+                        hsn=hsns[i],
+                        quantity=quantities[i],
+                        rate=rates[i],
+                        discount=discounts[i],
+                        tax=taxes[i],
+                        total=amounts[i]
+                        
+                    )
+
+            
+                d = DeliveryChellan.objects.get(id=id)
+                d.balance= invn.balance
+                d.to_inv ="Converted to Invoice no."+ invn.invoice_no
+                
+                d.save()
+                return redirect('delivery_chellan_home')
+    

@@ -524,9 +524,9 @@
         </div>
         <div class="row pb-4">
             <div class="col-md-5">
-                <a class="btn" style="background-color: chocolate; margin-right: 2vh;" id="overview_btn"><i class="fas fa-eye"></i>
+                <a class="btn" style="background-color: chocolate; " id="overview_btn"><i class="fas fa-eye"></i>
                     Overview</a>
-                <a href=" " class=" btn fa fa-file-alt" data-bs-toggle="dropdown" id="attachmentDropdown"
+                <a href=" " class=" btn fa fa-file-alt " data-bs-toggle="dropdown" id="attachmentDropdown"
                     aria-haspopup="true" aria-expanded="false"
                     style="background-color: white; color: black; margin-right: 2vh;"> Templates
                 </a>
@@ -545,7 +545,7 @@
             </div>
             <style>
                 .grp .btn {
-                    width: 3.5vw;
+                    width: 3.2vw;
                 }
             </style>
             <div class="col-md-7 px-0 grp" style="text-align: center;">
@@ -611,6 +611,7 @@
 
                     {% endif %}
                 </div>
+                
                 <script>
                       $(document).ready(function() {
                      $("#pdf_btn").click(function() {
@@ -698,7 +699,13 @@
                 </script>
                 <a class="text-dark" id="slip_btn">
                     <button class="btn btn-outline-warning" title="Slip"><i class="fas fa-receipt"></i></button></a>
-            </div>
+                    {% if estimate.status == 'Draft' %}
+               <a class="  text-dark " id="convert" href="{% url 'dl_draft_send' estimate.id %}">
+                    <button class="btn btn-outline-warning" title="Send"><i class="fa fa-exchange"></i></button>
+                </a>
+                {% endif %}
+                </div>
+                
         </div>
         <!-- =============================== new overview -->
         <div class="row" id="overview"
