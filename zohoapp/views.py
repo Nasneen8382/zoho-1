@@ -14277,7 +14277,7 @@ def delete_vendor_credits(request, id):
     
 def add_vendor_credits(request):
     company = company_details.objects.get(user = request.user)
-    vendor=vendor_table.objects.all()
+    vendor=vendor_table.objects.filter(status='Active')
     cust=customer.objects.filter(user = request.user)
     payment=payment_terms.objects.all()
     item=AddItem.objects.all()
@@ -14686,55 +14686,99 @@ def itemdata_vendor_credit(request):
 @login_required(login_url='login')
 def vendor_credit_vendor(request):
     
-    company = company_details.objects.get(user = request.user)
+    # company = company_details.objects.get(user = request.user)
 
-    if request.method=='POST':
+    if request.method=="POST":
+        print("POST =================")
+        vendor_data=vendor_table()
+        vendor_data.salutation = request.POST.get('salutation')
+        vendor_data.first_name=request.POST['first_name']
+        vendor_data.last_name=request.POST['last_name']
+        vendor_data.company_name=request.POST['company_name']
+        vendor_data.vendor_display_name=request.POST['v_display_name']
+        vendor_data.vendor_email=request.POST['vendor_email']
+        vendor_data.vendor_wphone=request.POST['w_phone']
+        vendor_data.vendor_mphone=request.POST['m_phone']
+        vendor_data.skype_number=request.POST['skype_number']
+        vendor_data.designation=request.POST['designation']
+        vendor_data.department=request.POST['department']
+        vendor_data.website=request.POST['website']
+        vendor_data.gst_treatment=request.POST['gst']
+        vendor_data.status="Active"
 
-        title=request.POST.get('title')
-        first_name=request.POST.get('firstname')
-        last_name=request.POST.get('lastname')
-        comp=request.POST.get('company_name')
-        dispn = request.POST.get('display_name')
-        email=request.POST.get('email')
-        website=request.POST.get('website')
-        w_mobile=request.POST.get('work_mobile')
-        p_mobile=request.POST.get('pers_mobile')
-        skype = request.POST.get('skype')
-        desg = request.POST.get('desg')
-        dpt = request.POST.get('dpt')
-        gsttype=request.POST.get('gsttype')
-        gstin=request.POST.get('gstin')
-        panno=request.POST.get('panno')
-        supply=request.POST.get('sourceofsupply')
-        currency=request.POST.get('currency')
-        balance=request.POST.get('openingbalance')
-        payment=request.POST.get('paymentterms')
-        street=request.POST.get('street')
-        city=request.POST.get('city')
-        state=request.POST.get('state')
-        pincode=request.POST.get('pincode')
-        country=request.POST.get('country')
-        fax=request.POST.get('fax')
-        phone=request.POST.get('phone')
-        shipstreet=request.POST.get('shipstreet')
-        shipcity=request.POST.get('shipcity')
-        shipstate=request.POST.get('shipstate')
-        shippincode=request.POST.get('shippincode')
-        shipcountry=request.POST.get('shipcountry')
-        shipfax=request.POST.get('shipfax')
-        shipphone=request.POST.get('shipphone')
+        x=request.POST['gst']
+        if x=="Unregistered Business-not Registered under GST":
+            vendor_data.pan_number=request.POST['pan_number']
+            vendor_data.gst_number="null"
+        else:
+            vendor_data.gst_number=request.POST['gst_number']
+            vendor_data.pan_number=request.POST['pan_number']
 
-        u = User.objects.get(id = request.user.id)
+        vendor_data.source_supply=request.POST['source_supply']
+        vendor_data.currency=request.POST['currency']
+        vendor_data.opening_bal=request.POST['opening_bal']
+        vendor_data.payment_terms=request.POST['payment_terms']
 
-        vndr = vendor_table(salutation=title, first_name=first_name, last_name=last_name,vendor_display_name = dispn, company_name= comp, gst_treatment=gsttype, gst_number=gstin, 
-                    pan_number=panno,vendor_wphone = w_mobile,vendor_mphone = p_mobile, vendor_email=email,skype_number = skype,
-                    source_supply=supply,currency=currency, website=website, designation = desg, department = dpt,
-                    opening_bal=balance,baddress=street, bcity=city, bstate=state, payment_terms=payment,bzip=pincode, 
-                    bcountry=country, saddress=shipstreet, scity=shipcity, sstate=shipstate,szip=shippincode, scountry=shipcountry,
-                    bfax = fax, sfax = shipfax, bphone = phone, sphone = shipphone,user = u)
-        vndr.save()
+        user_id=request.user.id
+        udata=User.objects.get(id=user_id)
+        vendor_data.user=udata
+        vendor_data.battention=request.POST['battention']
+        vendor_data.bcountry=request.POST['bcountry']
+        vendor_data.baddress=request.POST['baddress']
+        vendor_data.bcity=request.POST['bcity']
+        vendor_data.bstate=request.POST['bstate']
+        vendor_data.bzip=request.POST['bzip']
+        vendor_data.bphone=request.POST['bphone']
+        vendor_data.bfax=request.POST['bfax']
 
-        return HttpResponse({"message": "success"})
+        vendor_data.sattention=request.POST['sattention']
+        vendor_data.scountry=request.POST['scountry']
+        vendor_data.saddress=request.POST['saddress']
+        vendor_data.scity=request.POST['scity']
+        vendor_data.sstate=request.POST['sstate']
+        vendor_data.szip=request.POST['szip']
+        vendor_data.sphone=request.POST['sphone']
+        vendor_data.sfax=request.POST['sfax']
+        vendor_data.save()
+        print("vendor_data.save")
+# .......................................................adding to remaks table.....................
+        vdata=vendor_table.objects.get(id=vendor_data.id)
+        vendor=vdata
+        rdata=remarks_table()
+        rdata.remarks=request.POST['remark']
+        rdata.user=udata
+        rdata.vendor=vdata
+        rdata.save()
+        print("rdata.save")
+
+#  ...........................adding multiple rows of table to model  ........................................................  
+     
+        salutation =request.POST.getlist('salutation[]')
+        first_name =request.POST.getlist('first_name[]')
+        last_name =request.POST.getlist('last_name[]')
+        email =request.POST.getlist('email[]')
+        work_phone =request.POST.getlist('wphone[]')
+        mobile =request.POST.getlist('mobile[]')
+        skype_number =request.POST.getlist('skype[]')
+        designation =request.POST.getlist('designation[]')
+        department =request.POST.getlist('department[]') 
+        vdata=vendor_table.objects.get(id=vendor_data.id)
+        vendor=vdata
+        print("hi")
+        print(salutation)
+        if salutation != ['Select']:
+            if len(salutation)==len(first_name)==len(last_name)==len(email)==len(work_phone)==len(mobile)==len(skype_number)==len(designation)==len(department):
+                mapped2=zip(salutation,first_name,last_name,email,work_phone,mobile,skype_number,designation,department)
+                mapped2=list(mapped2)
+                print(mapped2)
+                for ele in mapped2:
+                    created = contact_person_table.objects.get_or_create(salutation=ele[0],first_name=ele[1],last_name=ele[2],email=ele[3],
+                            work_phone=ele[4],mobile=ele[5],skype_number=ele[6],designation=ele[7],department=ele[8],user=udata,vendor=vendor)
+            print("contact person")
+       
+        print("successmessage")
+        return JsonResponse({"message": "success"})
+        # return HttpResponse({"message": "success"})
         
         
 ############### BALANCE SHEET ################## 
@@ -29317,7 +29361,7 @@ def sharePricelistToEmail(request,id):
         
         
         
-        # ===========================================================================
+        # =======================================delivery challan updates by nasneen o m ====================================
 def get_dl_item(request):
     cur_user = request.user
     user = User.objects.get(id=cur_user.id)
@@ -29679,8 +29723,8 @@ def dl_change_inv(request,id):
         print(cus.id)
         custo = cus
         invoice_no = request.POST['inv_no']
-        terms = request.POST['term']
-        pterms = payment_terms.objects.get(id=terms)
+        # terms = request.POST['term']
+        # pterms = payment_terms.objects.get(id=terms)
         
         # term=payment_terms.objects.get(id=terms)
         order_no = request.POST['ord_no']
@@ -29688,7 +29732,7 @@ def dl_change_inv(request,id):
         upi_id = ''
         payment_method = request.POST['payment_method']
         account_number = ''  # Initialize account_number
-        
+        bank_instance = '' 
         if payment_method == 'cash':
             pass
             # Handle cash related operations here
@@ -29713,8 +29757,7 @@ def dl_change_inv(request,id):
         else:
             pass
 
-        print(f"Bank ID: {bank_id}")
-        print(f"Account Number: {account_number}")
+        
     
 
         
@@ -29750,15 +29793,18 @@ def dl_change_inv(request,id):
                 paid_amount = request.POST.get('paid_amount', "")
                 balance = request.POST.get('balance', "")
                 reference=request.POST['ord_no']
-                invn = invoice(user=request.user, customer=custo, invoice_no=invoice_no, terms=terms, order_no=order_no, 
+                invn = invoice(user=request.user, customer=custo, invoice_no=invoice_no, order_no=order_no, 
                                 inv_date=inv_date, due_date=due_date, cxnote=cxnote, subtotal=subtotal, 
                                 igst=igst, cgst=cgst, sgst=sgst, t_tax=totaltax, grandtotal=t_total, 
                                 status=status, terms_condition=tc, file=file, adjustment=adjustment_charge, 
                                 shipping_charge=shipping_charge, paid_amount=paid_amount, balance=balance, reference=reference,
-                                pterms=pterms)
+                                )
                 invn.save()
-                account_number = bank_instance.ac_no if bank_instance else ''
-
+                # account_number = bank_instance.ac_no if bank_instance else ''
+                if bank_instance:
+                    account_number = bank_instance.ac_no
+                else:
+                    account_number = ''
                 
                 invoice_payment = InvoicePayment(
                                     invoice=invn,
@@ -29766,7 +29812,7 @@ def dl_change_inv(request,id):
                                     cheque_number=cheque_number,
                                     upi_id=upi_id,
                                     account_number=account_number,
-                                    banking=bank_instance
+                                    banking=bank_instance if payment_method == 'bank' else None
                                     
                                 )
                 
@@ -29788,28 +29834,31 @@ def dl_change_inv(request,id):
                 quantities = [float(x) for x in quantity1]
                 rate1 = request.POST.getlist('rate[]')
                 rates = [float(x) for x in rate1]
-                discount1 = request.POST.getlist('desc[]')
+                discount1 = request.POST.getlist('discount[]')
                 discounts = [float(x) for x in discount1]
                 tax1 = request.POST.getlist('tax[]')
                 taxes = [float(x) for x in tax1]
                 amount1 = request.POST.getlist('amount[]')
                 amounts = [float(x) for x in amount1]
+                for i in discount1:
+                    print(i)
                 
+                if len(items)==len(quantities)==len(hsns)==len(rates)==len(discounts)==len(taxes)==len(amounts):
                 
-                for i in range(len(items)):
-                    print("Items:", i)
-            
-                    invoice_item.objects.create(
-                        inv=invn,
-                        product=items[i],
-                        hsn=hsns[i],
-                        quantity=quantities[i],
-                        rate=rates[i],
-                        discount=discounts[i],
-                        tax=taxes[i],
-                        total=amounts[i]
-                        
-                    )
+                    for i in range(len(items)):
+                        print("Items:", discounts[i])
+                
+                        invoice_item.objects.create(
+                            inv=invn,
+                            product=items[i],
+                            hsn=hsns[i],
+                            quantity=quantities[i],
+                            rate=rates[i],
+                            discount=discounts[i],
+                            tax=taxes[i],
+                            total=amounts[i]
+                            
+                        )
 
             
                 d = DeliveryChellan.objects.get(id=id)
@@ -29819,3 +29868,7 @@ def dl_change_inv(request,id):
                 d.save()
                 return redirect('delivery_chellan_home')
     
+    
+    
+    
+        # =======================================vendor credit updates by nasneen o m ====================================

@@ -318,7 +318,6 @@
 
           </div>
         </div>
-        <!-- {% for invp in invpay %} -->
         <div class="row mt-2">
           <div class="col-md-3">
             <label for="date2">Payment Method</label>
@@ -327,6 +326,7 @@
             <div class="d-flex">
               <select class="form-control bg-light text-dark my-select" id="pay_method" name="payment_method">
                 
+                <option value="">Select</option>
                 <option value="cash">Cash</option>
                 <option value="cheque">Cheque</option>
                 <option value="upi">UPI</option>
@@ -334,26 +334,26 @@
                 <option value="{{item.name}}">{{item.name}}</option>
                 {% endfor %}
               </select>
+              
             </div>
+
           </div>
         </div>
-
         <div class="row mt-2" id="chequediv" style="display: none;">
           <div class="col-md-3">
             <label for="date2">Cheque ID</label>
           </div>
           <div class="col-md-6">
             <input type="text" class="form-control text-black" name="cheque_number" id="cheque_id"
-              value="{{invp.cheque_number}}">
+              value="">
           </div>
         </div>
-
         <div class="row mt-2" id="upidiv" style="display: none;">
           <div class="col-md-3">
             <label for="date2">UPI ID</label>
           </div>
           <div class="col-md-6">
-            <input type="text" class="form-control text-black" name="upi_id" id="upi_id" value="{{invp.upi_id}}">
+            <input type="text" class="form-control text-black" name="upi_id" id="upi_id" value="">
           </div>
         </div>
 
@@ -368,6 +368,12 @@
 
 
 
+        
+        <!-- {% for invp in invpay %} -->
+        
+        
+
+        
         <!-- {% endfor %} -->
 
 
@@ -1840,51 +1846,7 @@
 
 
 
-<script>
 
-
-  $(document).ready(function () {
-    var x = $('#pay_method').val();
-    if (x === 'cash') {
-      $('#chequediv').hide()
-      $('#bnkdiv').hide()
-      $('#upidiv').hide()
-      document.getElementById('cheque_id').value = null
-      document.getElementById('upi_id').value = null
-    } else if (x === 'cheque') {
-      $('#chequediv').show()
-      $('#bnkdiv').hide()
-      $('#upidiv').hide()
-      document.getElementById('upi_id').value = null
-    } else if (x === 'upi') {
-      $('#upidiv').show()
-      $('#bnkdiv').hide()
-      $('#chequediv').hide()
-      document.getElementById('cheque_id').value = null
-    } else {
-      $('#bnkdiv').show()
-      $('#chequediv').hide()
-      $('#upidiv').hide()
-      document.getElementById('cheque_id').value = null
-      document.getElementById('upi_id').value = null
-
-      $.ajax({
-        type: "GET",
-        url: "{% url 'bankdata' %}",
-        data: {
-          id: x,
-        },
-        success: function (response) {
-          data = response.bank
-          document.getElementById('cheque_id').value = null
-          document.getElementById('upi_id').value = null
-          document.getElementById("bnk_id").value = data
-        }
-      });
-    }
-  })
-
-</script>
 
 <script>
   $(document).ready(function () {
@@ -2036,12 +1998,14 @@
   });
 </script>
 
-<script>
+<!-- <script>
   $(document).ready(function () {
     var y = $('#prof_name').val();
     $("#prof_name").change(function () {
       var x = $('#prof_name').val();
-      reford = "{{reford}}"
+      reford = "{{reford}}";
+      console.log(reford);
+    
       if (parseInt(reford) != parseInt(x.slice(3,))) {
         document.getElementById("order_label").style.display = "block"
         document.getElementById("order_label").style.color = "red"
@@ -2057,7 +2021,7 @@
       }
     });
   });
-</script>
+</script> -->
 
 <script>
 
@@ -2815,7 +2779,7 @@
       <tr id='row${rowCount}'>
         <td>
           <div>
-            <select class='form-control border-0 bg-transparent text-white  border-0 item_select itm' name='item[]' id='item${rowCount}' onchange="itemfunction(this.id)">
+            <select class='form-control px-0 bg-transparent text-white  border-0 item_select itm' name='item[]' id='item${rowCount}' onchange="itemfunction(this.id)">
               <option value=" " selected disabled hidden>Select Item</option>
               {% for i in p %}
                 <option class="text-black" value="{{i.id}}">{{ i.Name }}</option>
@@ -2826,25 +2790,25 @@
 
       
         <td style="width: 15%;" class='text-right'>
-          <input type='number' id='hsn${rowCount}' class=' text-right hsn form-control border-0 bg-transparent text-white' name='hsn[]' readonly>
+          <input  id='hsn${rowCount}' class=' px-0 text-right hsn form-control border-0 bg-transparent text-white' name='hsn[]' readonly>
         </td>
         
         <td style="width: 17%;" class='text-right'>
-          <input type='number' id='qty${rowCount}' class='text-right border-0 bg-transparent text-white qty form-control' name='quantity[]' value='0' style="margin-top: 4vh;" onchange='qtychange(this.id)'><br>
+          <input type='number' id='qty${rowCount}' class='text-right px-0 border-0 bg-transparent text-white qty form-control' name='quantity[]' value='0' style="margin-top: 4vh;" onchange='qtychange(this.id)'><br>
           <span class="text-warning">Available Stock : <span id="stock_data1" class="stock_data text-warning"></span></span>
           <span class="stock_warning text-danger"></span>
         </td>
         
         <td style="width: 15%;" class='text-right'>
-          <input type='number' id='rate${rowCount}' class='text-right border-0 bg-transparent text-white rate form-control' name='rate[]' value='0' readonly>
+          <input id='rate${rowCount}' class='text-right px-0 border-0 bg-transparent text-white rate form-control' name='rate[]' value='0' readonly>
         </td>
         
         <td style="width: 10%;" class='text-right'>
-          <input type='number' id='discount${rowCount}' class='text-right border-0 bg-transparent text-white discount form-control' name='discount[]' value='0'>
+          <input type='number' id='discount${rowCount}' class='text-right px-0 border-0 bg-transparent text-white discount form-control' name='discount[]' value='0'>
         </td>
         
         <td style="width: 22%;" class='text-right'>
-          <select name='tax[]'  id='tax${rowCount}' class='form-control border-0 bg-transparent text-white text-right border-0 tax' onchange="toggleDateInput()">
+          <select name='tax[]'  id='tax${rowCount}' class='form-control px-0 border-0 bg-transparent text-white text-right border-0 tax' onchange="toggleDateInput()">
             <optgroup class="text-center text-black" label="GST">
                             <option class="text-black" value="0">0% GST(0%)</option>
                             <option class="text-black" value="3">3.0% GST(3%)</option>
@@ -2867,11 +2831,11 @@
         </td>
         
         <td style="display: none;">
-          <input type="text" name='taxamount' id="taxamount${rowCount}" class="form-control border-0 bg-transparent text-white taxamount" />
+          <input type="text" name='taxamount' id="taxamount${rowCount}" class="form-control px-0 border-0 bg-transparent text-white taxamount" />
         </td>
         
         <td style="width: 15%;" class='text-right'>
-          <input type='number' id='amount${rowCount}' class='text-right border-0 bg-transparent text-white form-control amount' name='amount[]' value='0.00' readonly>
+          <input type='number' id='amount${rowCount}' class='text-right px-0 border-0 bg-transparent text-white form-control amount' name='amount[]' value='0.00' readonly>
         </td>
         
           <td class='text-center'>

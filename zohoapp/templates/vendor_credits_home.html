@@ -204,53 +204,88 @@
         </div>
         <div class="card radius-15 mb-5">
             <div class="card-body">
-                <div class="row">
-                    <div class=" col-md-3">
-                    
-                        <!-- <div class="d-flex"> -->
-                            <input type="text" id="search" placeholder="Search..." class="form-control text-dark bg-light" autocomplete="off">
-                        <!-- </div> -->
-                        
+                <div class="row pb-3">
+                    <div class=" col-md-6 d-flex">
+                      <input type="text" id="search" placeholder="Search..." class="form-control text-light bg-dark w-50"
+                        autocomplete="off" style="height: 6vh;">
+                        <div class="dropdown">
+                          <button class="btn btn-outline-warning  px-3 py-2 ms-1" type="button" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false"><i class="fas fa-sort-amount-up"></i>
+                            Sort
+                          </button>
+                          <div class="dropdown-menu ">
+                            <a class="dropdown-item" href="#" id="all-list">
+                              <i class="fa fa-sort"></i> All
+                            </a>
+                            <a class="dropdown-item" href="#" id="vendor-name">
+                              <i class="fa fa-sort"></i> Vendor Name
+                            </a>
+                            <a class="dropdown-item" href="#" id="debit-no">
+                              <i class="fa fa-sort"></i> Debit note No
+                            </a>
+                
+                
+                          </div>
+                        </div>
+                        <!-- <select class="btn text-center px-3" id="actionFilter"> 
 
+                            <option value="all">Filter</option>
+                            <option value="Billable">Billable</option>
+                            <option value="Non Billable">Non-Billable</option>
+                        </select> -->
+                        <a class="btn text-center px-3 py-2  btn-outline-warning ms-1" data-bs-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false" role="button"><i class="fa fa-filter mx-3"></i>
+                      </a>
+                      <div class="dropdown-menu ">
+                        <a class="dropdown-item" >All</a>
+                        <a class="dropdown-item" >Draft</a>
+                        <a class="dropdown-item" >Send</a>
+              
+                      </div>
                     </div>
-                    <div class="col-md-6"></div>
-                    <div class="col-md-3">
+                   
+              
+              
+              
+                    <div class="col-md-1"></div>
+                    <div class="col-md-5">
+              
+                     
+                      <a href="{% url 'add_vendor_credits' %}" class="btn text-right px-3 py-2  btn-outline-warning">
+                       <i class="fa fa-plus" aria-hidden="true"></i> NEW
+                      </a>
+                      <label for="file-input" title="improt excel" class="btn text-right px-3 py-2  btn-outline-warning"
+                                                      type="button"><i class="fa fa-file-excel-o" aria-hidden="true"></i>IMPORT</label>
+                                                      <input id="file-input" type="file" name="file" style="display:none;"
+                                                      onchange="uploadFile()">
+                       <a  class="btn text-right px-3 py-2  btn-outline-warning"  onclick="exportAsExcel()">
+                        <i class="fa fa-file-excel-o" aria-hidden="true"></i> EXPORT
+                       </a>
+                      
                         
-                        <!-- <a class="btn text-center px-3 py-2 " data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                        role="button"><i class="fa fa-filter mx-3"></i>
-                        </a>
-                        <div class="dropdown-menu ">
-                            <a class="dropdown-item" href="{% url 'recurring_bill' %}">All</a>
-                            <a class="dropdown-item" href="{% url 'recur_custasc' %}">Customer A-Z</a>
-                            <a class="dropdown-item" href="{% url 'recur_custdesc' %}">Customer Z-A</a>
-                            <a class="dropdown-item" href="{% url 'recur_vendorasc' %}">Vendor A-Z</a>
-                            <a class="dropdown-item" href="{% url 'recur_vendordesc' %}">Vendor Z-A</a>
-                            <a class="dropdown-item" href="{% url 'recur_profileasc' %}">Profile A-Z</a>
-                            <a class="dropdown-item" href="{% url 'recur_profiledesc' %}">Profile Z-A</a>
-
-                        </div> -->
-                        <a href="{% url 'add_vendor_credits' %}" class="btn fa fa-plus text-right px-3 py-2" role="button">
-                            <span class="mt-2">&nbsp;&nbsp;NEW</span>
-                        </a>
                     </div>
-                </div>
+                  </div>
+                
                 <hr>
                 <div class="container-fluid">
                     <table class="table table-responsive-md mt-4" id="table">
                         <thead>
                             <tr>
                                 <th>DATE</th>
+                                <th>DEBIT NOTE NO.</th>
                                 <th>VENDOR NAME</th>
-                                <th>VENDOR EMAIL</th>
+                                <th>EMAIL</th>
                                 <th>TAX AMOUNT</th>
                                 <th>AMOUNT</th>
-                                <th>ACTION</th>
+                                <th>STATUS</th>
+                                <th>BALANCE</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for r in recur_bill %}
                             <tr >
                                 <th><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_date }}</a></th>
+                                <th><a href="{% url 'view_vendor_credits' r.id %}">{{ r.credit_note }}</a></th>
                                 <td><a href="{% url 'view_vendor_credits' r.id %}"> 
                                     <span>{{ r.vendor_name.split.0 }}</span>
                                     <span>{{ r.vendor_name.split.1 }}</span>
@@ -258,12 +293,15 @@
                                 <td class="text-capitalize"><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_email }}</a></td>
                                 <td class="text-capitalize"><a href="{% url 'view_vendor_credits' r.id %}">{{ r.tax_amount }}</a></td>
                                 <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.grand_total|floatformat:2 }}</a></td>
-                                <td class="text-right">
+                                <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.grand_total|floatformat:2 }}</a></td>
+                                <!-- <td class="text-right">
                                     <a href="{% url 'view_vendor_credits' r.id %}" 
                                     data-toggle="tooltip" data-placement="top" title="Delete Recurring Expense">
                                             <i class="gg-trash text-center text-danger"></i>
                                     </a>
-                                </td>
+                                </td> -->
+                                <td><a href="{% url 'view_vendor_credits' r.id %}">0.00</a></td>
+
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -322,6 +360,45 @@
         return !~text.indexOf(val);
       }).hide();
     });
+
+    $('#vendor-name').on('click', function () {
+        sortTable(2); // Sort by Challan Number (2nd column)
+      });
+
+      $('#debit-no').on('click', function () {
+        sortTable(1); // Sort by Customer Name (3rd column)
+      });
+
+      $('#all-list').on('click', function () {
+        // Reset to the original order of rows
+        $('#table tbody').empty().append(originalOrder);
+      });
+
+      function sortTable(column) {
+        $rows.sort(function (a, b) {
+          var aVal = $(a).find('td').eq(column).text();
+          var bVal = $(b).find('td').eq(column).text();
+          return aVal.localeCompare(bVal);
+        });
+        $('#table-id tbody').html($rows);
+      }
+
+
+      $(".dropdown-item").click(function() {
+                var selectedOption = $(this).text().trim();
+
+                // Iterate over each row in the table
+                $("table tbody tr").each(function() {
+                    var cellText = $(this).find("td:eq(6)").text().trim(); // Get text of the third column
+
+                    // Show/hide rows based on the selected option
+                    if (selectedOption === "All" || cellText === selectedOption) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
   });
 
 
