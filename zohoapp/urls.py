@@ -1274,6 +1274,7 @@ urlpatterns = [
     path('delet_manual/<int:id>',views.delet_manual,name='delet_manual'),
 
     path('sharePricelistToEmail/<int:id>/', views.sharePricelistToEmail, name='sharePricelistToEmail'),
+    # ===========================================
     
     path("get_dl_item",views.get_dl_item,name="get_dl_item"),
     path('import_excel_dl', views.import_excel_dl, name='import_excel_dl'),
@@ -1286,6 +1287,8 @@ urlpatterns = [
     path('dl_draft_send/<int:id>', views.dl_draft_send, name='dl_draft_send'),
     path('dc_to_inv/<int:id>', views.dc_to_inv, name='dc_to_inv'),
     path('dl_change_inv/<int:id>', views.dl_change_inv, name='dl_change_inv'),
+    
+    path('getacc', views.getacc, name='getacc'),
 
     
        

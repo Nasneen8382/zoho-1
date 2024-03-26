@@ -54,6 +54,8 @@ import pandas as pd
 from django.http import Http404
 from django.http import HttpResponseServerError
 
+import re
+
 def index(request):
 
     return render(request,'landpage.html')
@@ -14053,13 +14055,27 @@ def get_vendor_credit_det(request):
     # fname = request.POST.get('fname')
     # lname = request.POST.get('lname')
     id = request.POST.get('id')
+    print(id)
     vdr = vendor_table.objects.get(user=company.user_id, id=id)
+
+    vname = vdr.first_name +' '+vdr.last_name
+    bill= PurchaseBills.objects.filter(vendor_name=vname)
+    number_prefix_pattern = re.compile(r'^\d+ ')
+    rbill = recurring_bills.objects.filter(Q(vendor_name=vname) | Q(vendor_name__regex=fr'^\d+ {vname}'))
+    # rbill= recurring_bills.objects.filter(vendor_name=vname)
+    bill_nos = []
+    for i in bill:
+        bill_nos.append(i.bill_no)
+    for j in rbill:
+        bill_nos.append(j.bill_no)
     vemail = vdr.vendor_email
     gstnum = vdr.gst_number
     gsttr = vdr.gst_treatment
     baddress = vdr.baddress
+    placeofsuply=vdr.source_supply
+    print(placeofsuply)
 
-    return JsonResponse({'vendor_email' :vemail, 'gst_number' : gstnum,'gst_treatment':gsttr, 'baddress' : baddress},safe=False)
+    return JsonResponse({'vendor_email' :vemail, 'gst_number' : gstnum,'gst_treatment':gsttr, 'baddress' : baddress,'bill_nos':bill_nos,'placeofsuply':placeofsuply},safe=False)
     
     
 @login_required(login_url='login')
@@ -14285,6 +14301,34 @@ def add_vendor_credits(request):
     unit=Unit.objects.all()
     sales=Sales.objects.all()
     purchase=Purchase.objects.all()
+    user = request.user
+    bnk = Bankcreation.objects.filter(user=user)
+    today = date.today()
+    
+        
+    max_credit = Vendor_Credits_Bills.objects.filter(user=user).aggregate(Max('credit_note'))['credit_note__max']
+
+    if max_credit:
+        # Extract numeric part from the max_credit
+        numeric_part = re.search(r'\d+$', max_credit).group(0)
+        next_numeric_part = str(int(numeric_part) + 1)
+        next_numeric_part_padded = next_numeric_part.zfill(len(numeric_part))
+
+        # Construct the next credit_note by appending the incremented numeric part to the prefix
+        next_credit_note = max_credit[:-len(numeric_part)] + next_numeric_part_padded
+    else:
+        # If max_credit is None, set next_credit_note as 'DUS001'
+        next_credit_note = 'DUS'
+
+    print(next_credit_note)
+
+        
+        
+    last_record = Vendor_Credits_Bills.objects.order_by('-id').first()
+    if last_record:
+        count = last_record.id + 1
+    else:
+        count = 1
     context={
         'company' : company,
         'vendor':vendor,
@@ -14295,6 +14339,10 @@ def add_vendor_credits(request):
         'units':unit,
         'sales':sales,
         'purchase':purchase,
+        'credit_note':next_credit_note,
+        'count':count,
+        'today':today,
+        'bnk':bnk,
         
     }
         
@@ -14677,9 +14725,11 @@ def itemdata_vendor_credit(request):
     name=item.Name
     rate = item.p_price
     hsn = item.hsn
+    gst = item.interstate
+    igst = item.intrastate
     place = company.state
 
-    return JsonResponse({"status": " not", 'place': place, 'rate': rate, 'hsn': hsn})
+    return JsonResponse({"status": " not", 'place': place, 'rate': rate, 'hsn': hsn, 'gst': gst, 'igst': igst})
     return redirect('/')
     
     
@@ -29872,3 +29922,10 @@ def dl_change_inv(request,id):
     
     
         # =======================================vendor credit updates by nasneen o m ====================================
+def getacc(request):
+    b_id = request.GET.get('id')
+    print(b_id)
+    par = Bankcreation.objects.get(id=b_id)
+    data7 = {'acc': par.ac_no}
+    
+    return JsonResponse(data7)
