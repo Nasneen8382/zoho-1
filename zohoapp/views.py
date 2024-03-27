@@ -14060,14 +14060,26 @@ def get_vendor_credit_det(request):
 
     vname = vdr.first_name +' '+vdr.last_name
     bill= PurchaseBills.objects.filter(vendor_name=vname)
+    
+    
     number_prefix_pattern = re.compile(r'^\d+ ')
     rbill = recurring_bills.objects.filter(Q(vendor_name=vname) | Q(vendor_name__regex=fr'^\d+ {vname}'))
-    # rbill= recurring_bills.objects.filter(vendor_name=vname)
+    
+    item_list = []
     bill_nos = []
     for i in bill:
         bill_nos.append(i.bill_no)
+        bill_item = PurchaseBillItems.objects.filter(purchase_bill=i)
+        for k in bill_item:
+            item_list.append(k.item_name)
+            print(k.item_name)
     for j in rbill:
         bill_nos.append(j.bill_no)
+        rbill_item = recurring_bills_items.objects.filter(recur_bills=j)
+        for i in rbill_item:
+            item_list.append(i.item)
+            print(i.item)
+        
     vemail = vdr.vendor_email
     gstnum = vdr.gst_number
     gsttr = vdr.gst_treatment
@@ -14075,7 +14087,7 @@ def get_vendor_credit_det(request):
     placeofsuply=vdr.source_supply
     print(placeofsuply)
 
-    return JsonResponse({'vendor_email' :vemail, 'gst_number' : gstnum,'gst_treatment':gsttr, 'baddress' : baddress,'bill_nos':bill_nos,'placeofsuply':placeofsuply},safe=False)
+    return JsonResponse({'vendor_email' :vemail, 'gst_number' : gstnum,'gst_treatment':gsttr, 'baddress' : baddress,'bill_nos':bill_nos,'placeofsuply':placeofsuply,'items':item_list},safe=False)
     
     
 @login_required(login_url='login')
@@ -14728,8 +14740,14 @@ def itemdata_vendor_credit(request):
     gst = item.interstate
     igst = item.intrastate
     place = company.state
+    match_gst = re.search(r'\d+', gst)
+    number_gst = match_gst.group() if match_gst else 0
 
-    return JsonResponse({"status": " not", 'place': place, 'rate': rate, 'hsn': hsn, 'gst': gst, 'igst': igst})
+    match_igst = re.search(r'\d+', igst)
+    number_igst = match_igst.group() if match_igst else 0
+    print(number_igst)
+
+    return JsonResponse({"status": " not", 'place': place, 'rate': rate, 'hsn': hsn, 'gst': number_gst, 'igst': number_igst})
     return redirect('/')
     
     

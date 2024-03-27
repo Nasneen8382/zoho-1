@@ -2887,6 +2887,7 @@ rel="stylesheet" />
   // }
   // });
   console.log("finish");
+  var item_list;
 
     $('#vendor').change(function() {
         var name = $("#vendor").val();
@@ -2943,9 +2944,24 @@ rel="stylesheet" />
                     text: bill_no
                     }));
                   });
+
+               item_list=data.items;
+               console.log(item_list);
             }
         });
     });
+
+    $(document).on('change', '.itm', function() {
+  var selectedItemId = $(this).val();
+    if ($.inArray(selectedItemId, item_list) !== -1) {
+        console.log("Selected item is in the item list.");
+    } else {
+      alert("You have selected a wrong item.");
+    }
+
+});
+
+
 
     $('#pay_method').change(function () {
 
@@ -3788,10 +3804,10 @@ $('#item_table').on('click', '.item_select, .acnt, .rate, .qty, .tax, .discount'
   var row = $(this).closest('tr');
   var taxElement = row.find('.tax');
 
-  var checkbox = document.getElementById("srcofsupply");
-  var vale = checkbox.value;
+  var state = $('#srcofsupply').val();
+  var stateName = state.split('-')[1].trim();
 
-  if (vale === "[KL]-Kerala") {
+  if (stateName === "{{company.state}}") {
     taxElement.find('optgroup[label="GST"]').show();
     taxElement.find('optgroup[label="IGST"]').hide();
   } else {
@@ -3832,27 +3848,25 @@ $('#item_table').on('click', '.clone-row', function () {
 
 });
 function calculateTaxAmount() {
-        var checkbox = document.getElementById("srcofsupply");
-        var vale=checkbox.value;
-        var srcofsupply = vale; // Replace with the actual value of srcofsupply
-        var companyState = "[KL] Kerala"; // Replace with the actual value of company state
-
+            var state = $('#srcofsupply').val();
+            var stateName = state.split('-')[1].trim();
+        
         var subtotal = parseFloat(document.getElementById("subtotal").value);
         var shipping = parseFloat(document.getElementById("shipping").value);
         var tax = parseFloat(document.getElementById("total_taxamount").value);
         
         var tax_rate = 0.0; // Default tax rate for IGST
-        if (srcofsupply === companyState) {
+        if (stateName === '{{company.state}}') {
             tax_rate =tax; // Tax rate for CGST/SGST
         }
-
+        tax_rate =tax;
         var total_taxamount = tax_rate;
 
         var cgst = 0.00;
         var sgst = 0.00;
         var igst = 0.00;
 
-        if (srcofsupply === companyState) {
+        if (stateName === '{{company.state}}') {
             cgst = total_taxamount / 2;
             sgst = total_taxamount / 2;
         } else {
@@ -3863,7 +3877,7 @@ function calculateTaxAmount() {
         document.getElementById("sgst").value = sgst.toFixed(2);
         document.getElementById("igst").value = igst.toFixed(2);
 
-        if (srcofsupply === companyState) {
+        if (stateName === '{{company.state}}') {
             document.getElementById("tr_igst").style.display = "none";
             document.getElementById("tr_cgst").style.display = "";
             document.getElementById("tr_sgst").style.display = "";
@@ -3940,12 +3954,12 @@ function toggleDateInput() {
         }
         var checkbox = document.getElementById("srcofsupply");
         var vale=checkbox.value;
-        var pos= "[KL] Kerala"
+        var pos= "[KL]-Kerala"
         if (vale==pos){
 
         }
 
-        if (vale !=  "[KL] Kerala") {
+        if (vale !=  "[KL]-Kerala") {
             console.log(pos);
             console.log(state);
             document.getElementById('tr_cgst').style=('display: none');
@@ -3965,728 +3979,52 @@ function toggleDateInput() {
   $(document).ready(function () {
 
 
-      var roinc = 0
-      console.log("ajax");
-      // var place = document.getElementById('pos').value;
+    $(document).on('change', '.item_select', function () {
+    console.log("-------------------------");
 
-      $(document).on('click', '#item1', function () {
-          select = $('#item1').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
+    // Find the closest row of the changed dropdown
+    var $closestRow = $(this).closest('tr');
+    var n = $closestRow.attr('id').replace('row', '');
+    console.log("Row number:", n);
 
-                  data1 = response.gst
-                  data2 = response.igst
-                  console.log(response.gst);
+    // Get the selected customer value
+    var customer = $('#customer_sel').val();
 
-                  data4=response.place
-                  data5 = response.hsn
-                  document.getElementById('rate1').value = data
-                  document.getElementById('hsn1').value = data5
+    // Send AJAX request to fetch data based on the selected item and customer
+    $.ajax({
+        type: "GET",
+        url: "{% url 'itemdata_vendor_credit' %}",
+        data: {
+            id: $(this).val(),
+            cust: customer
+        },
+        success: function (response) {
+            console.log(response);
 
-                  if (document.getElementById('srcofsupply').value == '{{ company.state }}') {
-                      // document.getElementById('tgst1').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst1').value = data1
-                  }
-                  // document.getElementById('tigst1').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst1').value = data2
-                  document.getElementById('tgst1').value = data1
+            // Extract data from the response
+            var data = response.rate;
+            var data1 = response.gst;
+            var data2 = response.igst;
+            var data5 = response.hsn;
 
+            // Set values to elements in the nth row
+            $closestRow.find('.rate').val(data);
+            $closestRow.find('.hsn').val(data5);
 
-              }
-          });
+            // Extract state name from source of supply
+            var state = $('#srcofsupply').val();
+            var stateName = state.split('-')[1].trim();
 
-      });
+            // Set tax value based on the state name
+            var taxValue = (stateName == '{{ company.state }}') ? data1 : data2;
+            $closestRow.find('.tax').val(taxValue);
+        }
+    });
+});
       // console.log('pos:'+place_of_supply);
-      $(document).on('click', '#item2', function () {
-          select = $('#item2').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('rate2').value = data
-                  document.getElementById('hsn2').value = data4
+      
 
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst2').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst2').value = data1
-                  }
-                  document.getElementById('tigst2').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst2').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item3', function () {
-          select = $('#item3').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('rate3').value = data
-                  document.getElementById('hsn3').value = data4
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst3').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst3').value = data1
-                  }
-                  document.getElementById('tigst3').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst3').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item4', function () {
-          select = $('#item4').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn4').value = data4
-                  document.getElementById('rate4').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst4').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst4').value = data1
-                  }
-                  document.getElementById('tigst4').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst4').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item5', function () {
-          select = $('#item5').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn5').value = data4
-                  document.getElementById('rate5').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst5').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst5').value = data1
-                  }
-                  document.getElementById('tigst5').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst5').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item6', function () {
-          select = $('#item6').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn6').value = data4
-                  document.getElementById('rate6').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst6').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst6').value = data1
-                  }
-                  document.getElementById('tigst6').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst6').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item7', function () {
-          select = $('#item7').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn7').value = data4
-                  document.getElementById('rate7').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst7').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst7').value = data1
-                  }
-                  document.getElementById('tigst7').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst7').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item8', function () {
-          select = $('#item8').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn8').value = data4
-                  document.getElementById('rate8').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst8').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst8').value = data1
-                  }
-                  document.getElementById('tigst8').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst8').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item9', function () {
-          select = $('#item9').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn9').value = data4
-                  document.getElementById('rate9').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst9').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst9').value = data1
-                  }
-                  document.getElementById('tigst9').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst9').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item10', function () {
-          select = $('#item10').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn10').value = data4
-                  document.getElementById('rate10').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst10').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst10').value = data1
-                  }
-                  document.getElementById('tigst10').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst10').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item11', function () {
-          select = $('#item11').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn11').value = data4
-                  document.getElementById('rate11').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst11').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst11').value = data1
-                  }
-                  document.getElementById('tigst11').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst11').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item12', function () {
-          select = $('#item12').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn12').value = data4
-                  document.getElementById('rate12').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst12').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst12').value = data1
-                  }
-                  document.getElementById('tigst12').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst12').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item13', function () {
-          select = $('#item13').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn13').value = data4
-                  document.getElementById('rate13').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst13').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst13').value = data1
-                  }
-                  document.getElementById('tigst13').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst13').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item14', function () {
-          select = $('#item14').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn14').value = data4
-                  document.getElementById('rate14').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst14').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst14').value = data1
-                  }
-                  document.getElementById('tigst14').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst14').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item15', function () {
-          select = $('#item15').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn15').value = data4
-                  document.getElementById('rate15').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst15').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst15').value = data1
-                  }
-                  document.getElementById('tigst15').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst15').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item16', function () {
-          select = $('#item16').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn16').value = data4
-                  document.getElementById('rate16').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst16').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst16').value = data1
-                  }
-                  document.getElementById('tigst16').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst16').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item17', function () {
-          select = $('#item17').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn17').value = data4
-                  document.getElementById('rate17').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst17').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst17').value = data1
-                  }
-                  document.getElementById('tigst17').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst17').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item18', function () {
-          select = $('#item18').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn18').value = data4
-                  document.getElementById('rate18').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst18').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst18').value = data1
-                  }
-                  document.getElementById('tigst18').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst18').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item19', function () {
-          select = $('#item19').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn19').value = data4
-                  document.getElementById('rate19').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst19').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst19').value = data1
-                  }
-                  document.getElementById('tigst19').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst19').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item20', function () {
-          select = $('#item20').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn20').value = data4
-                  document.getElementById('rate20').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst20').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst20').value = data1
-                  }
-                  document.getElementById('tigst20').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst20').value = data2
-
-              }
-          });
-
-      });
-
-      $(document).on('click', '#item21', function () {
-          select = $('#item21').val();
-          customer = $('#customer_sel').val();
-          console.log(select);
-          console.log(customer);
-          $.ajax({
-              type: "GET",
-              url: "{% url 'itemdata_vendor_credit' %}",
-              data: {
-                  id: select,
-                  cust: customer
-              },
-              success: function (response) {
-                  console.log(response)
-                  data = response.rate
-                  data1 = response.gst
-                  data2 = response.igst
-                  data3 = response.pos
-                  data4 = response.hsn
-                  document.getElementById('hsn21').value = data4
-                  document.getElementById('rate21').value = data
-
-                  if (data3 == '{{ company.state }}') {
-                      document.getElementById('tgst21').innerHTML = data1 + ' % GST';
-                      document.getElementById('tgst21').value = data1
-                  }
-                  document.getElementById('tigst21').innerHTML = data2 + ' % IGST';
-                  document.getElementById('tigst21').value = data2
-
-              }
-          });
-
-      });
+     
 
 
   });
