@@ -827,8 +827,9 @@ rel="stylesheet" />
        
     
      
-        <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2" value="Save">
-           <input style="width: 150px;margin-right: 2rem;" class="btn btn-danger mt-2" type="reset" value="Cancel">
+        <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2" name="Save_Send" value="Save and Send">
+        <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2" name="Save_Draft" value="Save And Draft">
+        <input style="width: 150px;margin-right: 2rem;" class="btn btn-danger mt-2" type="reset" value="Cancel">
      
         
        
@@ -2935,18 +2936,18 @@ rel="stylesheet" />
 
                 $('#srcofsupply').val(data.placeofsuply);
 
+                console.log(data.bill_nos);
                 $('#billno').empty();
                 $('#billno').append($('<option>', {value: '',text: 'Select'}));
 
-                $.each(data.bill_nos, function(index, bill_no) {
+                $.each(data.bill_nos, function(key, value) {
                     $('#billno').append($('<option>', {
-                    value: bill_no,
-                    text: bill_no
+                    value: value,
+                    text: key
                     }));
                   });
 
-               item_list=data.items;
-               console.log(item_list);
+               
             }
         });
     });

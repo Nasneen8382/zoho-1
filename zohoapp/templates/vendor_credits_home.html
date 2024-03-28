@@ -214,7 +214,7 @@
                             Sort
                           </button>
                           <div class="dropdown-menu ">
-                            <a class="dropdown-item" href="#" id="all-list">
+                            <a class="dropdown-item" href="{% url 'vendor_credits_home' %}" id="all-list">
                               <i class="fa fa-sort"></i> All
                             </a>
                             <a class="dropdown-item" href="#" id="vendor-name">
@@ -237,9 +237,9 @@
                         aria-expanded="false" role="button"><i class="fa fa-filter mx-3"></i>
                       </a>
                       <div class="dropdown-menu ">
-                        <a class="dropdown-item" >All</a>
-                        <a class="dropdown-item" >Draft</a>
-                        <a class="dropdown-item" >Send</a>
+                        <a class="dropdown-item filter" >All</a>
+                        <a class="dropdown-item filter" >Draft</a>
+                        <a class="dropdown-item filter" >Send</a>
               
                       </div>
                     </div>
@@ -267,7 +267,7 @@
                   </div>
                 
                 <hr>
-                <div class="container-fluid">
+                <div style="overflow-y: hidden;min-height: 50vh;">
                     <table class="table table-responsive-md mt-4" id="table">
                         <thead>
                             <tr>
@@ -284,16 +284,14 @@
                         <tbody>
                             {% for r in recur_bill %}
                             <tr >
-                                <th><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_date }}</a></th>
-                                <th><a href="{% url 'view_vendor_credits' r.id %}">{{ r.credit_note }}</a></th>
-                                <td><a href="{% url 'view_vendor_credits' r.id %}"> 
-                                    <span>{{ r.vendor_name.split.0 }}</span>
-                                    <span>{{ r.vendor_name.split.1 }}</span>
-                                    <span style="display: none;">{{ r.vendor_name.split.2 }}</span></a></td>
+                                <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_date }}</a></td>
+                                <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.credit_note }}</a></td>
+                                <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_name.split.0 }} {{ r.vendor_name.split.1 }}
+                                    </a></td>
                                 <td class="text-capitalize"><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_email }}</a></td>
                                 <td class="text-capitalize"><a href="{% url 'view_vendor_credits' r.id %}">{{ r.tax_amount }}</a></td>
                                 <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.grand_total|floatformat:2 }}</a></td>
-                                <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.grand_total|floatformat:2 }}</a></td>
+                                <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.status }}</a></td>
                                 <!-- <td class="text-right">
                                     <a href="{% url 'view_vendor_credits' r.id %}" 
                                     data-toggle="tooltip" data-placement="top" title="Delete Recurring Expense">
@@ -369,22 +367,21 @@
         sortTable(1); // Sort by Customer Name (3rd column)
       });
 
-      $('#all-list').on('click', function () {
-        // Reset to the original order of rows
-        $('#table tbody').empty().append(originalOrder);
-      });
+      
 
       function sortTable(column) {
         $rows.sort(function (a, b) {
           var aVal = $(a).find('td').eq(column).text();
           var bVal = $(b).find('td').eq(column).text();
+          console.log(aVal);
+          console.log(bVal);
           return aVal.localeCompare(bVal);
         });
-        $('#table-id tbody').html($rows);
+        $('#table tbody').html($rows);
       }
 
 
-      $(".dropdown-item").click(function() {
+      $(".filter").click(function() {
                 var selectedOption = $(this).text().trim();
 
                 // Iterate over each row in the table

@@ -1205,6 +1205,12 @@ class Vendor_Credits_Bills(models.Model):
     note = models.CharField(max_length=255,null=True,blank=True)
     document=models.FileField(upload_to='doc/Vendor_Credits_Bills',null=True,blank=True)
     comments = models.CharField(max_length=255,null=True,blank=True)
+    bill_number = models.CharField(max_length=100,null=True,blank=True)
+    payment_methode = models.CharField(max_length=100,null=True,blank=True,default='Cash')
+    upi= models.CharField(max_length=100,null=True,blank=True)
+    cheque = models.CharField(max_length=100,null=True,blank=True)
+    acc_no = models.CharField(max_length=100,null=True,blank=True)
+    status = models.CharField(max_length=100,default ='Draft')
     
     
 class Vendor_Credits_Bills_items_bills (models.Model):

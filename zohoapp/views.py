@@ -14065,29 +14065,24 @@ def get_vendor_credit_det(request):
     number_prefix_pattern = re.compile(r'^\d+ ')
     rbill = recurring_bills.objects.filter(Q(vendor_name=vname) | Q(vendor_name__regex=fr'^\d+ {vname}'))
     
-    item_list = []
+    # item_list = []
     bill_nos = []
     for i in bill:
-        bill_nos.append(i.bill_no)
-        bill_item = PurchaseBillItems.objects.filter(purchase_bill=i)
-        for k in bill_item:
-            item_list.append(k.item_name)
-            print(k.item_name)
+        bill_nos.append({i.bill_no:'bill'})
+        
+        
     for j in rbill:
-        bill_nos.append(j.bill_no)
-        rbill_item = recurring_bills_items.objects.filter(recur_bills=j)
-        for i in rbill_item:
-            item_list.append(i.item)
-            print(i.item)
+        bill_nos.append({j.bill_no:'rbill'})
+        
         
     vemail = vdr.vendor_email
     gstnum = vdr.gst_number
     gsttr = vdr.gst_treatment
     baddress = vdr.baddress
     placeofsuply=vdr.source_supply
-    print(placeofsuply)
+    print(bill_nos)
 
-    return JsonResponse({'vendor_email' :vemail, 'gst_number' : gstnum,'gst_treatment':gsttr, 'baddress' : baddress,'bill_nos':bill_nos,'placeofsuply':placeofsuply,'items':item_list},safe=False)
+    return JsonResponse({'vendor_email' :vemail, 'gst_number' : gstnum,'gst_treatment':gsttr, 'baddress' : baddress,'bill_nos':bill_nos,'placeofsuply':placeofsuply},safe=False)
     
     
 @login_required(login_url='login')
@@ -14366,7 +14361,6 @@ def create_vendor_credit(request):
 
     company = company_details.objects.get(user = request.user)
     if request.method == 'POST':
-        typ=request.POST.get('option')
         vname = request.POST.get('vendor')
         vmail = request.POST.get('email_inp')
         vgst_t = request.POST.get('gst_trt_inp')
@@ -14390,12 +14384,33 @@ def create_vendor_credit(request):
         note=request.POST['customer_note']
       
         u = User.objects.get(id = request.user.id)
-        print('yes')
-        print(typ)
-        if typ=='Organization':
+        
+        billno=request.POST['billno'] 
+        pay_method=request.POST['pay_method'] 
+        
+        if  pay_method == 'Cash':
+            upiid=''
+            chequeno='' 
+            accountno=''
+        elif pay_method == 'UPI':
+            upiid= request.POST['upiid'] 
+            chequeno='' 
+            accountno=''
+        elif pay_method == 'Cheque':
+            upiid= '' 
+            chequeno=request.POST['chequeno'] 
+            accountno=''
+        else:
+            upiid= '' 
+            chequeno=''
+            accountno= request.POST['accountno']
+        if request.POST.get('Save_Send'):
+            status = 'Send'
+        if request.POST.get('Save_Draft'):
+            status = 'Draft'
            
 
-            purchase = Vendor_Credits_Bills(vendor_name=vname,
+        purchase = Vendor_Credits_Bills(vendor_name=vname,
                                     vendor_email=vmail,
                                     gst_treatment=vgst_t,
                                     gst_number=vgst_n,
@@ -14418,62 +14433,33 @@ def create_vendor_credit(request):
                                     note=note,
                                    
                                     company=company,
-                                    user = u )
-            purchase.save()
+                                    user = u ,
+                                    bill_number=billno,
+                                    payment_methode = pay_method,
+                                    upi = upiid,
+                                    cheque = chequeno,
+                                    acc_no =accountno,
+                                    status =status
+                                    )
+        purchase.save()
+        p_bill = Vendor_Credits_Bills.objects.get(id=purchase.id)
 
-            p_bill = Vendor_Credits_Bills.objects.get(id=purchase.id)
-
-            if len(request.FILES) != 0:
-                p_bill.document=request.FILES['file'] 
-                p_bill.save()
-                print('save')
-        else:
-            purchase = Vendor_Credits_Bills(vendor_name=vname,
-                                    vendor_email=vmail,
-                                    gst_treatment=vgst_t,
-                                    gst_number=vgst_n,
-                                    address=vaddress,
-                                        
-                                    vendor_date=vendor_date,
-                                    order_no=order_no,
-                                    credit_note=credit_note,
-                              
-                                    source_supply=src_supply,
-                                  
-                                    sub_total=sub_total,
-                                    sgst=sgst,
-                                    cgst=cgst,
-                                    igst=igst,
-                                    tax_amount=tax,
-                                    
-                                    adjustment=adjustment,
-                                    grand_total=grand_total,
-                                    note=note,
-                                        # term=terms_con,
-                                    company=company,
-                                    user = u)
-            purchase.save()
-
-            p_bill = Vendor_Credits_Bills.objects.get(id=purchase.id)
-
+        if len(request.FILES) != 0:
+            p_bill.document=request.FILES['file'] 
+            p_bill.save()
+            print('save')
         
-            if len(request.FILES) != 0:
-                p_bill.document=request.FILES['file'] 
-                p_bill.save()
-                print('save')
-            item = request.POST.getlist("item[]")
-            accounts = request.POST.getlist("account[]")
-            hsn = request.POST.getlist("hsn[]")
-            quantity = request.POST.getlist("quantity[]")
-            rate = request.POST.getlist("rate[]")
-            tax = request.POST.getlist("tax[]")
-            discount = request.POST.getlist("discount[]")
-            amount = request.POST.getlist("amount[]")
-            if len(item) == len(accounts) == len(hsn) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
+        item = request.POST.getlist("item[]")
+        hsn = request.POST.getlist("hsn[]")
+        quantity = request.POST.getlist("quantity[]")
+        rate = request.POST.getlist("rate[]")
+        tax = request.POST.getlist("tax[]")
+        discount = request.POST.getlist("discount[]")
+        amount = request.POST.getlist("amount[]")
+        if len(item) == len(hsn) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
                 for i in range(len(item)):
                     created = Vendor_Credits_Bills_items_bills.objects.create(
                         item=item[i],
-                        account=accounts[i],
                         
                         hsn=hsn[i],
                         quantity=quantity[i],
@@ -29947,3 +29933,21 @@ def getacc(request):
     data7 = {'acc': par.ac_no}
     
     return JsonResponse(data7)
+
+
+
+# item_list = []
+#     bill_nos = []
+#     for i in bill:
+#         bill_nos.append(i.bill_no)
+#         bill_item = PurchaseBillItems.objects.filter(purchase_bill=i)
+#         for k in bill_item:
+#             item_list.append(k.item_name)
+#             print(k.item_name)
+#     for j in rbill:
+#         bill_nos.append(j.bill_no)
+#         rbill_item = recurring_bills_items.objects.filter(recur_bills=j)
+#         for i in rbill_item:
+#             item_list.append(i.item)
+#             print(i.item)
+        
