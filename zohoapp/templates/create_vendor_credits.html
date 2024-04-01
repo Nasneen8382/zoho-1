@@ -688,6 +688,9 @@ rel="stylesheet" />
                   <td style="width: 9%;" class='text-right'><input type='number' id='qty1'
                           class=' text-right qty form-control bg-light text-dark' name='quantity[]'
                           value='0'>
+                          <input type='number' id='maxqty1' 
+                          class=' text-right maxqty form-control bg-light text-dark' name='maxqty[]'
+                          value='0' style="display: none;">
                   </td>
                   <td style="width: 10%;" class='text-right'><input type='number' id='rate1'
                           class=' text-right rate form-control bg-light text-dark px-0' name='rate[]'
@@ -778,13 +781,13 @@ rel="stylesheet" />
                     <td><input type="number" id="total_taxamount" name="total_taxamount" step="any" value="0.00" 
                         class="total_taxamount form-control bg-transparent border-0 text-right  text-white"></td>
                 </tr>
-                <!-- <tr>
+                 <tr>
                     <td>Shipping Charges</td>
                     
-                    <td><input type="hidden" id="shipping_charge" name="shipping_charge" step="any" value="0.00" 
+                    <td><input type="hidden" id="shipping_charge"  step="any" value="0.00" 
                         class="form-control bg-transparent border-0 text-right shipping_charge  "></td>
-                        <td><input type="number" class="form-control  bg-transparent border-0  text-light" id="shipping" value="0"> </td>
-                </tr> -->
+                        <td><input type="number" name="shipping_charge" class="form-control  bg-transparent border-0  text-light" id="shipping" value="0"> </td>
+                </tr>
                 <tr>
                   <td>Adjustment </td>
                   
@@ -803,6 +806,27 @@ rel="stylesheet" />
                     <th><input type="number" id="grandtotal" name="grandtotal" step="any" value="0.00" 
                             class="form-control bg-transparent border-0 text-right grandtotal  text-white"></th>
                 </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td> </td>
+                </tr>
+                <tr>
+                  <td>Paid </td>
+                  <td></td>
+                  <td>
+                    <input type="number" id="paid" name="paid" step="any" value='0' 
+                            class="form-control bg-transparent border-0 text-right paid  text-white">
+                             </td>
+              </tr>
+              <tr>
+                  <th>Balance </th>
+                  <td></td>
+                  <th>
+                    <input type="number" id="balance" name="balance" step="any" value='0' 
+                            class="form-control bg-transparent border-0 text-right balance  text-white">
+                             </th>
+              </tr>
             </table>
         </div>
     </div>
@@ -2940,27 +2964,57 @@ rel="stylesheet" />
                 $('#billno').empty();
                 $('#billno').append($('<option>', {value: '',text: 'Select'}));
 
-                $.each(data.bill_nos, function(key, value) {
-                    $('#billno').append($('<option>', {
-                    value: value,
-                    text: key
-                    }));
-                  });
+                  $.each(data.bill_nos, function(key, value) {
+                      $.each(value, function(bill_no, name) {
+                          $('#billno').append($('<option>', {
+                              value: name+" "+bill_no,
+                              text: bill_no
+                          }));
+                      });
+              });
 
                
             }
         });
     });
 
-    $(document).on('change', '.itm', function() {
-  var selectedItemId = $(this).val();
-    if ($.inArray(selectedItemId, item_list) !== -1) {
-        console.log("Selected item is in the item list.");
-    } else {
-      alert("You have selected a wrong item.");
-    }
+    $('#billno').change(function() {
+       var bill_no =$(this).val();
+       console.log(bill_no)
+       var parts = bill_no.split(' ');
+       console.log(parts[0])
+       $.ajax({
+            url: "{% url 'get_bill_item' %}",
+            data: { 
+                id : parts[1],
+                name : parts[0],
+                csrfmiddlewaretoken: '{{ csrf_token }}' 
+            },
+            type : 'POST',
+            success: function(data) {
+                console.log(data)
+                item_list=data
+            }
+          });
+    });
 
-});
+
+
+    $(document).on('change', '.itm', function() {
+      var $closestRow = $(this).closest('tr');
+
+        var selectedItemId = $(this).val();
+        if (item_list[selectedItemId] !== undefined) {
+            console.log("Selected item is in the item list.");
+            console.log("Item name:", selectedItemId);
+            console.log("Item value:", item_list[selectedItemId]);
+            $closestRow.find('.maxqty').val(item_list[selectedItemId]);
+        } else {
+            alert("You have selected a wrong item.");
+            $closestRow.find('.maxqty').val(0);
+          }
+
+    });
 
 
 
@@ -3655,6 +3709,10 @@ function calculateGrandTotal() {
 
   $('#grandtotal').val(grandTotal.toFixed(2));
   $('#total_taxamount').val(totalTaxAmount.toFixed(2));
+
+  var paid = parseFloat($('#paid').val());
+        var bal = grandTotal- paid
+        $('#balance').val(bal.toFixed(2));
 }
 
   $('#item_table').on('change', '.tax', function () {
@@ -3687,7 +3745,10 @@ function calculateGrandTotal() {
         
         <td style="width: 9%;" class='text-right'>
           <input type='number' id='qty${rowCount}' class='text-right bg-light text-dark qty form-control' name='quantity[]' value='0'>
-        </td>
+          <input type='number' id='maxqty${rowCount}'
+                          class=' text-right maxqty form-control bg-light text-dark' name='maxqty[]'
+                          value='0' style="display: none;">
+          </td>
         
         <td style="width: 12%;" class='text-right'>
           <input type='number' id='rate${rowCount}' class='text-right bg-light text-dark rate form-control px-0' name='rate[]' value='0'>
@@ -3785,19 +3846,40 @@ function calculateGrandTotal() {
   // Input change event for quantity, rate, and discount
   $('#item_table').on('input', '.qty, .rate, .discount,.tax', function () {
     var row = $(this).closest('tr');
-    calculateRowAmount(row);
-    calculateSubtotal();
-    calculateGrandTotal();
-    toggleDateInput();
-    calculateTaxAmount();
+    var qty = parseFloat(row.find('.qty').val());
+    var maxqty = parseFloat(row.find('.maxqty').val());
+
+    if (qty > maxqty && maxqty!='') {
+        alert("Quantity exceeds maximum quantity!");
+        // Optionally, you can reset the quantity input
+        row.find('.qty').val('');
+    } 
+ 
+        calculateRowAmount(row);
+        calculateSubtotal();
+        calculateGrandTotal();
+        toggleDateInput();
+        calculateTaxAmount();
+    
   });
 
   $('#shipping').on('input', function () {
-    var shippingAmount = parseFloat($(this).val());5
+    var shippingAmount = parseFloat($(this).val());
     $('#shipping_charge').val(shippingAmount.toFixed(2));
     calculateGrandTotal();
   });
+  $(document).on("input", "#paid", function () {
 
+if ($(this).val() != '') {
+    var bal = parseFloat($("#grandtotal").val()) - parseFloat($("#paid").val())
+    $('#balance').val(bal.toFixed(2));
+}
+else {
+    var bal = parseFloat($("#grandtotal").val()) - 0
+    $('#balance').val(bal.toFixed(2));
+}
+
+});
 
 
   // Add an event listener to the fields in the item table
@@ -3891,6 +3973,11 @@ function calculateTaxAmount() {
         document.getElementById("total_taxamount").value = total_taxamount.toFixed(2);
         var grandtotal = subtotal + total_taxamount + shipping;
         document.getElementById("grandtotal").value = grandtotal.toFixed(2);
+
+
+        var paid = parseFloat(document.getElementById("paid").value);
+        var bal = grandtotal- paid
+        document.getElementById("balance").value = bal.toFixed(2);
     }
 
     // Call the function initially on page load
@@ -4020,6 +4107,28 @@ function toggleDateInput() {
             var taxValue = (stateName == '{{ company.state }}') ? data1 : data2;
             $closestRow.find('.tax').val(taxValue);
         }
+    });
+    var current_item = $closestRow.find('.itm').val();
+    var prevRows = $closestRow.prevAll(); // Get previous rows
+
+    // Iterate over previous rows to check for the same item selection
+    prevRows.each(function () {
+        var prevRow = $(this);
+        var prev_item = prevRow.find('.itm').val();
+
+        // Check if the current item matches any previous item
+        if (current_item && prev_item && current_item === prev_item) {
+            alert("You have selected the same item in the previous row.");
+            // Optionally, you can reset the item selection
+            $closestRow.find('.itm').val('');
+                $closestRow.find('.maxqty').val('');
+                $closestRow.find('.hsn').val('');
+                $closestRow.find('.rate').val('');
+                $closestRow.find('.tax').val('');
+
+            return false; // Exit the loop once a match is found
+        }
+      
     });
 });
       // console.log('pos:'+place_of_supply);

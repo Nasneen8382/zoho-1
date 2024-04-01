@@ -14073,6 +14073,7 @@ def get_vendor_credit_det(request):
         
     for j in rbill:
         bill_nos.append({j.bill_no:'rbill'})
+    bill_no = json.dumps(bill_nos)
         
         
     vemail = vdr.vendor_email
@@ -14080,7 +14081,7 @@ def get_vendor_credit_det(request):
     gsttr = vdr.gst_treatment
     baddress = vdr.baddress
     placeofsuply=vdr.source_supply
-    print(bill_nos)
+    print(bill_no)
 
     return JsonResponse({'vendor_email' :vemail, 'gst_number' : gstnum,'gst_treatment':gsttr, 'baddress' : baddress,'bill_nos':bill_nos,'placeofsuply':placeofsuply},safe=False)
     
@@ -14113,8 +14114,11 @@ def view_vendor_credits(request,id):
 
     company = company_details.objects.get(user = request.user)
     bills = Vendor_Credits_Bills.objects.filter(user = request.user)
+    
     rbill=Vendor_Credits_Bills.objects.get(user = request.user, id= id)
     billitem = Vendor_Credits_Bills_items_bills.objects.filter(user = request.user,recur_bills=id)
+    
+    cmt = Credits_comments_table.objects.filter(user = request.user, vendor= rbill)
     
     #cust = customer.objects.get(id = rbill.customer_name.split(" ")[0])
     # vend = vendor_table.objects.get(id = rbill.company_name.split(" ")[0])
@@ -14128,11 +14132,12 @@ def view_vendor_credits(request,id):
     # vend_name = vend.salutation+ " " +vend.first_name + " " +vend.last_name
     context = {
                 'company' : company,
-                'recur_bills' : bills,
-                'recur_bill' : rbill,
-                'bill_item' : billitem,
+                'all_bills' : bills,
+                'estimate' : rbill,
+                'items' : billitem,
                 'tax' : tax_total,
                 "gst_or_igst" : gst_or_igst,
+                "cmt" : cmt,
                 #'customer' : cust,
                 # 'vendor' : vend,
                 #'customer_name' : cust_name,
@@ -14141,22 +14146,7 @@ def view_vendor_credits(request,id):
 
     return render(request, 'view_vendor_credits.html',context)
     
-@login_required(login_url='login')
-def vendor_credit_comment(request):
 
-    company = company_details.objects.get(user = request.user)
-
-    if request.method=='POST':
-        id =request.POST.get('id')
-        cmnt =request.POST.get('comment')
-        
-        u = User.objects.get(id = request.user.id)
-        r_bill = Vendor_Credits_Bills.objects.get(user = request.user, id = id)
-        r_bill.comments = cmnt
-        r_bill.save()
-
-        return redirect('vendor_credits_home',id)
-    return redirect('vendor_credits_home')
     
 @login_required(login_url='login')
 def vendor_credit_add_file(request,id):
@@ -14386,6 +14376,7 @@ def create_vendor_credit(request):
         u = User.objects.get(id = request.user.id)
         
         billno=request.POST['billno'] 
+        bill_number = billno.split(' ', 1)[1]
         pay_method=request.POST['pay_method'] 
         
         if  pay_method == 'Cash':
@@ -14408,6 +14399,9 @@ def create_vendor_credit(request):
             status = 'Send'
         if request.POST.get('Save_Draft'):
             status = 'Draft'
+        paid = request.POST['paid']
+        balance = request.POST['balance']
+        shipping = request.POST['shipping_charge']
            
 
         purchase = Vendor_Credits_Bills(vendor_name=vname,
@@ -14434,12 +14428,15 @@ def create_vendor_credit(request):
                                    
                                     company=company,
                                     user = u ,
-                                    bill_number=billno,
+                                    bill_number=bill_number,
                                     payment_methode = pay_method,
                                     upi = upiid,
                                     cheque = chequeno,
                                     acc_no =accountno,
-                                    status =status
+                                    status =status,
+                                    paid =paid,
+                                    balance = balance,
+                                    shipping_charge = shipping,
                                     )
         purchase.save()
         p_bill = Vendor_Credits_Bills.objects.get(id=purchase.id)
@@ -15579,11 +15576,7 @@ def add_delivery_chellan_comment(request,pk):
         return redirect('delivery_challan_overview',pk)
     return redirect('delivery_challan_overview',pk)
     
-def delete_delivery_chellan_comment(request,pk):
-    comment=delivery_chellan_comments.objects.get(id=pk)
-    did= comment.chellan
-    comment.delete()
-    return redirect('delivery_challan_overview',did.id)
+
     
 def purchase_customer_eway(request):
     if request.user.is_authenticated:
@@ -29924,6 +29917,11 @@ def dl_change_inv(request,id):
     
     
     
+def delete_delivery_chellan_comment(request,pk):
+    comment=delivery_chellan_comments.objects.get(id=pk)
+    did= comment.chellan
+    comment.delete()
+    return redirect('delivery_challan_overview',did.id)
     
         # =======================================vendor credit updates by nasneen o m ====================================
 def getacc(request):
@@ -29951,3 +29949,113 @@ def getacc(request):
 #             item_list.append(i.item)
 #             print(i.item)
         
+def get_bill_item(request):
+    billid = request.POST.get('id')
+    name = request.POST.get('name')
+    print(billid)    
+    print(name)
+    if name == 'bill':
+        b =PurchaseBills.objects.get(bill_no=billid)
+        bill_item = PurchaseBillItems.objects.filter(purchase_bill=b)
+    
+        items_dict = {}
+    
+        for bill_item in bill_item:
+            item_name = bill_item.item_name
+            quantity = bill_item.quantity
+            
+            items_dict[item_name] = quantity
+        print("Items Dictionary:", items_dict)
+    
+    elif name == 'rbill':
+        r = recurring_bills.objects.get(bill_no=billid)
+        
+        rbill_item = recurring_bills_items.objects.filter(recur_bills=r)
+        items_dict = {}
+        for bill_item in rbill_item:
+            item_name = bill_item.item
+            quantity = bill_item.quantity
+            items_dict[item_name] = quantity
+
+    return JsonResponse(items_dict)
+
+def vendor_upload_doc(request, id):
+    print(id)
+    if request.method == 'POST' and request.FILES['file']:
+        file = request.FILES['file']
+        d= Vendor_Credits_Bills.objects.get(id=id)
+        d.document=file
+        d.save()
+        print("saved")
+        
+        return redirect('view_vendor_credits',id)
+    
+def vendor_download_doc(request, id):
+    print(id)
+    d= Vendor_Credits_Bills.objects.get(id=id)
+    file = d.document
+    response = FileResponse(file)
+    response['Content-Disposition'] = f'attachment; filename="{file.name}"'
+    return response
+
+def vendor_draft_send(request, id):
+    d= Vendor_Credits_Bills.objects.get(id=id)
+    d.status = 'Send'
+    d.save()
+    return redirect(view_vendor_credits,id)
+
+
+# update
+def vendor_credit_comment(request,id):
+    print(id)
+
+    if request.method=="POST":
+        user=request.user      
+        vc=Vendor_Credits_Bills.objects.get(id=id)
+       
+        comment=Credits_comments_table()
+        comment.user=user
+        comment.vendor=vc
+        comment.comment=request.POST.get('comments')
+       
+        comment.save()
+        return redirect('view_vendor_credits',id)
+    return redirect('view_vendor_credits',id)
+
+def delete_vendor_credit_comment(request,pk):
+    comment=Credits_comments_table.objects.get(id=pk)
+    did= comment.vendor
+    comment.delete()
+    return redirect('view_vendor_credits',did.id)
+
+
+
+def email_vendor_credit(request,id):
+  if request.method == 'POST':
+    print("ggggggggggggggggggggg")
+    emails_string = request.POST['email_ids']
+                # Split the string by commas and remove any leading or trailing whitespace
+    emails_list = [email.strip() for email in emails_string.split(',')]
+    email_message = request.POST['email_message']
+    print(emails_list)
+
+    cmp=company_details.objects.get(user_id=request.user.id)
+
+     
+    vc = Vendor_Credits_Bills.objects.get(id=id)
+    item= Vendor_Credits_Bills_items_bills.objects.filter(recur_bills=vc)
+    context = {'vc':vc, 'item':item,'cmp':cmp}
+    template_path = 'vendor_credit_mail.html'
+    
+    template = get_template(template_path)
+    html  = template.render(context)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    pdf = result.getvalue()
+    filename = f'DELIVERY CHALLAN - {vc.chellan_no}.pdf'
+    subject = f"DELIVERY CHALLAN - {vc.chellan_no}"
+    email = EmailMessage(subject, f"Hi,\nPlease find the attached DELIVERY CHALLAN - File-{vc.chellan_no}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+    email.attach(filename, pdf, "application/pdf")
+    email.send(fail_silently=False)
+    # msg = messages.success(request, 'Debit note file has been shared via email successfully..!')
+    return redirect(view_vendor_credits,id)

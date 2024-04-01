@@ -1211,6 +1211,9 @@ class Vendor_Credits_Bills(models.Model):
     cheque = models.CharField(max_length=100,null=True,blank=True)
     acc_no = models.CharField(max_length=100,null=True,blank=True)
     status = models.CharField(max_length=100,default ='Draft')
+    paid =  models.FloatField(null=True,blank=True)
+    balance =  models.FloatField(null=True,blank=True)
+    shipping_charge =  models.FloatField(null=True,blank=True)
     
     
 class Vendor_Credits_Bills_items_bills (models.Model):

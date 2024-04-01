@@ -425,7 +425,7 @@ urlpatterns = [
     path('vendor_credit_item',views.vendor_credit_item,name='vendor_credit_item'),
     path('vendor_credit_item_dropdown',views.vendor_credit_item_dropdown ,name = 'vendor_credit_item_dropdown'),
     path('view_vendor_credits/<id>',views.view_vendor_credits,name='view_vendor_credits'),   
-    path('vendor_credit_comment',views.vendor_credit_comment,name = "vendor_credit_comment"),
+
     path('vendor_credit_add_file/<id>',views.vendor_credit_add_file,name = "vendor_credit_add_file"),
     path('vendor_credit_email/<id>', views.vendor_credit_email, name='vendor_credit_email'),  
     path('vc_view_vendorasc/<id>',views.vc_view_vendorasc,name='vc_view_vendorasc'),
@@ -1289,6 +1289,16 @@ urlpatterns = [
     path('dl_change_inv/<int:id>', views.dl_change_inv, name='dl_change_inv'),
     
     path('getacc', views.getacc, name='getacc'),
+    path('get_bill_item', views.get_bill_item, name='get_bill_item'),
+    path('vendor_upload_doc/<int:id>', views.vendor_upload_doc, name='vendor_upload_doc'),
+    path('vendor_download_doc/<int:id>', views.vendor_download_doc, name='vendor_download_doc'),
+    path('vendor_draft_send/<int:id>', views.vendor_draft_send, name='vendor_draft_send'),
+    path('delete_vendor_credit_comment/<int:pk>', views.delete_vendor_credit_comment, name='delete_vendor_credit_comment'),
+    path('email_vendor_credit/<int:id>', views.email_vendor_credit, name='email_vendor_credit'),
+
+    
+    path('vendor_credit_comment/<int:id>',views.vendor_credit_comment,name = "vendor_credit_comment"),#updated
+
 
     
        
