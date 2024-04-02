@@ -11528,6 +11528,8 @@ def edit_vendor_credits(request,id):
     purchase=Purchase.objects.all()
     po=Vendor_Credits_Bills.objects.get(id=id)
     po_tabl=Vendor_Credits_Bills_items_bills.objects.filter(recur_bills=id)
+    
+    bnk = Bankcreation.objects.filter(user=request.user)
     context={
         'company' : company,
         'vendor':vendor,
@@ -11540,6 +11542,7 @@ def edit_vendor_credits(request,id):
         'purchase':purchase,
         'po':po,        
         'po_table':po_tabl,
+        'bnk':bnk,
     }
     return render(request,'edit_vendor_credits.html',context)
     
@@ -14504,6 +14507,32 @@ def change_vendor_credits(request,id):
         
         u = User.objects.get(id = request.user.id)
 
+        po_id.bill_number=request.POST['billno'] 
+        pay_method=request.POST['pay_method'] 
+        print("payment")
+        if  pay_method == 'Cash':
+            po_id.upi=''
+            po_id.cheque='' 
+            po_id.acc_no=''
+        elif pay_method == 'UPI':
+            print(request.POST['upiid'])
+            po_id.upi= request.POST['upiid'] 
+            po_id.cheque='' 
+            po_id.acc_no=''
+        elif pay_method == 'Cheque':
+            po_id.upi= '' 
+            po_id.cheque=request.POST['chequeno'] 
+            po_id.acc_no=''
+        else:
+            po_id.upi = '' 
+            po_id.cheque=''
+            po_id.acc_no= request.POST['accountno']
+        po_id.payment_methode = pay_method
+        
+            
+        po_id.paid = request.POST['paid']
+        po_id.balance = request.POST['balance']
+        po_id.shipping_charge = request.POST['shipping_charge']
             
         po_id.save()
 
@@ -14513,71 +14542,37 @@ def change_vendor_credits(request,id):
             p_bill.document=request.FILES['file'] 
             p_bill.save()
             print('save')
-    else:
-        po_id.vendor_name = request.POST.get('vendor')
-        po_id.vendor_mail = request.POST.get('email_inp')
-        po_id.vendor_gst_traet = request.POST.get('gst_trt_inp')
-        po_id.vendor_gst_no = request.POST.get('gstin_inp')
-            
-        po_id.vaddress = request.POST.get('address_inp')       
-        po_id.credit_note = request.POST.get('credit_note')
-        po_id.order_no = request.POST.get('order_number')
-        po_id.vendor_date = request.POST.get('credit_date')
-        po_id.source_supply = request.POST.get('srcofsupply')
-        po_id.sub_total =request.POST['subtotal']
-        po_id.sgst=request.POST['sgst']
-        po_id.cgst=request.POST['cgst']
-        po_id.igst=request.POST['igst']
-        po_id.tax_amount = request.POST['total_taxamount']
-        po_id.grand_total=request.POST['grandtotal']
-        po_id.note=request.POST['customer_note']
-        # po_id.adjustment=request.POST['add_round_off']
-        po_id.adjustment=request.POST['shipping_charge']
-            
-        u = User.objects.get(id = request.user.id)
+    
+        item = request.POST.getlist("item[]")
+        hsn = request.POST.getlist("hsn[]")
+        quantity = request.POST.getlist("quantity[]")
+        rate = request.POST.getlist("rate[]")
+        tax = request.POST.getlist("tax[]")
+        discount = request.POST.getlist("discount[]")
+        amount = request.POST.getlist("amount[]")
 
-            
-        po_id.save()
+        obj_dele = Vendor_Credits_Bills_items_bills.objects.filter(recur_bills=p_bill.id)
+        obj_dele.delete()
 
-        p_bill = Vendor_Credits_Bills.objects.get(id=po_id.id)
+        if len(item) == len(hsn) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
+            for i in range(len(item)):
+                created = Vendor_Credits_Bills_items_bills.objects.create(
+                    item=item[i],
+                    hsn=hsn[i],
+                    quantity=quantity[i],
+                    rate=rate[i],
+                    tax=tax[i],
+                    discount=discount[i],
+                    amount=amount[i],
+                    user=u,
+                    company=company,
+                    recur_bills=p_bill
+                )
 
-    if request.FILES.get('file') is not None:
-        po_id.file = request.FILES['file']
-    else:
-        po_id.file = "/static/images/default.jpg"
-    po_id.save()
-    item = request.POST.getlist("item[]")
-    accounts = request.POST.getlist("account[]")
-    hsn = request.POST.getlist("hsn[]")
-    quantity = request.POST.getlist("quantity[]")
-    rate = request.POST.getlist("rate[]")
-    tax = request.POST.getlist("tax[]")
-    discount = request.POST.getlist("discount[]")
-    amount = request.POST.getlist("amount[]")
-
-    obj_dele = Vendor_Credits_Bills_items_bills.objects.filter(recur_bills=p_bill.id)
-    obj_dele.delete()
-
-    if len(item) == len(accounts) == len(hsn) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
-        for i in range(len(item)):
-            created = Vendor_Credits_Bills_items_bills.objects.create(
-                item=item[i],
-                account=accounts[i],
-                hsn=hsn[i],
-                quantity=quantity[i],
-                rate=rate[i],
-                tax=tax[i],
-                discount=discount[i],
-                amount=amount[i],
-                user=u,
-                company=company,
-                recur_bills=p_bill
-            )
-
-            print('Done')
+                print('Done')
 
         return redirect('view_vendor_credits',id)
-    return redirect('vendor_credits_home')
+    return redirect('view_vendor_credits',id)
     
     
 @login_required(login_url='login')
@@ -29408,7 +29403,7 @@ def sharePricelistToEmail(request,id):
         
         
         
-        # =======================================delivery challan updates by nasneen o m ====================================
+        # =======================================delivery challan  by nasneen o m ====================================
 def get_dl_item(request):
     cur_user = request.user
     user = User.objects.get(id=cur_user.id)
@@ -29923,7 +29918,7 @@ def delete_delivery_chellan_comment(request,pk):
     comment.delete()
     return redirect('delivery_challan_overview',did.id)
     
-        # =======================================vendor credit updates by nasneen o m ====================================
+        # =======================================vendor credit  by nasneen o m ====================================
 def getacc(request):
     b_id = request.GET.get('id')
     print(b_id)
@@ -29933,21 +29928,6 @@ def getacc(request):
     return JsonResponse(data7)
 
 
-
-# item_list = []
-#     bill_nos = []
-#     for i in bill:
-#         bill_nos.append(i.bill_no)
-#         bill_item = PurchaseBillItems.objects.filter(purchase_bill=i)
-#         for k in bill_item:
-#             item_list.append(k.item_name)
-#             print(k.item_name)
-#     for j in rbill:
-#         bill_nos.append(j.bill_no)
-#         rbill_item = recurring_bills_items.objects.filter(recur_bills=j)
-#         for i in rbill_item:
-#             item_list.append(i.item)
-#             print(i.item)
         
 def get_bill_item(request):
     billid = request.POST.get('id')
@@ -30052,9 +30032,9 @@ def email_vendor_credit(request,id):
     result = BytesIO()
     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
     pdf = result.getvalue()
-    filename = f'DELIVERY CHALLAN - {vc.chellan_no}.pdf'
-    subject = f"DELIVERY CHALLAN - {vc.chellan_no}"
-    email = EmailMessage(subject, f"Hi,\nPlease find the attached DELIVERY CHALLAN - File-{vc.chellan_no}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+    filename = f'DELIVERY CHALLAN - {vc.credit_note}.pdf'
+    subject = f"DELIVERY CHALLAN - {vc.credit_note}"
+    email = EmailMessage(subject, f"Hi,\nPlease find the attached DELIVERY CHALLAN - File-{vc.credit_note}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
     email.attach(filename, pdf, "application/pdf")
     email.send(fail_silently=False)
     # msg = messages.success(request, 'Debit note file has been shared via email successfully..!')

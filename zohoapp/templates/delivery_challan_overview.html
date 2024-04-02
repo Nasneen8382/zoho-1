@@ -437,7 +437,36 @@
     });
 
 </script>
-
+<script>
+  $(document).ready(function () {
+      // Add event listener to the button
+      $("#vendor-name").click(function () {
+          var rows = $('#table tbody tr').get();
+          rows.sort(function (a, b) {
+              var textA = $(a).find('h5').text().toUpperCase();
+              var textB = $(b).find('h5').text().toUpperCase();
+              console.log(textA);
+              console.log(textB);
+              return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+          });
+          $.each(rows, function (index, row) {
+              $('#table').children('tbody').append(row);
+              console.log(row);
+              console.log(index);
+          });
+          
+      });
+      var $rows = $('#table tbody tr');
+  $('#search').keyup(function() {
+    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+    $rows.show().filter(function() {
+      var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+      return !~text.indexOf(val);
+    }).hide();
+  });
+  });
+  
+</script>
 
 <div class="row">
     <div class="col-md-3">
@@ -464,8 +493,22 @@
 
                 <a class="btn btn-outline mx-1" style="color: #fdfdfd;background-color: rgb(210, 132, 30);height: 5vh;"
                     href="{% url 'create_delivery_chellan' %}"><i class="fa fa-plus"></i></a>
-                <a class="btn btn-outline mr-1" style="color: #fdfdfd;background-color: rgb(210, 132, 30);height: 5vh;"
-                    href="{% url 'create_delivery_chellan' %}"><i class="fa fa-sort"></i></a>
+                    <a class="btn btn-outline mr-1" style="color: #fdfdfd;background-color: rgb(210, 132, 30);height: 5vh;"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false"><i class="fa fa-sort"></i></a>
+                    <div class="dropdown-menu ">
+                        <a class="dropdown-item" href="{% url 'vendor_credits_home' %}" id="all-list">
+                          <i class="fa fa-sort"></i> All
+                        </a>
+                        <a class="dropdown-item" href="#" id="vendor-name">
+                          <i class="fa fa-sort"></i> Vendor Name
+                        </a>
+                        <!-- <a class="dropdown-item" href="#" id="debit-no">
+                          <i class="fa fa-sort"></i> Debit note No
+                        </a>
+             -->
+            
+                      </div>
             </div>
 
             <hr>
@@ -474,9 +517,9 @@
         <div class="row" style=" overflow-y: scroll; height: 84vh;">
             <div class="col-sm-12 col-lg-12 col-md-12">
                 <div class="pt-3 ps-2 " style="height: 600px;">
-                    <table class="text-white" style="width: 100%; ">
+                    <table class="text-white" style="width: 100%; " id="table">
                         {% for estimate in all_estimates %}
-                        <tbody id="table">
+                        <tbody >
                             <tr id="tr_data" class="clickable-row border-bottom" style="cursor: pointer;"
                                 data-href="{% url 'delivery_challan_overview' estimate.id %}">
                                 <td>
