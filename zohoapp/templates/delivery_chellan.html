@@ -41,7 +41,7 @@
   .btn {
     color: rgb(218, 164, 48);
     outline-color: azure;
-    border: 2px solid rgb(25, 91, 145);
+    /* border: 2px solid rgb(25, 91, 145); */
   }
 
   /* .btn:hover {
@@ -72,8 +72,8 @@
           autocomplete="off" style="height: 6vh;">
           <div class="dropdown">
             <button class="btn btn-outline-warning  px-3 py-2 ms-1" type="button" data-bs-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false"><i class="fas fa-sort-amount-up"></i>
-              Sort
+              aria-haspopup="true" aria-expanded="false"><i class="fas fa-sort"></i>
+              
             </button>
             <div class="dropdown-menu ">
               <a class="dropdown-item" href="#" id="all-challan">
@@ -94,8 +94,8 @@
 
 
 
-      <div class="col-md-3"></div>
-      <div class="col-md-4">
+      <div class="col-md-1"></div>
+      <div class="col-md-6">
 
         <a class="btn text-center px-3 py-2  btn-outline-warning " data-bs-toggle="dropdown" aria-haspopup="true"
           aria-expanded="false" role="button"><i class="fa fa-filter mx-3"></i>
@@ -106,20 +106,19 @@
           <a class="dropdown-item" href="{% url 'filter_delivery_sent' %}">Send</a>
 
         </div>
+        <label for="file-input" title="improt excel" class="btn text-right px-3 py-2  btn-outline-warning"
+                                                      type="button"><i class="fa fa-file-excel-o" aria-hidden="true"></i>IMPORT</label>
+                                                      <input id="file-input" type="file" name="file" style="display:none;"
+                                                      onchange="uploadFile()">
+                       <a  class="btn text-right px-3 py-2  btn-outline-warning"  onclick="exportAsExcel()">
+                        <i class="fa fa-file-excel-o" aria-hidden="true"></i> EXPORT
+                       </a>
         <a href="{% url   'create_delivery_chellan' %}" class="btn text-right px-3 py-2  btn-outline-warning">
          <i class="fa fa-plus" aria-hidden="true"></i> NEW
         </a>
-        <a href="" class="btn btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true"
-        aria-expanded="false" role="button"><i class="fa fa-file-excel-o" aria-hidden="true"></i></a>
-        <div class="dropdown-menu" style="width: 15vw;">
-          <a class="dropdown-item" href="">
-            <label for="file-input" title="improt excel" type="button">Import from excel</label>
-                                        <input id="file-input" type="file" name="file" style="display:none;"
-                                        onchange="uploadFile()">
-          </a>
-          <a class="dropdown-item " href="" onclick="exportAsExcel()">Export to excel</a>
-          
-        </div>
+
+
+       
       </div>
     </div>
     <hr>

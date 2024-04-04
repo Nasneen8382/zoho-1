@@ -4449,23 +4449,36 @@ def create_delivery_chellan(request):
 
         today = date.today()
         
-        max_chellan_no = DeliveryChellan.objects.filter(user=user).aggregate(Max('chellan_no'))['chellan_no__max']
 
-        # If there are existing chellan_no, increment the count; otherwise, start from 1
-        if max_chellan_no is not None:
-            next_count = int(max_chellan_no) + 1
+        max_chellan_no = DeliveryChellan.objects.filter(user=user).aggregate(Max('chellan_no'))['chellan_no__max']
+        if max_chellan_no:
+            # Extract numeric part from the max_credit
+            numeric_part = re.search(r'\d+$', max_chellan_no).group(0)
+            next_numeric_part = str(int(numeric_part) + 1)
+            next_numeric_part_padded = next_numeric_part.zfill(len(numeric_part))
+
+            next_count = max_chellan_no[:-len(numeric_part)] + next_numeric_part_padded
         else:
             next_count = ''
         
-        print(next_count)
+        
 
+        # If there are existing chellan_no, increment the count; otherwise, start from 1
+        # if max_chellan_no is not None:
+        #     next_count = int(max_chellan_no) + 1
+        # else:
+        #     next_count = ''
         
-        
-        last_record = DeliveryChellan.objects.order_by('-id').first()
-        if last_record:
-            count = last_record.id + 1
+        # print(next_count)
+
+        filtered_records = DeliveryChellan.objects.filter(user=request.user).aggregate(Max('reference'))['reference__max']
+        # count = filtered_records.count()
+        if filtered_records:
+            count=filtered_records+1
         else:
             count = 1
+        
+        
 
         unit = Unit.objects.all()
         sale = Sales.objects.all()
@@ -29439,8 +29452,8 @@ def import_excel_dl(request):
                     customer_name=row['CUSTOMER NAME'],
                     customer_mailid=row['EMAIL'],
                     total=row['TOTAL AMOUNT'],
-                    status=row['STATUS'],
-                    # BALANCE=row['STATUS'],
+                    status='Draft',
+                    balance= row['TOTAL AMOUNT'],
                     
                 )
             s.save()
@@ -30039,3 +30052,32 @@ def email_vendor_credit(request,id):
     email.send(fail_silently=False)
     # msg = messages.success(request, 'Debit note file has been shared via email successfully..!')
     return redirect(view_vendor_credits,id)
+
+  
+# def import_excel_dl(request):
+#     if request.method == "POST" and request.FILES.get("file"):
+      
+#       print("open============================================")
+#       excel_file = request.FILES['file']
+#       if excel_file.name.endswith('.xlsx'):
+#         print("open1111111111111111111111")
+#         df = pd.read_excel(excel_file, engine='openpyxl')
+#         for index, row in df.iterrows():
+#             print(row['DATE'])
+#             s = DeliveryChellan(
+#                     user= request.user,
+#                     chellan_date=row['DATE'],
+#                     chellan_no=row['CHALLAN NUMBER'],
+#                     customer_name=row['CUSTOMER NAME'],
+#                     customer_mailid=row['EMAIL'],
+#                     total=row['TOTAL AMOUNT'],
+#                     status='Draft',
+#                     balance= row['TOTAL AMOUNT'],
+                    
+#                 )
+#             s.save()
+        
+#         print("success============================================")
+#         return redirect('delivery_chellan_home')  # Redirect to a success page
+#     print("end===========================")
+#     return redirect('delivery_chellan_home')
