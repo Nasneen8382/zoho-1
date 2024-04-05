@@ -140,9 +140,9 @@ rel="stylesheet" />
 </select>
 </div>  -->
 
-<div class="container-fulid containerprof">
+<div class="container-fulid ">
 
-  <div class="card radius-15" style="width: 100%;">
+  <div class=" radius-15" style="width: 100%;">
     <div class="card-body">
         <div class="card-title">
           <h2 class="mb-0 text-uppercase text-right">Edit  Vendor Credits </h2>
@@ -150,7 +150,7 @@ rel="stylesheet" />
     </div>
   </div>
   <div>
-  <div class="card radius-15 p-5">
+  <div class=" radius-15 p-2">
     <form action="{% url 'change_vendor_credits' po.id %}" class="mt-2 mb-4" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       
@@ -160,7 +160,7 @@ rel="stylesheet" />
         </div>
         <div class="col-md-6 d-flex">
           <select name="vendor" id="vendor" class="form-control bg-light text-dark"  >
-            <option selected value="{{po.vendor_name}}">{{po.vendor_name}}</option>
+            <option selected value="{{po.vendor_name}}">{{po.vendor_name.split.0}} {{po.vendor_name.split.1}}</option>
             {% for v in vendor %}
             <option value="{{ v.first_name }} {{ v.last_name }} {{v.id}}">{{ v.first_name }} {{ v.last_name }}</option>
             {% endfor %}
@@ -812,7 +812,7 @@ rel="stylesheet" />
                 <tr>
                     <th>Total ( &#x20B9; )</th>
                     <th></th>
-                    <th><input type="number" id="grandtotal" name="grandtotal" step="any" value="0.00" 
+                    <th><input type="number" id="grandtotal" name="grandtotal" step="any" value="{{po.grand_total}}" 
                             class="form-control bg-transparent border-0 text-right grandtotal  text-white"></th>
                 </tr>
                 <tr>
@@ -832,7 +832,7 @@ rel="stylesheet" />
                   <th>Balance </th>
                   <td></td>
                   <th>
-                    <input type="number" id="balance" name="balance" step="any" value='0' 
+                    <input type="number" id="balance" name="balance" step="any" value='{{po.balance}}' 
                             class="form-control bg-transparent border-0 text-right balance  text-white">
                              </th>
               </tr>
@@ -2978,6 +2978,7 @@ rel="stylesheet" />
                           
                       });
               });
+              
               $('#billno').val('{{po.bill_number}}')
               console.log($('#billno').val());
               var bill_no =$('#billno').val();

@@ -689,6 +689,35 @@ function calc_ship()
                             }
                         }
                     });
+
+                    function reloadItem(row) {
+      $.ajax({
+        url: "{% url 'item_dropdown' %}",
+        type: "GET",
+        dataType: "json",
+        data: $(this).serialize(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+
+        success: function (data) {
+          // var dropdown = $('.itm');
+          
+          
+            var selectize = $(`#item${row}`)[0].selectize;
+            selectize.clearOptions();
+            selectize.addOption({ value: '', text: 'Select item' });
+            $.each(data, function (key, value) {
+              selectize.addOption({ value: key, text: value });
+            });
+
+            selectize.refreshOptions(false);
+          
+          
+        },
+        error: function (xhr, status, error) {
+          console.error(xhr.responseText);
+        }
+      });
+    }
                     $('.itm').selectize({
                                                 sortField: 'value',
 
@@ -701,6 +730,99 @@ function calc_ship()
                                                     }
                                                 }
                                             });
+
+                                            $('#add-row').click(function () {
+        var table = document.getElementById("item_table");
+        var RowCount = table.rows.length;
+        console.log(RowCount);
+        var newRow = $(`
+        <tr id='row${RowCount}' >
+          <td class='text-center'>${RowCount}</td>
+            <td>
+              <div class='form-group'><select
+                          class=' border-0 item_select itm'
+                          name='item[]' id='item${RowCount}'>
+                          <option class='text-dark'  value="">Select</option>
+                          {% for i in items %}
+                          <option class="text-dark" value="{{i.id}}">{{i.Name}}</option>
+                          {% endfor %}
+                          
+                      </select></div>
+              </td>
+            </td>
+            <td class='text-right'>
+        <input type='text' id='hsn${RowCount}'  class='form-control bg-transparent  text-white border-0  text-right hsn' name="hsn[]" placeholder="6 Digit No" pattern="[0-9]{6}" value='' readonly required>
+        <span class='hsn-validation'></span>
+    </td>
+            <td class='text-right'><input type='number' id='qty${RowCount}'
+                    class='form-control border-0 bg-transparent  text-white text-right qty' name="quantity[]" value='0' onchange="calc()">
+            </td>
+            <td class='text-right'><input type='number' id='rate${RowCount}'
+                    class='form-control border-0 bg-transparent  text-white text-right rate' name="rate[]" value='0.00'
+                    ></td>
+              <td class='text-right'><input type='number' id='discount${RowCount}'
+                    class='form_control bg-transparent border-0 text-light text-right discount' name="discount[]" value='0.00' style="width:85%">
+            </td>
+            <td class='text-right'> <select name="tax[]" id='tax${RowCount}'
+                    class="form-control  bg-transparent  text-white text-right border-0 tax">
+                    <option>Select Tax</option>
+                
+                   
+                    <option value="0" class="text-dark">GST 0%</option>
+                 <option value="3" class="text-dark">GST 3%</option>
+ 
+                   <option value="5" class="text-dark">GST 5%</option>
+                   <option value="12" class="text-dark">GST 12%</option>
+                   <option value="18" class="text-dark">GST 18%</option>
+                   <option value="28" class="text-dark">GST 28%</option>
+                </select>
+                <select name='itax[]' id='itax${RowCount}' style="display: none;"
+                class=' bg-transparent form-control text-light text-right border-0 itax'>
+                  <option  value='{{est.tax_percentage}}'>{{est.tax_percentage}} %IGST</option>
+                  <option class="form-control text-dark" value=0>0% IGST</option>
+                  <option class="form-control text-dark" value=3>3% IGST</option>
+                  <option class="form-control text-dark" value=5>5% IGST</option>
+                  <option class="form-control text-dark" value=12>12% IGST</option>
+                  <option class="form-control text-dark" value=18>18% IGST</option>
+                  <option class="form-control text-dark" value=28>28% IGST</option>
+                  </select>
+                </td>
+            <td style="display: none;">
+                <input type="text" name="taxamount1[]" id="taxamount${RowCount}" class="form-control taxamount" />
+                        </td>
+            <td class='text-right'><input type='number' id='amount${RowCount}'
+                    class='form-control border-0 bg-transparent  text-white text-right amount  px-0' name="amount[]" value='0.00'></td>
+            <td class='text-center'><button type='button' id='del_btn${RowCount}'
+                    class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-row'
+                    style='width:30px'><i class='fa fa-times'></i></button>
+                    <button type='button' class='btn btn-transparent text-primary btn-sm btn-outline-primary rounded-circle clone-row' data-row=1 style='width:30px'><i class="fa fa-clone"></i>
+                        </button>
+                    </td>
+        </tr>`);
+
+
+        
+        $('#item_table').append(newRow);
+        for (var i = 1; i <= 10; i++) {
+    $('#item' + i).selectize({
+        sortField: 'value',
+        render: {
+            item: function (item, escape) {
+                if (item.value === '') {
+                    return '';
+                }
+                return '<div>' + escape(item.text) + '</div>';
+            }
+        }
+    });
+}
+reloadItem(RowCount)
+    });
+
+    $('#item_table').on('click', '.delete-row', function () {
+        $(this).closest('tr').remove();
+        calc();
+    });
                       
                  
 $('#customer_sel').change(function() {
@@ -958,7 +1080,7 @@ $(document).on('change', '.itm', function () {
             <select class="form-control text-dark"  name="chellan_type" >
                 <option value="{{i.chellan_type}}" >{{i.chellan_type}}</option>
               
-                <option value="Supplay Of Liquid Gas">Supplay Of Liquid Gas</option>
+                <option value="Supply Of Liquid Gas">Supply Of Liquid Gas</option>
                 <option value="Job Work">Job Work</option>
                 <option value="Supplay Of Approval">Supplay Of Approval</option>
                 <option value="Others">Others</option>
@@ -3270,91 +3392,7 @@ function reloadPayment() {
    
 
 
-    $('#add-row').click(function () {
-        var table = document.getElementById("item_table");
-        var RowCount = table.rows.length;
-        console.log(RowCount);
-        var newRow = $(`
-        <tr id='row${RowCount}' >
-          <td class='text-center'>${RowCount}</td>
-            <td>
-                <div class='form-group'>
-                    <select
-                        class='form-control  bg-transparent  text-white border-0 item_select itm' name="item[]"
-                        id='item${RowCount}'>
-                        <option class="text-dark" value="">Select</option>
-                       {% for i in items %}
-                        <option class="text-dark" value="{{i.id}}">{{i.Name}}</option>
-                       
-                        {% endfor %}
-                    </select></div>
-            </td>
-            <td class='text-right'>
-        <input type='text' id='hsn${RowCount}'  class='form-control bg-transparent  text-white border-0  text-right hsn' name="hsn[]" placeholder="6 Digit No" pattern="[0-9]{6}" value='' readonly required>
-        <span class='hsn-validation'></span>
-    </td>
-            <td class='text-right'><input type='number' id='qty${RowCount}'
-                    class='form-control border-0 bg-transparent  text-white text-right qty' name="quantity[]" value='0' onchange="calc()">
-            </td>
-            <td class='text-right'><input type='number' id='rate${RowCount}'
-                    class='form-control border-0 bg-transparent  text-white text-right rate' name="rate[]" value='0.00'
-                    ></td>
-              <td class='text-right'><input type='number' id='discount${RowCount}'
-                    class='form_control bg-transparent border-0 text-light text-right discount' name="discount[]" value='0.00' style="width:85%">
-            </td>
-            <td class='text-right'> <select name="tax[]" id='tax${RowCount}'
-                    class="form-control  bg-transparent  text-white text-right border-0 tax">
-                    <option>Select Tax</option>
-                
-                   
-                    <option value="0" class="text-dark">GST 0%</option>
-                 <option value="3" class="text-dark">GST 3%</option>
  
-                   <option value="5" class="text-dark">GST 5%</option>
-                   <option value="12" class="text-dark">GST 12%</option>
-                   <option value="18" class="text-dark">GST 18%</option>
-                   <option value="28" class="text-dark">GST 28%</option>
-                </select>
-                <select name='itax[]' id='itax${RowCount}' style="display: none;"
-                class=' bg-transparent form-control text-light text-right border-0 itax'>
-                  <option  value='{{est.tax_percentage}}'>{{est.tax_percentage}} %IGST</option>
-                  <option class="form-control text-dark" value=0>0% IGST</option>
-                  <option class="form-control text-dark" value=3>3% IGST</option>
-                  <option class="form-control text-dark" value=5>5% IGST</option>
-                  <option class="form-control text-dark" value=12>12% IGST</option>
-                  <option class="form-control text-dark" value=18>18% IGST</option>
-                  <option class="form-control text-dark" value=28>28% IGST</option>
-                  </select>
-                </td>
-            <td style="display: none;">
-                <input type="text" name="taxamount1[]" id="taxamount${RowCount}" class="form-control taxamount" />
-                        </td>
-            <td class='text-right'><input type='number' id='amount${RowCount}'
-                    class='form-control border-0 bg-transparent  text-white text-right amount  px-0' name="amount[]" value='0.00'></td>
-            <td class='text-center'><button type='button' id='del_btn${RowCount}'
-                    class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-row'
-                    style='width:30px'><i class='fa fa-times'></i></button>
-                    <button type='button' class='btn btn-transparent text-primary btn-sm btn-outline-primary rounded-circle clone-row' data-row=1 style='width:30px'><i class="fa fa-clone"></i>
-                        </button>
-                    </td>
-        </tr>`);
-
-//             $(document).on("input", ".hsn", function() {
-//     var hsn_value = $(this).val();
-//     var hsn_length = hsn_value.length;
-//     if (hsn_length > 6) {
-//         $(this).val(hsn_value.substring(0, 6));
-//         alert("HSN should not be more than 6 digits!");
-//     }
-// });
-        $('#item_table').append(newRow);
-        productsearch(RowCount)
-    });
-
-    $('#item_table').on('click', '.delete-row', function () {
-        $(this).closest('tr').remove();
-        calc();
-    });
 
 });
 
@@ -3440,7 +3478,7 @@ $(document).ready(function () {
 
 
 <script>
-    // $(document).ready(function () {
+    $(document).ready(function () {
 
 
     var roinc = 0

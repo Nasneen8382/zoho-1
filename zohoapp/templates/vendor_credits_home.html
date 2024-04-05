@@ -283,8 +283,8 @@
                                 <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.credit_note }}</a></td>
                                 <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_name.split.0 }} {{ r.vendor_name.split.1 }}
                                     </a></td>
-                                <td class="text-capitalize"><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_email }}</a></td>
-                                <td class="text-capitalize"><a href="{% url 'view_vendor_credits' r.id %}">{{ r.tax_amount }}</a></td>
+                                <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.vendor_email }}</a></td>
+                                <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.tax_amount }}</a></td>
                                 <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.grand_total|floatformat:2 }}</a></td>
                                 <td><a href="{% url 'view_vendor_credits' r.id %}">{{ r.status }}</a></td>
                                 <!-- <td class="text-right">
@@ -343,7 +343,7 @@
             </div>
         </div>
         <div>
-            <table id="table2" class="table" >
+            <table id="table2" style="display: none;" >
                 <tr>
                     <th>DATE</th>
                     <th>DEBIT NOTE NO.</th>
@@ -355,17 +355,22 @@
                 </tr>
             <tbody>
                 {% for r in recur_bill %}
-                <tr>{{ r.vendor_date }}</tr>
-                <tr>{{ r.credit_note }}</tr>
-                <tr>{{ r.vendor_name.split.0 }} {{ r.vendor_name.split.1 }}</tr>
-                <tr>{{ r.vendor_email }}</tr>
-                <tr>{{ r.tax_amount }}</tr>
-                <tr>{{ r.grand_total|floatformat:2 }}</tr>
-                <tr>{{ r.balance }}</tr>
+                <tr>
+                    <td>{{ r.vendor_date }}</td>
+                <td>{{ r.credit_note }}</td>
+                <td>{{ r.vendor_name.split.0 }} {{ r.vendor_name.split.1 }}</td>
+                <td>{{ r.vendor_email }}</td>
+                <td>{{ r.tax_amount }}</td>
+                <td>{{ r.grand_total|floatformat:2 }}</td>
+                <td>{{ r.balance }}</td>
+                </tr>
+                
                 {% endfor %}
             </tbody>
 
         </table>
+
+        
         </div>
         
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -435,5 +440,49 @@ $('.dropdown-toggle').dropdown();
 //         }).hide();
 //     });
 // });
+
+
+function exportAsExcel() {
+        console.log("table2");
+        $('in1').prop
+        const table = document.getElementById('table2'); // Replace 'myTable' with your table's ID
+        const wb = XLSX.utils.table_to_book(table);
+
+        XLSX.writeFile(wb, 'vendor_credit.xlsx');
+    }
+
+    function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = cookies[i].trim();
+                            // Check if the cookie name matches the CSRF cookie name
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+    function uploadFile() {
+      console.log("entered");
+                    const fileInput = document.getElementById("file-input");
+                    const file = fileInput.files[0];
+                    const csrfToken = getCookie('csrftoken')
+
+                    const formData = new FormData();
+                    formData.append("file", file);
+
+                    fetch("/import_excel_vendor", {
+                        method: "POST",
+                        headers: { 'X-CSRFToken': csrfToken },
+                        body: formData
+                    })
+                    window.location.href = '/vendor_credits_home';
+
+
+                }
 </script>
 {% endblock %}

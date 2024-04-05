@@ -439,23 +439,39 @@
 </script>
 <script>
   $(document).ready(function () {
-      // Add event listener to the button
-      $("#vendor-name").click(function () {
-          var rows = $('#table tbody tr').get();
-          rows.sort(function (a, b) {
-              var textA = $(a).find('h5').text().toUpperCase();
-              var textB = $(b).find('h5').text().toUpperCase();
-              console.log(textA);
-              console.log(textB);
-              return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-          });
-          $.each(rows, function (index, row) {
-              $('#table').children('tbody').append(row);
-              console.log(row);
-              console.log(index);
-          });
-          
-      });
+    $('#vendor-name').click(function () {
+        sortTable(0); // Index 0 corresponds to the customer name column
+    });
+
+    // Function to sort the table by delivery challan number
+    $('#debit-no').click(function () {
+        sortTable(0); // Index 1 corresponds to the delivery challan number column
+    });
+
+    // Sort table function
+    function sortTable(columnIndex) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("table");
+        switching = true;
+        while (switching) {
+            switching = false;
+            rows = table.getElementsByTagName("tr");
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("td")[columnIndex];
+                y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+                // Compare the inner text of the TD elements
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
       var $rows = $('#table tbody tr');
   $('#search').keyup(function() {
     var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
@@ -480,7 +496,7 @@
 
                 <input class="form-control" type="text" placeholder="Search by Name" name="search" id="search"
                     style="color: rgb(255, 255, 255);background: transparent;height: 6vh;">
-                <a class="btn btn-outline mx-1" style="color: #ffffff;background-color: rgb(210, 132, 30);height: 5vh;"
+                <a class="btn btn-outline ms-1" style="color: #ffffff;background-color: rgb(210, 132, 30);height: 5vh;"
                     href="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
                     <i class="fa fa-filter"></i>
                 </a>
@@ -497,16 +513,16 @@
                     data-bs-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false"><i class="fa fa-sort"></i></a>
                     <div class="dropdown-menu ">
-                        <a class="dropdown-item" href="{% url 'vendor_credits_home' %}" id="all-list">
+                        <a class="dropdown-item" href="{% url 'delivery_challan_overview' estimate.id %}" id="all-list">
                           <i class="fa fa-sort"></i> All
                         </a>
                         <a class="dropdown-item" href="#" id="vendor-name">
-                          <i class="fa fa-sort"></i> Vendor Name
+                          <i class="fa fa-sort"></i> Name
                         </a>
-                        <!-- <a class="dropdown-item" href="#" id="debit-no">
-                          <i class="fa fa-sort"></i> Debit note No
+                        <a class="dropdown-item" href="#" id="debit-no">
+                          <i class="fa fa-sort"></i> DC No.
                         </a>
-             -->
+            
             
                       </div>
             </div>

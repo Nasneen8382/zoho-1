@@ -116,20 +116,7 @@ rel="stylesheet" />
     </style>
 
   <script>
-  //   $(document).ready(function() {
-  //     console.log("Loaded Selectize");
-  // $('#cars').selectize({
-  // sortField: 'value',
-  // render: {
-  //  item: function (item, escape) {
-  //    if (item.value === '') {
-  //      return '';
-  //    }
-  //    return '<div>' + escape(item.text) + '</div>';
-  //  }
-  // }
-  // });
-  // });
+   
   </script>
   <!-- <div class="row">
 <select name="carss" id="cars">
@@ -140,9 +127,9 @@ rel="stylesheet" />
 </select>
 </div>  -->
 
-<div class="container-fulid containerprof">
+<div class="container-fulid ">
 
-  <div class="card radius-15" style="width: 100%;">
+  <div class=" radius-15" style="width: 100%;">
     <div class="card-body">
         <div class="card-title">
           <h2 class="mb-0 text-uppercase text-right"> Vendor Credits </h2>
@@ -150,8 +137,8 @@ rel="stylesheet" />
     </div>
   </div>
   <div>
-  <div class="card radius-15 p-5">
-    <form action="{% url 'create_vendor_credit' %}" class="mt-2 mb-4" method="post" enctype="multipart/form-data">
+  <div class=" radius-15 p-2">
+    <form action="{% url 'create_vendor_credit' %}" class="mt-2 mb-4" method="post" enctype="multipart/form-data" id="create_form">
       {% csrf_token %}
       
       <div class="row">
@@ -159,7 +146,7 @@ rel="stylesheet" />
           <label>Vendor Name *</label>
         </div>
         <div class="col-md-6 d-flex">
-          <select name="vendor" id="vendor" class="form-control bg-light text-dark w-100">
+          <select name="vendor" id="vendor" class="form-control bg-light text-dark w-100" required>
             <option value="">Choose vendor</option>
             {% for v in vendor %}
             <option value="{{ v.first_name }} {{ v.last_name }} {{v.id}}">{{ v.first_name }} {{ v.last_name }}</option>
@@ -474,7 +461,7 @@ rel="stylesheet" />
       <label for="date1">Payment Methode</label>
     </div>
     <div class="col-md-6">
-      <select class="form-control text-dark bg-light" name="pay_method" id="pay_method">
+      <select class="form-control text-dark bg-light" name="pay_method" id="pay_method" required>
         <option value=""></option>
         <option value="Cash">Cash</option>
         <option value="UPI">UPI</option>
@@ -538,7 +525,7 @@ rel="stylesheet" />
                   <td style="width: 5%;">
                       <div ><select
                               class='form-control bg-light text-dark border-0 item_select itm'
-                              name='item[]' id='item1'>
+                              name='item[]' id='item1' required>
                               <option value=" " selected disabled>Select Item</option>
                               {% for i in item %}
                                 <option value="{{i.Name}}">{{ i.Name  }} </option>
@@ -687,7 +674,7 @@ rel="stylesheet" />
             </td>
                   <td style="width: 9%;" class='text-right'><input type='number' id='qty1'
                           class=' text-right qty form-control bg-light text-dark' name='quantity[]'
-                          value='0'>
+                          value='0' required>
                           <input type='number' id='maxqty1' 
                           class=' text-right maxqty form-control bg-light text-dark' name='maxqty[]'
                           value='0' style="display: none;">
@@ -3004,6 +2991,11 @@ rel="stylesheet" />
       var $closestRow = $(this).closest('tr');
 
         var selectedItemId = $(this).val();
+        if (item_list === null || item_list === undefined) {
+            console.log("Item list is null or undefined.");
+            
+            return;
+        }
         if (item_list[selectedItemId] !== undefined) {
             console.log("Selected item is in the item list.");
             console.log("Item name:", selectedItemId);
@@ -3729,7 +3721,7 @@ function calculateGrandTotal() {
         <td class="text-center">${rowCount}</td>
         <td style="width: 9%;">
           <div>
-            <select class='form-control bg-light text-dark  border-0 item_select itm' name='item[]' id='item${rowCount}'>
+            <select class='form-control bg-light text-dark  border-0 item_select itm' name='item[]' id='item${rowCount}' required>
               <option value=" " selected disabled>Select Item</option>
               {% for i in item %}
                 <option value="{{i.Name}}">{{ i.Name }}</option>
@@ -3744,7 +3736,7 @@ function calculateGrandTotal() {
 
         
         <td style="width: 9%;" class='text-right'>
-          <input type='number' id='qty${rowCount}' class='text-right bg-light text-dark qty form-control' name='quantity[]' value='0'>
+          <input type='number' id='qty${rowCount}' class='text-right bg-light text-dark qty form-control' name='quantity[]' value='0' required>
           <input type='number' id='maxqty${rowCount}'
                           class=' text-right maxqty form-control bg-light text-dark' name='maxqty[]'
                           value='0' style="display: none;">

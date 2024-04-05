@@ -4443,8 +4443,8 @@ def create_delivery_chellan(request):
     try:
         company = company_details.objects.get(user=request.user)
         print(company.state)
-        items = AddItem.objects.filter(user_id=user.id,satus='active')
-        customers = customer.objects.filter(user_id=user.id)
+        items = AddItem.objects.filter(user_id=user.id,satus='Active')
+        customers = customer.objects.filter(user_id=user.id, status='Active')
         p = AddItem.objects.filter(user = request.user)
 
         today = date.today()
@@ -4877,9 +4877,9 @@ def delivery_challan_edit(request,id):
     company = company_details.objects.get(user=user)
     customers = customer.objects.filter(user_id=user.id)
     
-    c = customer.objects.filter(user = request.user)
+    c = customer.objects.filter(user = request.user,status='Active')
 
-    items = AddItem.objects.filter(user = request.user)
+    items = AddItem.objects.filter(user = request.user,satus='Active')
     estimate = DeliveryChellan.objects.get(id=id)
     cust = estimate.cu.placeofsupply 
     cust_id = estimate.cu.id
@@ -14306,10 +14306,10 @@ def delete_vendor_credits(request, id):
     
 def add_vendor_credits(request):
     company = company_details.objects.get(user = request.user)
-    vendor=vendor_table.objects.filter(status='Active')
+    vendor=vendor_table.objects.filter(status='Active',user = request.user)
     cust=customer.objects.filter(user = request.user)
     payment=payment_terms.objects.all()
-    item=AddItem.objects.all()
+    item=AddItem.objects.filter(satus='Active',user = request.user)
     account=Account.objects.all()
     unit=Unit.objects.all()
     sales=Sales.objects.all()
@@ -14337,9 +14337,10 @@ def add_vendor_credits(request):
 
         
         
-    last_record = Vendor_Credits_Bills.objects.order_by('-id').first()
+    last_record =  Vendor_Credits_Bills.objects.filter(user=user).aggregate(Max('order_no'))['order_no__max']
+    print(last_record)
     if last_record:
-        count = last_record.id + 1
+        count = int(last_record) + 1
     else:
         count = 1
     context={
@@ -14373,7 +14374,11 @@ def create_vendor_credit(request):
         vgst_n = request.POST.get('gstin_inp')
         vaddress = request.POST.get('address_inp')
         
-        credit_note = request.POST.get('credit_note')
+        if( request.POST.get('credit_note') == 'DUS'):
+            credit_note='DUS1'
+        else:
+            credit_note = request.POST.get('credit_note')
+            
         order_no = request.POST.get('order_number')
         vendor_date = request.POST.get('credit_date')
 
@@ -14392,7 +14397,7 @@ def create_vendor_credit(request):
         u = User.objects.get(id = request.user.id)
         
         billno=request.POST['billno'] 
-        bill_number = billno.split(' ', 1)[1]
+       
         pay_method=request.POST['pay_method'] 
         
         if  pay_method == 'Cash':
@@ -14418,6 +14423,8 @@ def create_vendor_credit(request):
         paid = request.POST['paid']
         balance = request.POST['balance']
         shipping = request.POST['shipping_charge']
+        
+        print(status)
            
 
         purchase = Vendor_Credits_Bills(vendor_name=vname,
@@ -14444,7 +14451,7 @@ def create_vendor_credit(request):
                                    
                                     company=company,
                                     user = u ,
-                                    bill_number=bill_number,
+                                    bill_number=billno,
                                     payment_methode = pay_method,
                                     upi = upiid,
                                     cheque = chequeno,
@@ -22334,7 +22341,7 @@ def delivery_challan_slip(request, id):
 def filter_by_draft_chellan_overview(request,pk):
     user = request.user
     company = company_details.objects.get(user=user)
-    all_estimates = DeliveryChellan.objects.filter(user=user,status='draft')
+    all_estimates = DeliveryChellan.objects.filter(user=user,status='Draft')
     estimate = DeliveryChellan.objects.get(id=pk)
     items = ChallanItems.objects.filter(chellan=estimate)
     context = {
@@ -22348,7 +22355,7 @@ def filter_by_draft_chellan_overview(request,pk):
 def filter_by_sent_chellan_overview(request,pk):
     user = request.user
     company = company_details.objects.get(user=user)
-    all_estimates = DeliveryChellan.objects.filter(user=user,status='send')
+    all_estimates = DeliveryChellan.objects.filter(user=user,status='Send')
     estimate = DeliveryChellan.objects.get(id=pk)
     items = ChallanItems.objects.filter(chellan=estimate)
     context = {
@@ -30054,30 +30061,30 @@ def email_vendor_credit(request,id):
     return redirect(view_vendor_credits,id)
 
   
-# def import_excel_dl(request):
-#     if request.method == "POST" and request.FILES.get("file"):
+def import_excel_vendor(request):
+    if request.method == "POST" and request.FILES.get("file"):
       
-#       print("open============================================")
-#       excel_file = request.FILES['file']
-#       if excel_file.name.endswith('.xlsx'):
-#         print("open1111111111111111111111")
-#         df = pd.read_excel(excel_file, engine='openpyxl')
-#         for index, row in df.iterrows():
-#             print(row['DATE'])
-#             s = DeliveryChellan(
-#                     user= request.user,
-#                     chellan_date=row['DATE'],
-#                     chellan_no=row['CHALLAN NUMBER'],
-#                     customer_name=row['CUSTOMER NAME'],
-#                     customer_mailid=row['EMAIL'],
-#                     total=row['TOTAL AMOUNT'],
-#                     status='Draft',
-#                     balance= row['TOTAL AMOUNT'],
+      print("open============================================")
+      excel_file = request.FILES['file']
+      if excel_file.name.endswith('.xlsx'):
+        print("open1111111111111111111111")
+        df = pd.read_excel(excel_file, engine='openpyxl')
+        for index, row in df.iterrows():
+            print(row['DATE'])
+            s = Vendor_Credits_Bills(
+                    user= request.user,
+                    vendor_date=row['DATE'],
+                    credit_note=row['DEBIT NOTE NO.'],
+                    vendor_name=row['VENDOR NAME'],
+                    vendor_email=row['EMAIL'],
+                    tax_amount=row['TAX AMOUNT'],
+                    grand_total=row['AMOUNT'],
+                    balance= row['BALANCE'],
                     
-#                 )
-#             s.save()
+                )
+            s.save()
         
-#         print("success============================================")
-#         return redirect('delivery_chellan_home')  # Redirect to a success page
-#     print("end===========================")
-#     return redirect('delivery_chellan_home')
+        print("success============================================")
+        return redirect('vendor_credits_home')  # Redirect to a success page
+    print("end===========================")
+    return redirect('vendor_credits_home')
