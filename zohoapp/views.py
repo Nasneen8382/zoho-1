@@ -5016,10 +5016,11 @@ def update_challan(request,id):
             mapped = zip(item, hsn, quantity, rate, discount, tax, amount)
             mapped = list(mapped)
             for element in mapped:
-                itm= AddItem.objects.get(id=element[0])
+                print(element[0])
                 created = ChallanItems.objects.create(
-                    chellan=estimate, item_name=itm.Name, hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
+                    chellan=estimate, item_name=element[0], hsn=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
         print("end=================")
+        
        
         return redirect('delivery_challan_overview', id=id)
 
@@ -6596,9 +6597,11 @@ def recurbills_item(request):    #updation
     company = company_details.objects.get(user = request.user)
 
     if request.method=='POST':
+        print("================")
         
         type=request.POST.get('type')
         name=request.POST.get('name')
+        print(name)
        
         ut=request.POST.get('unit')
         inter=request.POST.get('inter')
@@ -6634,10 +6637,16 @@ def recurbills_item(request):    #updation
                      satus=status,status_stock=status_stock)
 
         item.save()
+        print("saved")
 
-        return HttpResponse({"message": "success"})
+        item_data = {
+            'id': item.id,
+            'Name': item.Name,
+            }
+
+        return JsonResponse({'item': item_data})
     
-    return HttpResponse("Invalid request method.")
+    # return HttpResponse("Invalid request method.")
 
 
         
@@ -14331,7 +14340,7 @@ def add_vendor_credits(request):
         next_credit_note = max_credit[:-len(numeric_part)] + next_numeric_part_padded
     else:
         # If max_credit is None, set next_credit_note as 'DUS001'
-        next_credit_note = 'DUS'
+        next_credit_note = ''
 
     print(next_credit_note)
 
@@ -14374,10 +14383,8 @@ def create_vendor_credit(request):
         vgst_n = request.POST.get('gstin_inp')
         vaddress = request.POST.get('address_inp')
         
-        if( request.POST.get('credit_note') == 'DUS'):
-            credit_note='DUS1'
-        else:
-            credit_note = request.POST.get('credit_note')
+        
+        credit_note = request.POST.get('credit_note')
             
         order_no = request.POST.get('order_number')
         vendor_date = request.POST.get('credit_date')
@@ -30088,3 +30095,20 @@ def import_excel_vendor(request):
         return redirect('vendor_credits_home')  # Redirect to a success page
     print("end===========================")
     return redirect('vendor_credits_home')
+
+
+def get_dl_edit_item(request):
+    cur_user = request.user
+    user = User.objects.get(id=cur_user.id)
+    company = company_details.objects.get(user=user)
+    print("dddddddddddddddddd")
+  
+    id = request.GET.get('id')
+    print(id)
+
+
+    item = AddItem.objects.get(Name=id, user=user)
+
+    data7 = {'hsn': item.hsn,'price':item.s_price,'gst':item.intrastate,'igst':item.interstate}
+
+    return JsonResponse(data7)

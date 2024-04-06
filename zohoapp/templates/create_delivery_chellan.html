@@ -387,6 +387,51 @@
 
   $(document).ready(function () {
 
+
+    $(document).on("click","#unitSave",function(){
+  $.ajax({
+    
+    type : 'POST',
+    url:"{% url 'vendor_credits_unit' %}",
+
+    data:{
+        unit : $("#unit").val(),      
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+        
+      },
+    
+      success: function(response) {
+        document.getElementById("modalUnit").reset();
+        reloadUnit();
+      },
+  });        
+});
+
+
+function reloadUnit() {
+
+  $.ajax({
+    url: "{% url 'vendor_credits_unit_dropdown' %}",
+    type: "GET",
+    dataType: "json",
+    data: $(this).serialize(),
+    csrfmiddlewaretoken: '{{ csrf_token }}',
+
+    success: function(data) {
+      var dropdown = $('#item_units');
+      dropdown.empty();
+
+      $.each(data, function(key, value) {
+          dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+      });
+    },
+    error: function(xhr, status, error) {
+    console.error(xhr.responseText);
+    }
+  });
+}
+
+
     $("#item-tax1").click(function () {
       $(".inter-intra").removeClass('d-none');
       $(".inter-intra").addClass('d-flex');
@@ -423,6 +468,7 @@
 
         type: 'POST',
         url: "{% url 'recurbills_item' %}",
+        dataType: "json",
 
         data: {
           type: itemtype,
@@ -446,9 +492,24 @@
         },
 
         success: function (response) {
-          // console.log(response)
+          console.log("get");
+          console.log(response)
           document.getElementById("modalItem").reset();
-          reloadItem();
+          // reloadItem();
+          var table = document.getElementById('item_table');
+          var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+          console.log(rows.length);
+          
+            console.log("entry", rows.length);
+            for (var i = 1; i <= rows.length; i++) {
+              console.log(i);
+            var selectize = $(`#item${i}`)[0].selectize;
+            
+            selectize.addOption({ value: response.item.id, text: response.item.Name });
+
+            selectize.refreshOptions(false);
+          
+          }
         },
       });
     });
@@ -468,11 +529,12 @@
           var table = document.getElementById('item_table');
           var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
           console.log(rows.length);
-          for (var i = 1; i <= rows.length; i++) {
-            console.log("entry", i);
-            var selectize = $(`#item${i}`)[0].selectize;
-            selectize.clearOptions();
-            selectize.addOption({ value: '', text: 'Select item' });
+          
+            console.log("entry", rows.length);
+            for (var i = 1; i <= rows.length; i++) {
+            var selectize = $(`#item${rows.length}`)[0].selectize;
+            // selectize.clearOptions();
+            // selectize.addOption({ value: '', text: 'Select item' });
             $.each(data, function (key, value) {
               console.log(key);
               selectize.addOption({ value: key, text: value });
@@ -693,13 +755,16 @@
     }
 </script>
 
-<div class="row  ml-2 mb-4">
-  <div class="col-md-12 ">
-    <h3 class="bold">NEW DELIVERY CHALLAN</h3>
+<div class="container-fulid ">
 
+  <div class="card radius-15" style="width: 100%;">
+    <div class="card-body">
+        <div class="card-title">
+          <h2 class="mb-0 text-uppercase text-right"> delivery challan </h2>
+        </div>
+    </div>
   </div>
-</div>
-
+  <div class="card radius-15 p-4">
 
 <form method="POST" action="" enctype="multipart/form-data" novalidate id="forms2">
   {% csrf_token %}
@@ -910,7 +975,8 @@
   <div class="row mb-4 ">
     <div class="col-sm-2"><label for="chellan_number">Delivery Challan#*</label></div>
     <div class="col-sm-6 col-md-6 col-lg-6"><input type="text" id="chellan_number" name="chellan_number"
-        class="form-control text-dark" value="{{next_count}}" required >
+        class="form-control text-secondary" value="{{next_count}}" required >
+        <div id="cn_error"></div>
 
     </div>
   </div>
@@ -938,7 +1004,7 @@
 
         <option value="Supply Of Liquid Gas">Supply Of Liquid Gas</option>
         <option value="Job Work">Job Work</option>
-        <option value="Supplay Of Approval">Supplay Of Approval</option>
+        <option value="Supply Of Approval">Supply Of Approval</option>
         <option value="Others">Others</option>
 
       </select>
@@ -946,11 +1012,18 @@
   </div>
   <script>
     
-    $(document).on('click', '#chellan_number', function () {
+    $(document).on('input', '#chellan_number', function () {
         console.log($(this).val());
         var num = '{{next_count}}'
-        if (num != ''){
-          alert("Next Delivery Challan number is " + num + " . You can change it or use the same Number!")
+        if (num != $(this).val() || num != ''){
+          // alert("Next Delivery Challan number is " + num + " . You can change it or use the same Number!")
+          $('#cn_error').text('*Challan Number is not continuous').css({
+                'color': 'red',
+                'font-size': '12px' // Change the font size to your desired value
+            }).show();
+        }
+        if (num === $(this).val()){
+          $('#cn_error').text('').css('color', 'red').hide();
         }
     });
     
@@ -1160,8 +1233,8 @@
   <input type="submit" class="btn text-white mt-5" style="background-color:  rgb(59, 59, 58) ; "
     onclick="cancelDialog()" value="Cancel">
 </form>
-
-
+</div>
+</div>
 
 <!-- Create Item  -->
 <div class="modal fade" id="newitem">
@@ -1528,6 +1601,56 @@
     </div>
   </div>
 </div>
+
+
+<!-- new unit modal -->
+<div class="modal fade" id="newunit">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+      <div class="modal-header " style="background: rgb(32, 35, 37);">
+          <h3 class="m-3 text-uppercase">Add Unit</h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body" style="background: rgb(32, 35, 37);">
+        <div class="card p-3 m-3">
+          <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalUnit">
+            <div class="row mt-2">
+              <div class="col-md-3 mt-2"></div>
+              <div class="col-md-1 mt-2">
+                <label for="unit" style="color: rgb(190, 88, 88);">Unit</label>
+              </div>
+
+              <div class="col-md-4 mt-2">
+                <input type="text" class="form-control bg-light text-dark" id="unit" name="unit" required>
+              </div>
+              <div class="col-md-4 mt-2"></div>
+            </div>
+            
+            <div class="row mt-5">
+              <div class="col-md-4"></div>
+              <div class="col-md-4">
+                <div class="d-flex">
+                  <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"
+                  type="submit" data-dismiss="modal" id="unitSave">Save
+                  </button> 
+                  
+
+                  <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" 
+                    data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">Cancel</span>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>  
+</div> 
 
 <!-- ============================ modal for account adding  -->
 
@@ -3246,7 +3369,7 @@
             }
         }
     });
-
+}
 reloadItem(RowCount) 
       });
 

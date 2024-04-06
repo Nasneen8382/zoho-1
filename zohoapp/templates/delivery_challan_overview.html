@@ -439,47 +439,66 @@
 </script>
 <script>
   $(document).ready(function () {
-    $('#vendor-name').click(function () {
-        sortTable(0); // Index 0 corresponds to the customer name column
+    $("#vendor-name").click(function () {
+            var rows = $('#table tbody tr').get();
+            rows.sort(function (a, b) {
+                var textA = $(a).find('h5').text().toUpperCase();
+                var textB = $(b).find('h5').text().toUpperCase();
+                console.log(textA);
+                console.log(textB);
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            });
+            $.each(rows, function (index, row) {
+                $('#table').children('tbody').append(row);
+                console.log(row);
+                console.log(index);
+            });
+            
+        });
+        $("#debit-no").click(function () {
+            var rows = $('#table tbody tr').get();
+            rows.sort(function (a, b) {
+                var textA = $(a).find('p').text().toUpperCase();
+                var textB = $(b).find('p').text().toUpperCase();
+                console.log(textA);
+                console.log(textB);
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            });
+            $.each(rows, function (index, row) {
+                $('#table').children('tbody').append(row);
+                console.log(row);
+                console.log(index);
+            });
+            
+        });
+        var $rows = $('#table tbody tr');
+    $('#search').keyup(function() {
+      var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+      $rows.show().filter(function() {
+        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+      }).hide();
     });
 
-    // Function to sort the table by delivery challan number
-    $('#debit-no').click(function () {
-        sortTable(0); // Index 1 corresponds to the delivery challan number column
+
+
+  $('#status-filter .dropdown-item').click(function () {
+        var selectedStatus = $(this).data('status');
+        filterTable(selectedStatus);
     });
 
-    // Sort table function
-    function sortTable(columnIndex) {
-        var table, rows, switching, i, x, y, shouldSwitch;
-        table = document.getElementById("table");
-        switching = true;
-        while (switching) {
-            switching = false;
-            rows = table.getElementsByTagName("tr");
-            for (i = 1; i < (rows.length - 1); i++) {
-                shouldSwitch = false;
-                x = rows[i].getElementsByTagName("td")[columnIndex];
-                y = rows[i + 1].getElementsByTagName("td")[columnIndex];
-                // Compare the inner text of the TD elements
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                    shouldSwitch = true;
-                    break;
-                }
+    function filterTable(selectedStatus) {
+        $('#table tbody tr').each(function () {
+            var status = $(this).find('td:eq(1) p').text().trim().toLowerCase();
+            if (selectedStatus === 'all' || status === selectedStatus) {
+                $(this).show();
+            } else {
+                $(this).hide();
             }
-            if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-            }
-        }
+        });
     }
-      var $rows = $('#table tbody tr');
-  $('#search').keyup(function() {
-    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-    $rows.show().filter(function() {
-      var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
-      return !~text.indexOf(val);
-    }).hide();
-  });
+
+
   });
   
 </script>
@@ -501,11 +520,11 @@
                     <i class="fa fa-filter"></i>
                 </a>
 
-                <div class="dropdown-menu m-1">
-                    <a class="dropdown-item" href="{% url 'delivery_challan_overview' estimate.id %}">All</a>
-                    <a class="dropdown-item" href="{% url 'filter_by_draft_chellan_overview' estimate.id %}">Draft</a>
-                    <a class="dropdown-item" href="{% url 'filter_by_sent_chellan_overview' estimate.id %}">Sent</a>
-                </div>
+                <div class="dropdown-menu m-1" id="status-filter">
+                  <a class="dropdown-item" data-status="all">All</a>
+                  <a class="dropdown-item" data-status="draft">Draft</a>
+                  <a class="dropdown-item" data-status="send">Send</a>
+              </div>
 
                 <a class="btn btn-outline mx-1" style="color: #fdfdfd;background-color: rgb(210, 132, 30);height: 5vh;"
                     href="{% url 'create_delivery_chellan' %}"><i class="fa fa-plus"></i></a>
@@ -534,37 +553,24 @@
             <div class="col-sm-12 col-lg-12 col-md-12">
                 <div class="pt-3 ps-2 " style="height: 600px;">
                     <table class="text-white" style="width: 100%; " id="table">
+                      <tbody id="table">
                         {% for estimate in all_estimates %}
-                        <tbody >
-                            <tr id="tr_data" class="clickable-row border-bottom" style="cursor: pointer;"
-                                data-href="{% url 'delivery_challan_overview' estimate.id %}">
-                                <td>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h5 style="color: rgb(218, 143, 5);">{{estimate.customer_name}}</h5>
-                                        </div>
-                                        <div class="col-md-6 text-right" style="color: rgb(218, 143, 5);">
-                                            &#x20B9;{{estimate.total}}.00</div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <p>{{estimate.chellan_no}}</p>
-                                        </div>
-                                        <div class="col-md-3 text-left">
-                                        </div>
-                                        <div class="col-md-6 text-right">
-                                            <p>{{estimate.status}}</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-3">
-
-                                    </div>
+                        <tr id="tr_data" class="clickable-row border-bottom" style="cursor: pointer;"
+                            data-href="{% url 'view_vendor_credits' estimate.id %}">
+                            <td>
+                                <h5 style="color: rgb(218, 143, 5);">{{estimate.customer_name}}</h5>
+                                <p>{{estimate.chellan_no}}</p>
+                                
+                            </td>
+                            <td><div>&#x20B9;{{estimate.balance}}.00</div>
+                                <p>{{estimate.status}}</p>
                                 </td>
-                            </tr>
-
-                        </tbody>
+                           
+                        </tr>
+                        
 
                         {% endfor %}
+                      </tbody>
                     </table>
 
                 </div>
@@ -778,7 +784,41 @@
     
         
         <div class="gen-info col-6 " style="padding-left: 2rem; ">
+
+          <div class="row mt-1 text-dark">
+            <div class="col-md-6 text-dark my-4" >
+                <h3 style="text-transform: uppercase;">{{ company.company_name }}</h3>
+                <h6>{{ company.address }}</h6>
+                <h6>{{ company.city }},{{ company.state }}</h6>
+            </div>
+            <hr>
+        </div>
             
+          <div class="row mt-2">
+            <div class="col-5"><label class="text-dark" for="">Customer Name :</label></div>
+            <div class="col-7">
+              <p class="bold text-dark">{{ estimate.cu.customerName }}</p>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-5"><label class="text-dark" for="">Email :</label></div>
+            <div class="col-7">
+              <p class="text-dark bold">{{estimate.cu.customerEmail }} </p>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-5"><label class="text-dark" for="">Phone :</label></div>
+            <div class="col-7">
+              <p class="text-dark bold">{{estimate.cu.customerMobile }}</p>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-5"><label class="text-dark" for="">Address :</label></div>
+            <div class="col-7">
+              <p class="text-dark bold">{{estimate.cu.Address1 }}</p>
+            </div>
+          </div>
+
             <div class="row mt-1">
                 <div class="col-5"><label class="text-dark" for="">Status :</label></div>
                 <div class="col-7">
@@ -786,32 +826,7 @@
                 </div>
               </div>
             
-          <div class="row mt-2">
-            <div class="col-5"><label class="text-dark" for="">Delivery Challan No :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.chellan_no}}</p>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Reference :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.reference}}</p>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Challan Type :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">
-                {{estimate.chellan_type}}</p>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Challan Date :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">
-                {{estimate.chellan_date | date:"d/m/Y"}}</p>
-            </div>
-          </div>
+          
           <div class="row mt-3">
             <div class="col-5"><label class="text-dark" for="">GST Treatment :</label></div>
             <div class="col-7">
@@ -834,19 +849,66 @@
               <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.cu.placeofsupply}}</p>
             </div>
           </div>
+          <hr class="text-dark my-4">
           
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Converted to :</label></div>
-            <div class="col-7">
-                {% if estimate.to_inv != 'Convert to invoice' %}
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">Invoice </p>
-              {% endif %}
-              {% if estimate.to_recinv != 'Convert to reccuring invoice' %}
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">Reccuring Invoice</p>
-              {% endif %}
-              {% if estimate.to_inv == 'Convert to invoice' and estimate.to_recinv == 'Convert to reccuring invoice' %}
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">Not Converted </p>
-              {% endif %}
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">Subtotal :</label></div>
+            <div class="col-6">
+              <p class="bold " >{{estimate.sub_total}}</p>
+            </div>
+          </div>
+          {% if estimate.igst != 0 %}
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">IGST :</label></div>
+            <div class="col-6">
+              <p class="bold " >{{estimate.igst}}</p>
+            </div>
+          </div>
+          
+          {% else %}
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">CGST :</label></div>
+            <div class="col-6">
+              <p class="bold ">{{estimate.cgst}}</p>
+            </div>
+          </div>
+          
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">SGST :</label></div>
+            <div class="col-6">
+              <p class="bold ">{{estimate.sgst}}</p>
+            </div>
+          </div>
+          {% endif %}
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">Tax Amount :</label></div>
+            <div class="col-6">
+              <p class="bold ">{{estimate.tax_amount}}</p>
+            </div>
+          </div>
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">Shipping Charge :</label></div>
+            <div class="col-6">
+              <p class="bold ">{{estimate.shipping_charge}}</p>
+            </div>
+          </div>
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">Adjustment :</label></div>
+            <div class="col-6">
+              <p class="bold ">{{estimate.adjust}}</p>
+            </div>
+          </div>
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">Total Amount :</label></div>
+            <div class="col-6">
+              <p class="bold ">{{estimate.total}}</p>
+            </div>
+          </div>
+         
+          <div class="row mt-2 text-dark">
+            <div class="col-6"><label class="" for="">Balance Amount :</label></div>
+            <div class="col-6">
+              <p class="bold ">{{estimate.balance}}</p>
             </div>
           </div>
           
@@ -854,177 +916,111 @@
         </div>
         <div class="p-info col-6" style="height: 100%; margin-bottom: 1vh;">
           <div class="card" style="background-color: rgb(110, 61, 46); padding-left: 1rem; padding-top: 1rem;">
-            <div class="row mt-1">
-                <div class="col-md-6 " >
-                    <h3 style="text-transform: uppercase;">{{ company.company_name }}</h3>
-                    <h6>{{ company.address }}</h6>
-                    <h6>{{ company.city }},{{ company.state }}</h6>
-                </div>
-            </div><hr>
-            <div class="row text-center">
-              <h4>CUSTOMER INFORMATION
+            <div class="row mt-2">
+              <div class="col-5"><label class=" for="">Delivery Challan No :</label></div>
+              <div class="col-7">
+                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">{{estimate.chellan_no}}</p>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-5"><label class=" for="">Reference :</label></div>
+              <div class="col-7">
+                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">{{estimate.reference}}</p>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-5"><label class=" for="">Challan Type :</label></div>
+              <div class="col-7">
+                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">
+                  {{estimate.chellan_type}}</p>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-5"><label class=" for="">Challan Date :</label></div>
+              <div class="col-7">
+                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">
+                  {{estimate.chellan_date | date:"d/m/Y"}}</p>
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-5"><label class=" for="">Converted to :</label></div>
+              <div class="col-7">
+                  {% if estimate.to_inv != 'Convert to invoice' %}
+                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">Invoice </p>
+                {% endif %}
+                {% if estimate.to_recinv != 'Convert to reccuring invoice' %}
+                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">Reccuring Invoice</p>
+                {% endif %}
+                {% if estimate.to_inv == 'Convert to invoice' and estimate.to_recinv == 'Convert to reccuring invoice' %}
+                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">Not Converted </p>
+                {% endif %}
+              </div>
+            </div>
+            <hr>
+            <div class="row text-center mt-3">
+              <h4>PRODUCT INFORMATION
                 <hr>
               </h4>
             </div>
 
                 
-            <div class="row mt-2">
-              <div class="col-5"><label for="">Customer Name :</label></div>
-              <div class="col-7">
-                <p class="bold">{{ estimate.cu.customerName }}</p>
-              </div>
-            </div>
-            <div class="row mt-2">
-              <div class="col-5"><label for="">Email :</label></div>
-              <div class="col-7">
-                <p class="bold">{{estimate.cu.customerEmail }} </p>
-              </div>
-            </div>
-            <div class="row mt-2">
-              <div class="col-5"><label for="">Phone :</label></div>
-              <div class="col-7">
-                <p class="bold">{{estimate.cu.customerMobile }}</p>
-              </div>
-            </div>
-            <div class="row mt-2">
-              <div class="col-5"><label for="">Address :</label></div>
-              <div class="col-7">
-                <p class="bold">{{estimate.cu.Address1 }}</p>
-              </div>
-            </div>
+            
+            {% for i in items %}
 
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Name :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.item_name}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">HSN Number :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.hsn}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Quantity :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.quantity}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Rate :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.rate}}</p>
+                    </div>
+                  </div>
+
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Discount :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.desc}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Tax :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.tax}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Total :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.total}}</p>
+                    </div>
+                    <hr>
+                  </div>
+                  {% endfor %}
             
           </div><br>
         </div>
-        <div class="row"  style="padding-left: 2rem; ">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="color: black;font-weight: bold;text-align: center;">#</th>
-                        <th style="width: 10rem;color: black;font-weight: bold;text-align: center;">Product
-                        </th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            HSN</th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Quantity</th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Price</th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Discount</th>
-
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Tax%</th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                    <tr>
-                        <td style="color: black; text-align: center;">{{ forloop.counter}}</td>
-                        <td style="width: 10rem; color: black;  text-align: center;">{{item.item_name }}</td>
-
-                        
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.hsn }}</td>
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.quantity }}</td>
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.rate|floatformat:1 }}</td>
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.discount|floatformat:1 }}</td>
-
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.tax_percentage }}</td>
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.amount|floatformat:1 }}</td>
-                    </tr>
-                    {% endfor %}
-
-                </tbody>
-            </table>
-        </div>
-        <!-- <div class="row text-center"> -->
-            <div class="col-6" style="padding-left: 2rem;">
-                <div class="row mt-5">
-                    <div class="col-5"><label class="text-dark" for="">Notes :</label></div>
-                    <div class="col-7">
-                      <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.customer_notes}}</p>
-                    </div>
-                  </div>
-
-                  <div class="row mt-5">
-                    <div class="col-5"><label class="text-dark" for="">T&C :</label></div>
-                    <div class="col-7">
-                      <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.terms_conditions}}</p>
-                    </div>
-                  </div>
-            </div>
-        <div class="col-6 mt-3" style="height: 100%; margin-bottom: 1vh;">
-            <div class="card" style="background-color: rgb(110, 61, 46); padding-left: 1rem; padding-top: 1rem;">
-
+        
+      
             
             
-          <div class="row mt-3">
-            <div class="col-6"><label class="" for="">Subtotal :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.sub_total}}</p>
-            </div>
-          </div>
-          {% if estimate.igst != 0 %}
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">IGST :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.igst}}</p>
-            </div>
-          </div>
           
-          {% else %}
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">CGST :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.cgst}}</p>
-            </div>
-          </div>
-          
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">SGST :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.sgst}}</p>
-            </div>
-          </div>
-          {% endif %}
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Tax Amount :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.tax_amount}}</p>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Shipping Charge :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.shipping_charge}}</p>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Adjustment :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.adjust}}</p>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Total Amount :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.total}}</p>
-            </div>
-          </div>
-         
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Balance Amount :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.balance}}</p>
-            </div>
-          </div>
          
         </div>
     <!-- </div> -->
@@ -1037,8 +1033,10 @@
             <section id="selected-area" style="background-color: rgb(255, 221, 176);height: auto;" class=" p-2">
             <header style="	background-color: #8b3131;border-radius: 1rem;">
                 <div class="logo ">
+                  {% if company.profile_pic %}
                 <img class="ml-2" width="100rem" style="border-radius: 50%;" src="{{company.profile_pic.url }}"
                     alt="Company Logo">
+                    {% endif %}
                 </div>
                 <div style="background: #8b3131;color: white;" class="company-info">
                 <h2 class="text-white">{{company.company_name}}</h2>

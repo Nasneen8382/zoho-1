@@ -1298,6 +1298,7 @@ urlpatterns = [
     
     
     path('import_excel_vendor', views.import_excel_vendor, name='import_excel_vendor'),
+    path('get_dl_edit_item', views.get_dl_edit_item, name='get_dl_edit_item'),
 
     
     path('vendor_credit_comment/<int:id>',views.vendor_credit_comment,name = "vendor_credit_comment"),#updated

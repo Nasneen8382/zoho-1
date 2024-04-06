@@ -234,8 +234,8 @@
               
               
                     <div class="col-md-1"></div>
-                    <div class="col-md-6">
-                        <a class="btn text-center px-3 py-2  btn-outline-warning " data-bs-toggle="dropdown" aria-haspopup="true"
+                    <div class="col-md-6  d-flex justify-content-end">
+                        <a class="btn text-center px-3 py-2  btn-outline-warning me-1" data-bs-toggle="dropdown" aria-haspopup="true"
           aria-expanded="false" role="button"><i class="fa fa-filter mx-3"></i>
         </a>
                       <div class="dropdown-menu ">
@@ -247,11 +247,11 @@
               
                      
                      
-                      <label for="file-input" title="improt excel" class="btn text-right px-3 py-2  btn-outline-warning"
+                      <label for="file-input" title="improt excel" class="btn text-right px-3 py-2  btn-outline-warning me-1"
                                                       type="button"><i class="fa fa-file-excel-o" aria-hidden="true"></i>IMPORT</label>
                                                       <input id="file-input" type="file" name="file" style="display:none;"
                                                       onchange="uploadFile()">
-                       <a class="btn text-right px-3 py-2 btn-outline-warning"  onclick="exportAsExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> EXPORT</a>
+                       <a class="btn text-right px-3 py-2 btn-outline-warning me-1"  onclick="exportAsExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> EXPORT</a>
                       
                        <a href="{% url 'add_vendor_credits' %}" class="btn text-right px-3 py-2  btn-outline-warning">
                         <i class="fa fa-plus" aria-hidden="true"></i> NEW

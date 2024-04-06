@@ -457,6 +457,22 @@
             });
             
         });
+        $("#debit-no").click(function () {
+            var rows = $('#table tbody tr').get();
+            rows.sort(function (a, b) {
+                var textA = $(a).find('p').text().toUpperCase();
+                var textB = $(b).find('p').text().toUpperCase();
+                console.log(textA);
+                console.log(textB);
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            });
+            $.each(rows, function (index, row) {
+                $('#table').children('tbody').append(row);
+                console.log(row);
+                console.log(index);
+            });
+            
+        });
         var $rows = $('#table tbody tr');
     $('#search').keyup(function() {
       var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
@@ -488,7 +504,7 @@
                 data-bs-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false"><i class="fa fa-sort"></i></a>
                 <div class="dropdown-menu ">
-                    <a class="dropdown-item" href="{% url 'vendor_credits_home' %}" id="all-list">
+                    <a class="dropdown-item" href="{% url 'view_vendor_credits' estimate.id %}" id="all-list">
                       <i class="fa fa-sort"></i> All
                     </a>
                     <a class="dropdown-item" href="#" id="vendor-name">
@@ -509,8 +525,9 @@
             <div class="col-sm-12 col-lg-12 col-md-12">
                 <div class="pt-3 ps-2 " style="height: 600px;">
                     <table class="text-white" style="width: 100%; " id="table">
-                        {% for estimate in all_bills %}
+                        
                         <tbody id="table">
+                            {% for estimate in all_bills %}
                             <tr id="tr_data" class="clickable-row border-bottom" style="cursor: pointer;"
                                 data-href="{% url 'view_vendor_credits' estimate.id %}">
                                 <td>
@@ -521,33 +538,12 @@
                                 <td><div>&#x20B9;{{estimate.total}}.00</div>
                                     <p>{{estimate.status}}</p>
                                     </td>
-                                <!-- <td>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h5 style="color: rgb(218, 143, 5);">{{estimate.vendor_name}}</h5>
-                                        </div>
-                                        <div class="col-md-6 text-right" style="color: rgb(218, 143, 5);">
-                                            &#x20B9;{{estimate.total}}.00</div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <p>{{estimate.debitnote}}</p>
-                                        </div>
-                                        <div class="col-md-3 text-left">
-                                        </div>
-                                        <div class="col-md-6 text-right">
-                                            <p>{{estimate.status}}</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-3">
-
-                                    </div>
-                                </td> -->
+                               
                             </tr>
-
+                            {% endfor %}
                         </tbody>
 
-                        {% endfor %}
+                        
                     </table>
 
                 </div>
@@ -762,6 +758,15 @@
         
         <div class="gen-info col-6 " style="padding-left: 2rem; ">
             
+            <div class="row mt-1 text-dark">
+                <div class="col-md-6 text-dark my-4" >
+                    <h3 style="text-transform: uppercase;">{{ company.company_name }}</h3>
+                    <h6>{{ company.address }}</h6>
+                    <h6>{{ company.city }},{{ company.state }}</h6>
+                </div>
+                <hr>
+            </div>
+            
             <div class="row mt-1">
                 <div class="col-5"><label class="text-dark" for="">Status :</label></div>
                 <div class="col-7">
@@ -769,185 +774,139 @@
                 </div>
               </div>
             
-          <div class="row mt-2">
-            <div class="col-5"><label class="text-dark" for="">Credit Note :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.credit_note}}</p>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Reference :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.order_no}}</p>
-            </div>
-          </div>
           
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Vendor Date :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">
-                {{estimate.vendor_date | date:"d/m/Y"}}</p>
-            </div>
-          </div>
           
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Source of Supply :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.source_supply}}</p>
-            </div>
-          </div>
+          
 
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Bill Numer :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.bill_number}}</p>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Payment Methode :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.payment_methode}}</p>
-            </div>
-          </div>
-          {% if estimate.cheque != '' %}
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Cheque Number :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.cheque}}</p>
-            </div>
-          </div>
-          {%endif%}
-          {% if estimate.upi != '' %}
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">UPI id :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.upi}}</p>
-            </div>
-          </div>
-          {%endif%}
-          {% if estimate.acc_no != '' %}
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-dark" for="">Account Number :</label></div>
-            <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.acc_no}}</p>
-            </div>
-          </div>
-          {%endif%}
           
-          
-          
-          
-        </div>
-        <div class="p-info col-6" style="height: 100%; margin-bottom: 1vh;">
-          <div class="card" style="background-color: rgb(110, 61, 46); padding-left: 1rem; padding-top: 1rem;">
-            <div class="row mt-1">
-                <div class="col-md-6 " >
-                    <h3 style="text-transform: uppercase;">{{ company.company_name }}</h3>
-                    <h6>{{ company.address }}</h6>
-                    <h6>{{ company.city }},{{ company.state }}</h6>
-                </div>
-            </div><hr>
-            <div class="row text-center">
-              <h4>VENDOR INFORMATION
-                <hr>
-              </h4>
+          <div class="row text-dark mt-2">
+            <div class="col-5"><label for="">Vendor Name :</label></div>
+            <div class="col-7">
+              <p class="bold">{{ estimate.vendor_name }}</p>
             </div>
-
-                
-            <div class="row mt-2">
-              <div class="col-5"><label for="">Vendor Name :</label></div>
+          </div>
+          <div class="row text-dark mt-2">
+            <div class="col-5"><label for="">Email :</label></div>
+            <div class="col-7">
+              <p class="bold">{{estimate.vendor_email }} </p>
+            </div>
+          </div>
+          
+          <div class="row text-dark mt-2">
+            <div class="col-5"><label for="">Address :</label></div>
+            <div class="col-7">
+              <p class="bold">{{estimate.address }}</p>
+            </div>
+          </div>
+          <div class="row text-dark mt-2">
+              <div class="col-5"><label for="">GST Treatment :</label></div>
               <div class="col-7">
-                <p class="bold">{{ estimate.vendor_name }}</p>
+                <p class="bold">{{estimate.gst_treatment }}</p>
               </div>
             </div>
-            <div class="row mt-2">
-              <div class="col-5"><label for="">Email :</label></div>
+            {% if estimate.gst_number != 'null' %}
+            <div class="row text-dark mt-2">
+              <div class="col-5"><label for="">GST Number :</label></div>
               <div class="col-7">
-                <p class="bold">{{estimate.vendor_email }} </p>
+                <p class="bold">{{estimate.gst_number }}</p>
               </div>
             </div>
-            
-            <div class="row mt-2">
-              <div class="col-5"><label for="">Address :</label></div>
-              <div class="col-7">
-                <p class="bold">{{estimate.address }}</p>
-              </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-5"><label for="">GST Treatment :</label></div>
+            {% endif %}
+            <div class="row text-dark mt-2">
+                <div class="col-5"><label for="">Vendor Name :</label></div>
                 <div class="col-7">
-                  <p class="bold">{{estimate.gst_treatment }}</p>
+                  <p class="bold">{{ estimate.vendor_name }}</p>
                 </div>
               </div>
-              {% if estimate.gst_number != 'null' %}
-              <div class="row mt-2">
-                <div class="col-5"><label for="">GST Number :</label></div>
+              <div class="row text-dark mt-2">
+                <div class="col-5"><label for="">Email :</label></div>
                 <div class="col-7">
-                  <p class="bold">{{estimate.gst_number }}</p>
+                  <p class="bold">{{estimate.vendor_email }} </p>
                 </div>
               </div>
-              {% endif %}
-
-            
-          </div><br>
-        </div>
-        <div class="row"  style="padding-left: 2rem; ">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="color: black;font-weight: bold;text-align: center;">#</th>
-                        <th style="width: 10rem;color: black;font-weight: bold;text-align: center;">Product
-                        </th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            HSN</th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Quantity</th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Price</th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Discount</th>
-
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Tax%</th>
-                        <th class="text-right;" style="color: black;font-weight: bold;text-align: center;">
-                            Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                    <tr>
-                        <td style="color: black; text-align: center;">{{ forloop.counter}}</td>
-                        <td style="width: 10rem; color: black;  text-align: center;">{{item.item }}</td>
-
-                        
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.hsn }}</td>
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.quantity }}</td>
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.rate|floatformat:1 }}</td>
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.discount|floatformat:1 }}</td>
-
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.tax }}</td>
-                        <td class="text-right" style="color: black; text-align: center;">
-                            {{ item.amount|floatformat:1 }}</td>
-                    </tr>
-                    {% endfor %}
-
-                </tbody>
-            </table>
-        </div>
-        <!-- <div class="row text-center"> -->
-            <div class="col-6" style="padding-left: 2rem;">
-                <div class="row mt-5">
-                    <div class="col-5"><label class="text-dark" for="">Notes :</label></div>
+              
+              <div class="row text-dark mt-2">
+                <div class="col-5"><label for="">Address :</label></div>
+                <div class="col-7">
+                  <p class="bold">{{estimate.address }}</p>
+                </div>
+              </div>
+              <div class="row text-dark mt-2">
+                  <div class="col-5"><label for="">GST Treatment :</label></div>
+                  <div class="col-7">
+                    <p class="bold">{{estimate.gst_treatment }}</p>
+                  </div>
+                </div>
+                {% if estimate.gst_number != 'null' %}
+                <div class="row mt-2 text-dark">
+                  <div class="col-5"><label for="">GST Number :</label></div>
+                  <div class="col-7">
+                    <p class="bold">{{estimate.gst_number }}</p>
+                  </div>
+                </div>
+                {% endif %}
+                <div class="row mt-3">
+                    <div class="col-5"><label class="text-dark" for="">Source of Supply :</label></div>
                     <div class="col-7">
-                      <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.note}}</p>
+                      <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.source_supply}}</p>
                     </div>
                   </div>
-                  <hr>
+                  <hr class="text-dark">
+  
+                <div class="row text-dark mt-2">
+                    <div class="col-6"><label class="" for="">Subtotal :</label></div>
+                    <div class="col-6">
+                      <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.sub_total}}</p>
+                    </div>
+                  </div>
+                  {% if estimate.igst != 0 %}
+                  <div class="row text-dark mt-2">
+                    <div class="col-6"><label class="" for="">IGST :</label></div>
+                    <div class="col-6">
+                      <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.igst}}</p>
+                    </div>
+                  </div>
+                  
+                  {% else %}
+                  <div class="row text-dark mt-2">
+                    <div class="col-6"><label class="" for="">CGST :</label></div>
+                    <div class="col-6">
+                      <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.cgst}}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="row text-dark mt-2">
+                    <div class="col-6"><label class="" for="">SGST :</label></div>
+                    <div class="col-6">
+                      <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.sgst}}</p>
+                    </div>
+                  </div>
+                  {% endif %}
+                  <div class="row text-dark mt-2">
+                    <div class="col-6"><label class="" for="">Tax Amount :</label></div>
+                    <div class="col-6">
+                      <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.tax_amount}}</p>
+                    </div>
+                  </div>
+                  <div class="row text-dark mt-2">
+                    <div class="col-6"><label class="" for="">Shipping Charge :</label></div>
+                    <div class="col-6">
+                      <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.shipping_charge}}</p>
+                    </div>
+                  </div>
+                  <div class="row text-dark mt-2">
+                    <div class="col-6"><label class="" for="">Adjustment :</label></div>
+                    <div class="col-6">
+                      <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.adjustment}}</p>
+                    </div>
+                  </div>
+                  <div class="row text-dark mt-2">
+                    <div class="col-6"><label class="" for="">Total Amount :</label></div>
+                    <div class="col-6">
+                      <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.grand_total}}</p>
+                    </div>
+                  </div>
+
                   <div class="row mt-5">
                     <div class="col-5"><label class="text-dark" for="">Paid :</label></div>
                     <div class="col-7">
@@ -960,72 +919,140 @@
                       <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word; font-size: 1.2rem;">{{estimate.balance}}</p>
                     </div>
                   </div>
-            
+          
+          
+        </div>
+        <div class="p-info col-6" style="height: 100%; margin-bottom: 1vh;">
+          <div class="card" style="background-color: rgb(110, 61, 46); padding-left: 1rem; padding-top: 1rem;">
+           
+            <div class="row mt-2">
+                <div class="col-5"><label class="" for="">Credit Note :</label></div>
+                <div class="col-7">
+                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{estimate.credit_note}}</p>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-5"><label class="" for="">Reference :</label></div>
+                <div class="col-7">
+                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{estimate.order_no}}</p>
+                </div>
+              </div>
+              
+              <div class="row mt-3">
+                <div class="col-5"><label class="" for="">Vendor Date :</label></div>
+                <div class="col-7">
+                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">
+                    {{estimate.vendor_date | date:"d/m/Y"}}</p>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-5"><label class="" for="">Bill Numer :</label></div>
+                <div class="col-7">
+                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{estimate.bill_number}}</p>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-5"><label class="" for="">Payment Methode :</label></div>
+                <div class="col-7">
+                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{estimate.payment_methode}}</p>
+                </div>
+              </div>
+              {% if estimate.cheque != '' %}
+              <div class="row mt-3">
+                <div class="col-5"><label class="" for="">Cheque Number :</label></div>
+                <div class="col-7">
+                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{estimate.cheque}}</p>
+                </div>
+              </div>
+              {%endif%}
+              {% if estimate.upi != '' %}
+              <div class="row mt-3">
+                <div class="col-5"><label class="" for="">UPI id :</label></div>
+                <div class="col-7">
+                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{estimate.upi}}</p>
+                </div>
+              </div>
+              {%endif%}
+              {% if estimate.acc_no != '' %}
+              <div class="row mt-3">
+                <div class="col-5"><label class="" for="">Account Number :</label></div>
+                <div class="col-7">
+                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{estimate.acc_no}}</p>
+                </div>
+              </div>
+              {%endif%}
+              
+            <hr>
+            <div class="row text-center">
+              <h4>PRODUCT INFORMATION
+                <hr>
+              </h4>
             </div>
+            {% for i in items %}
+
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Name :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.item}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">HSN Number :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.hsn}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Quantity :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.quantity}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Rate :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.rate}}</p>
+                    </div>
+                  </div>
+
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Discount :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.discount}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Tax :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.tax}}</p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label for="">Product Total :</label></div>
+                    <div class="col-7">
+                      <p class="bold">{{i.total}}</p>
+                    </div>
+                    <hr>
+                  </div>
+                  {% endfor %}
+
+                 
+                 
+                
+                
+            
+            
+          </div><br>
+        </div>
+        
+       
             
         <div class="col-6 mt-3" style="height: 100%; margin-bottom: 1vh;">
-            <div class="card" style="background-color: rgb(110, 61, 46); padding-left: 1rem; padding-top: 1rem;">
 
             
             
-          <div class="row mt-3">
-            <div class="col-6"><label class="" for="">Subtotal :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.sub_total}}</p>
-            </div>
-          </div>
-          {% if estimate.igst != 0 %}
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">IGST :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.igst}}</p>
-            </div>
-          </div>
-          
-          {% else %}
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">CGST :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.cgst}}</p>
-            </div>
-          </div>
-          
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">SGST :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.sgst}}</p>
-            </div>
-          </div>
-          {% endif %}
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Tax Amount :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.tax_amount}}</p>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Shipping Charge :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.shipping_charge}}</p>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Adjustment :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.adjustment}}</p>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-6"><label class="" for="">Total Amount :</label></div>
-            <div class="col-6">
-              <p class="bold " style="font-weight:bold; max-width: 15rem;word-wrap: break-word;">{{estimate.grand_total}}</p>
-            </div>
-          </div>
          
-        
          
-        </div>
-    <!-- </div> -->
     </div>
       </div>
 
@@ -1035,8 +1062,10 @@
             <section id="selected-area" style="background-color: rgb(255, 221, 176);height: auto;" class=" p-2">
             <header style="	background-color: #8b3131;border-radius: 1rem;">
                 <div class="logo ">
+                    {% if company.profile_pic %}
                 <img class="ml-2" width="100rem" style="border-radius: 50%;" src="{{company.profile_pic.url }}"
                     alt="Company Logo">
+                    {% endif %}
                 </div>
                 <div style="background: #8b3131;color: white;" class="company-info">
                 <h2 class="text-white">{{company.company_name}}</h2>
@@ -1226,7 +1255,7 @@
                       <div class="graphic-path">
                         <p>Vendor Credit No. #:<b>{{estimate.credit_note}}</b></p>
                       </div>
-                      <div class="mt-2">
+                      <div class="text-dark mt-2">
 
                         <p style="color: #000;"> Date:
                           <b>{{ estimate.vendor_date | date:'d-m-Y'}}</b>
@@ -1428,7 +1457,9 @@
               <div class="p-4" id="selected-area3">
                 <section class="top-content bb d-flex justify-content-between" style="background-color: #8b3131;">
                   <div class="logo">
+                    {% if company.profile_pic %}
                     <img src="{{company.profile_pic.url }}" alt="" class="img-fluid">
+                    {% endif %}
                   </div>
                   <div class="top-left">
                     <div class="graphic-path">
