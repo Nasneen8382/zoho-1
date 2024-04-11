@@ -153,11 +153,9 @@
             <td class="text-light"><a href="{% url 'delivery_challan_overview' v.id %}">{{v.status}}</a></td>
             <td class="text-light">
               <div class="btn-group mb-1">
-                <button style="border: none;background: none;" type="button"
-                    class="ropdown-toggle dropdown-toggle-split"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="fa fa-ellipsis-v text-light fs-0 ps-2"></span>
-                </button>
+                
+                <button class="btn btn-outline-warning dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown" aria-expanded="false">CONVERT</button>
                 <ul class="dropdown-menu" style="z-index: 9999;">
                     <li>{% if v.to_inv == 'Convert to invoice' %}
                       <a class="dropdown-item fw-bold tb"

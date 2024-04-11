@@ -4536,6 +4536,11 @@ def create_challan_draft(request):
         
         cust_name = cus.customerName
         chellan_no = request.POST['chellan_number']
+        placeofsupply = request.POST['place_of_supply']
+        gstt = request.POST['gst_treatment']
+        gstin = request.POST['gst_number']
+        address = request.POST['customer_adrs']
+        
         reference = request.POST['reference']
         chellan_date = request.POST['chellan_date']
         customer_mailid = cus.customerEmail
@@ -4608,7 +4613,11 @@ def create_challan_draft(request):
             status=status,
             customer_notes=cust_note,
             terms_conditions=tearms_conditions,
-            attachment=attachment
+            attachment=attachment,
+            address=address,
+            placeofsupply=placeofsupply,
+            gst_treatment =gstt,
+            gstin=gstin
         )
         challan.save()
 
@@ -4639,6 +4648,12 @@ def create_and_send_challan(request):
         
         cust_name = cus.customerName
         chellan_no = request.POST['chellan_number']
+        
+        placeofsupply = request.POST['place_of_supply']
+        gstt = request.POST['gst_treatment']
+        gstin = request.POST['gst_number']
+        address = request.POST['customer_adrs']
+        
         reference = request.POST['reference']
         chellan_date = request.POST['chellan_date']
         customer_mailid = cus.customerEmail
@@ -4711,7 +4726,11 @@ def create_and_send_challan(request):
             status=status,
             customer_notes=cust_note,
             terms_conditions=tearms_conditions,
-            attachment=attachment
+            attachment=attachment,
+            address=address,
+            placeofsupply=placeofsupply,
+            gst_treatment =gstt,
+            gstin=gstin
         )
         challan.save()
 
@@ -4885,7 +4904,6 @@ def delivery_challan_edit(request,id):
     cust_id = estimate.cu.id
     payments=payment_terms.objects.filter(user = request.user)
     
-    pls= customer.objects.get(customerName=estimate.customer_name)
     
     est_items = ChallanItems.objects.filter(chellan=estimate)
 
@@ -4916,7 +4934,6 @@ def delivery_challan_edit(request,id):
         "account_type":account_type,
         "accounts":accounts,
         "account_types":account_types,
-        "pls":pls,
         'payments':payments,
         'cust':cust,
         'custo_id':cust_id,
@@ -4942,6 +4959,11 @@ def update_challan(request,id):
         # estimate.customer_name = request.POST['customer_name']
         estimate.customer_name = cust_name
         estimate.customer=custo
+        estimate.placeofsupply = request.POST['place_of_supply']
+        estimate.gst_treatment = request.POST['gst_treatment']
+        estimate.gstin = request.POST['gst_number']
+        estimate.address = request.POST['customer_adrs']
+        
         estimate.chellan_no = request.POST['chellan_number']
         estimate.reference = request.POST['reference']
         estimate.chellan_date = request.POST['challan_date']
@@ -6656,7 +6678,7 @@ def item_dropdown(request):
     user = User.objects.get(id=request.user.id)
 
     options = {}
-    option_objects = AddItem.objects.filter(user = request.user)
+    option_objects = AddItem.objects.filter(user = request.user , satus='Active')
     for option in option_objects:
         options[option.id] = option.Name
 
@@ -14065,7 +14087,7 @@ def vendor_credit_item_dropdown(request):
     user = User.objects.get(id=request.user.id)
 
     options = {}
-    option_objects = AddItem.objects.all()
+    option_objects = AddItem.objects.filter(user=user,satus='Active')
     for option in option_objects:
         options[option.id] = option.Name
 
@@ -14081,15 +14103,16 @@ def get_vendor_credit_det(request):
     # lname = request.POST.get('lname')
     id = request.POST.get('id')
     print(id)
+    print("getid")
     vdr = vendor_table.objects.get(user=company.user_id, id=id)
 
     vname = vdr.first_name +' '+vdr.last_name
-    bill= PurchaseBills.objects.filter(vendor_name=vname)
+    bill= PurchaseBills.objects.filter(vendor_name=vname ,user= request.user,vendor_email=vdr.vendor_email)
     
     
     number_prefix_pattern = re.compile(r'^\d+ ')
-    rbill = recurring_bills.objects.filter(Q(vendor_name=vname) | Q(vendor_name__regex=fr'^\d+ {vname}'))
-    
+    rbill = recurring_bills.objects.filter(Q(vendor_name=vname) | Q(vendor_name__regex=fr'^\d+ {vname}'),user= request.user)    
+   
     # item_list = []
     bill_nos = []
     for i in bill:

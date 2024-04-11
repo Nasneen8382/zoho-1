@@ -378,63 +378,65 @@
 
 
 <script>
-    function printForm() {
-        // print4 = document.getElementById('overview')
-        // if (print4.style.display !== 'none'){
-            var printContents = document.getElementById("overview").innerHTML;
-        // }else{
-        //     var printContents = document.getElementById("whatToPrint").innerHTML;
-        // }
-        var $printerDiv = $('<div class="printContainer" id=printContainer></div>');
-        $printerDiv.html(printContents); 
-        $('body').append($printerDiv).addClass("printingContent"); 
-        
-        window.print();
-        $printerDiv.remove();
-        $('body').removeClass("printingContent");
-    }
+  function printForm() {
+      // print4 = document.getElementById('overview')
+      // if (print4.style.display !== 'none'){
+          var printContents = document.getElementById("overview").innerHTML;
+      // }else{
+      //     var printContents = document.getElementById("whatToPrint").innerHTML;
+      // }
+      var $printerDiv = $('<div class="printContainer" id=printContainer></div>');
+      $printerDiv.html(printContents); 
+      $('body').append($printerDiv).addClass("printingContent"); 
+      
+      window.print();
+      $printerDiv.remove();
+      $('body').removeClass("printingContent");
+  }
 
 
-    $(document).ready(function() {
-        $("#overview_btn").click(function() {
-            $("#template1").hide();
-            $("#template2").hide();
-            $("#template3").hide();
-            $("#overview").show();
-            $("#slip").hide();
-        });
-        $("#temp1").click(function() {
-            $("#template1").show();
-            $("#template2").hide();
-            $("#template3").hide();
-            $("#overview").hide();
-            $("#slip").hide();
-        });
-        $("#temp2").click(function() {
-            $("#template1").hide();
-            $("#template2").show();
-            $("#template3").hide();
-            $("#overview").hide();
-            $("#slip").hide();
-        });
-        $("#temp3").click(function() {
-            $("#template1").hide();
-            $("#template2").hide();
-            $("#template3").show();
-            $("#overview").hide();
-            $("#slip").hide();
-        });
-        $("#slip_btn").click(function() {
-            $("#template1").hide();
-            $("#template2").hide();
-            $("#template3").hide();
-            $("#overview").hide();
-            $("#slip").show();
-        });
+  $(document).ready(function() {
+      $("#overview_btn").click(function() {
+        console.log("overview");
+          $("#template1").hide();
+          $("#template2").hide();
+          $("#template3").hide();
+          $("#overview").show();
+          $("#slip").hide();
+      });
+      $("#temp1").click(function() {
+        console.log("template1");
+          $("#template1").show();
+          $("#template2").hide();
+          $("#template3").hide();
+          $("#overview").hide();
+          $("#slip").hide();
+      });
+      $("#temp2").click(function() {
+          $("#template1").hide();
+          $("#template2").show();
+          $("#template3").hide();
+          $("#overview").hide();
+          $("#slip").hide();
+      });
+      $("#temp3").click(function() {
+          $("#template1").hide();
+          $("#template2").hide();
+          $("#template3").show();
+          $("#overview").hide();
+          $("#slip").hide();
+      });
+      $("#slip_btn").click(function() {
+          $("#template1").hide();
+          $("#template2").hide();
+          $("#template3").hide();
+          $("#overview").hide();
+          $("#slip").show();
+      });
 
 
-       
-    });
+     
+  });
 
 </script>
 <script>
@@ -503,6 +505,8 @@
   
 </script>
 
+
+
 <div class="row">
     <div class="col-md-3">
 
@@ -556,7 +560,7 @@
                       <tbody id="table">
                         {% for estimate in all_estimates %}
                         <tr id="tr_data" class="clickable-row border-bottom" style="cursor: pointer;"
-                            data-href="{% url 'view_vendor_credits' estimate.id %}">
+                            data-href="{% url 'delivery_challan_overview' estimate.id %}">
                             <td>
                                 <h5 style="color: rgb(218, 143, 5);">{{estimate.customer_name}}</h5>
                                 <p>{{estimate.chellan_no}}</p>
@@ -671,8 +675,7 @@
 
                         </label>
                                         <input id="file-input" type="file" name="file" style="display:none;"
-                                        onchange="uploadFile()">
-                    </a>
+                                        onchange="uploadFile()"></a>
 
                     {% endif %}
                 </div>
@@ -846,7 +849,7 @@
           <div class="row mt-3">
             <div class="col-5"><label class="text-dark" for="">Source of Supply :</label></div>
             <div class="col-7">
-              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.cu.placeofsupply}}</p>
+              <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">{{estimate.placeofsupply}}</p>
             </div>
           </div>
           <hr class="text-dark my-4">
@@ -996,19 +999,19 @@
                   <div class="row mt-2">
                     <div class="col-5"><label for="">Product Discount :</label></div>
                     <div class="col-7">
-                      <p class="bold">{{i.desc}}</p>
+                      <p class="bold">{{i.discount}}</p>
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col-5"><label for="">Product Tax :</label></div>
                     <div class="col-7">
-                      <p class="bold">{{i.tax}}</p>
+                      <p class="bold">{{i.tax_percentage}}</p>
                     </div>
                   </div>
                   <div class="row mt-2">
                     <div class="col-5"><label for="">Product Total :</label></div>
                     <div class="col-7">
-                      <p class="bold">{{i.total}}</p>
+                      <p class="bold">{{i.amount}}</p>
                     </div>
                     <hr>
                   </div>
@@ -1024,9 +1027,7 @@
          
         </div>
     <!-- </div> -->
-    </div>
-      </div>
-
+   
 <!-- =============================== new template1 -->
         <div class="row  template1 whatToPrint2" id="template1" style="margin-left:1px ;display: none;">
 
@@ -1131,7 +1132,7 @@
                         <td class="table-cell text-black" style="border: none;">:</td>
                         <td class="table-cell text-black" style="border: none;"><b>{{estimate.sub_total}}</b></td>
                         </tr>
-                        {% if estimate.igst != '0.00' %}
+                        {% if estimate.igst != 0 %}
                         <tr>
                         <td class="table-cell text-black" style="border: none;">IGST</td>
                         <td class="table-cell text-black" style="border: none;">:</td>
@@ -1321,7 +1322,7 @@
                             <td class="text-center" style="color: #000;">
                               {{estimate.sub_total}}</td>
                           </tr>
-                          {% if estimate.igst != '0.00' %}
+                          {% if estimate.igst != 0 %}
                           <tr>
                             <td style="color: #000;">IGST</td>
                             <td style="color: #000;">:</td>
@@ -1490,7 +1491,7 @@
                             <td class="text-right" style="color: #000;">
                               {{estimate.sub_total}}</td>
                           </tr>
-                          {% if estimate.igst != '0.00' %}
+                          {% if estimate.igst != 0 %}
                           <tr>
                             <td style="color: #000;">IGST</td>
                             <td style="color: #000;">:</td>
@@ -1666,7 +1667,7 @@
                         {{ estimate.sub_total }}
                       </div>
                     </div>
-                    {% if estimate.igst != '0.00' %}
+                    {% if estimate.igst != 0 %}
                     <div class="row ">
                       <div class="col-md-5 text-left " style=" color: black;">
                         IGST

@@ -526,6 +526,10 @@ class DeliveryChellan(models.Model):
    
     customer_name = models.CharField(max_length=100,null=True,blank=True)
     customer_mailid = models.CharField(max_length=100,null=True,blank=True)
+    address = models.CharField(max_length=100,null=True,blank=True)
+    placeofsupply = models.CharField(max_length=100,null=True,blank=True)
+    gst_treatment = models.CharField(max_length=100,null=True,blank=True)
+    gstin = models.CharField(max_length=100,null=True,blank=True)
     chellan_no = models.CharField(max_length=100,null=True,blank=True)
     reference = models.IntegerField(max_length=100,null=True,blank=True)
     chellan_date = models.DateField(null=True)

@@ -1022,7 +1022,7 @@ function reloadUnit() {
                 'font-size': '12px' // Change the font size to your desired value
             }).show();
         }
-        if (num === $(this).val()){
+        if (num === $(this).val() || num == ''){
           $('#cn_error').text('').css('color', 'red').hide();
         }
     });
@@ -1224,13 +1224,13 @@ function reloadUnit() {
 
     </div>
   </div>
+  
 
-
-  <input type="submit" class="btn text-white mt-5" style="background-color:  rgb(59, 59, 58) ; "
-    onclick="saveAsDraftDialog()" value="Save As Draft">
-  <input type="submit" class="btn text-white mt-5" style="background-color: rgb(210, 132, 30) ; "
-    onclick="saveAndSendDialog()" value="Save And Send">
-  <input type="submit" class="btn text-white mt-5" style="background-color:  rgb(59, 59, 58) ; "
+  <input style="width: 150px;margin-right: 1vh; background-color: chocolate;" type="submit" class="btn mt-2"
+    onclick="saveAsDraftDialog()" value="Draft">
+  <input style="width: 150px;margin-right: 1vh; background-color: chocolate;" type="submit" class="btn mt-2"
+    onclick="saveAndSendDialog()" value="Save">
+  <input style="width: 150px;margin-right: 1vh; background-color: chocolate;" type="reset" class="btn mt-2"
     onclick="cancelDialog()" value="Cancel">
 </form>
 </div>
@@ -2150,7 +2150,9 @@ function reloadUnit() {
                   <div class="col-md-4 ">
                     <a href="#" class="btn btn-outline-secondary py-2 my-1" data-target="#newpayment"
                       data-toggle="modal" style="color: white; background-color: rgb(210, 132, 30);">+</a>
-                  </div>
+                      <a href="#" class="btn btn-outline-secondary py-2 my-1" data-target="#newunit"
+                      data-toggle="modal">+</a>
+                    </div>
 
 
 
@@ -2446,13 +2448,13 @@ function reloadUnit() {
               <div class="row mt-4">
                 <div class="col-sm-12 col-md-2 col-lg-2">
                   <input type="submit" class="form-control bg-warning text-dark" style="font-weight: bold;" value="save"
-                    id="customerSave">
+                    id="customerSave" data-dismiss="modal">
                   <!-- <a href="{% url 'add_vendor' %}" role="button" class="form-control bg-light text-dark"></a> -->
                   <!-- <button type="submit">save</button> -->
                 </div>
 
                 <div class=" col-sm-12 col-md-2 col-lg-2">
-                  <a href="" role="button" class="form-control  bg-warning text-dark" style="font-weight: bold;">
+                  <a href="" role="button" class="form-control  bg-warning text-dark" style="font-weight: bold;" data-dismiss="modal">
                     <center>Cancel</center>
                   </a>
 
@@ -2840,26 +2842,7 @@ function reloadUnit() {
 
     //--------payment terms modal-----------
 
-    $(document).on("click", "#paySave", function () {
-      $.ajax({
 
-        type: 'POST',
-        url: "{% url 'payment_termA' %}",
-
-        data: {
-          term: $("#term").val(),
-          day: $("#day").val(),
-
-          csrfmiddlewaretoken: '{{ csrf_token }}'
-
-        },
-
-        success: function (response) {
-          document.getElementById("modalPayment").reset();
-
-        },
-      });
-    });
 
 
 
@@ -2871,16 +2854,23 @@ function reloadUnit() {
     </div>
   </div>
 </div>
+
+
+
+
+
+
+
 <script>
     $(document).ready(function () {
-      $("#forms").on("submit", function (e) {
+      $("#customerSave").on("click", function (e) {
         console.log("submit")
-        e.preventDefault(); // Prevent the default form submission
+        e.preventDefault(); // Prevent the default form submission customerSave 
 
         $.ajax({
           type: "POST",
-          url: $(this).attr("action"), // Get the URL from the form's action attribute
-          data: $(this).serialize(), // Serialize the form data
+          url: $("#forms").attr("action"), // Get the URL from the form's action attribute
+          data: $("#forms").serialize(), // Serialize the form data
           dataType: "json",
 
           success: function (data) {
@@ -2903,7 +2893,7 @@ function reloadUnit() {
 
             selectize.refreshOptions(false);
             // $('#newcustomer').hide();
-            $('.modal').modal('hide');
+            // $('.modal').modal('hide');
             console.log("FINISH");
           },
           error: function (xhr, textStatus, errorThrown) {
@@ -2915,10 +2905,9 @@ function reloadUnit() {
 </script>
 
 
-<!-- ############################################################################################### -->
-<!--................................................... END CUSTOMER MODAL ..................................................-->
-<!--.................................................... PAYMENT TERMS modal.................................................-->
-<div class="modal fade" id="newpayment">
+
+
+<div class="modal fade " id="newpayment">
   <div class="modal-dialog modal-xl">
     <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
       <div class="modal-header " style="background: rgb(32, 35, 37);">
@@ -2980,10 +2969,20 @@ function reloadUnit() {
     </div>
   </div>
 </div>
+
+<!-- ############################################################################################### -->
+<!--................................................... END CUSTOMER MODAL ..................................................-->
+<!--.................................................... PAYMENT TERMS modal.................................................-->
+
 <!-- ................................................  END PAYMENT TERMS MODAL..................................... -->
 
 
-
+<script>
+    // Add event listener to the inner modal to stop event propagation
+    document.getElementById('newpayment').addEventListener('click', function (event) {
+        event.stopPropagation();
+    });
+</script>
 <script>
 
     // payment term modal
@@ -3004,6 +3003,7 @@ function reloadUnit() {
 
         success: function (response) {
           document.getElementById("modalPayment").reset();
+
           reloadPayment();
         },
       });
@@ -3151,77 +3151,6 @@ function reloadUnit() {
       })
     })()
 </script>
-
-<!-- <script>
-  function generateFullName() {
-    document.getElementById('txtFullName').value =
-      document.getElementById('sa').value +
-      document.getElementById('fName').value + ' ' +
-      document.getElementById('lName').value;
-
-  }
-  function myFunction() {
-    var x = document.getElementById("myEmail").pattern;
-    document.getElementById("demo").innerHTML = x;
-  }
-
-  $(document).ready(function () {
-    $(".toggle").click(function (e) {
-      e.preventDefault();
-      $("fieldset1").toggle();
-    })
-  })
-  $(document).ready(function () {
-    $(".toggle2").click(function (e) {
-      e.preventDefault();
-      $("fieldset2").toggle();
-    })
-  })
-  $(document).ready(function () {
-    $(".toggle3").click(function (e) {
-      e.preventDefault();
-      $("fieldset3").toggle();
-    })
-  })
-  $(document).ready(function () {
-    $(".toggle4").click(function (e) {
-      e.preventDefault();
-      $("fieldset5").toggle();
-    })
-  })
-  $(document).ready(function () {
-    $(".toggle6").click(function (e) {
-      e.preventDefault();
-      $("fieldset6").toggle();
-    })
-  })
-  $(document).ready(function () {
-    $(".toggle7").click(function (e) {
-      e.preventDefault();
-      $("fieldset7").toggle();
-    })
-  })
-  $(document).ready(function () {
-    $(".toggle9").click(function (e) {
-      e.preventDefault();
-      $("fieldset9").toggle();
-    })
-  })
-  $('document').ready(function () {
-    $('.add_another').click(function () {
-      $("#tbl").append('<tr><td><select name="Place" id="PLACE"><option value="Mr." selected>Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="mercedes">Miss.</option><option value="audi">Dr.</option></select>  </td><td><input type="text" class="txtbox" value="" /></td><td><input type="text" class="txtbox" value="" /></td><td><input type="text" class="txtbox" value="" /></td><td><input type="text" class="txtbox" value="" /></td><td><input type="text" class="txtbox" value="" /></td><td><input type="text" class="txtbox" value="" /></td><td><input type="text" class="txtbox" value="" /></td><td><input type="text" class="txtbox" value="" /></td></tr>');
-    });
-  })
-
-  let popu = document.getElementById("popup-1");
-
-  function openpop() {
-    popu.classList.add("open-popup-1");
-  }
-  function closepop() {
-    popu.classList.remove("open-popup-1");
-  }
-</script> -->
 
 
 <!-- ................................................  TABLE 1 ......................................................... -->

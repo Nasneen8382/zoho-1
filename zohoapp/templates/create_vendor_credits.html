@@ -2,27 +2,14 @@
 {% block content %}
 {% load static %}
 {% load tz %}
-<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /> -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
-<!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.default.min.css"
-rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js"></script>  -->
 
 
-<!-- <link rel="stylesheet" href="{% static 'assets/css/style.css' %}"> -->
-<!-- <link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
-  integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"
-/>
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
-  integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"
-></script> -->
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.min.css"> -->
+
+
+<!-- Include jQuery (required by Selectize) -->
+
+
 
 <style>
   .modal{
@@ -144,8 +131,11 @@ rel="stylesheet" />
       <div class="row">
         <div class="col-md-3">
           <label>Vendor Name *</label>
+         
         </div>
+        
         <div class="col-md-6 d-flex">
+          
           <select name="vendor" id="vendor" class="form-control bg-light text-dark w-100" required>
             <option value="">Choose vendor</option>
             {% for v in vendor %}
@@ -393,11 +383,11 @@ rel="stylesheet" />
 
         <div class="col-md-6">
             <select name="srcofsupply" id="srcofsupply" onclick="toggleDateInput()" onselect="calculateTaxAmount()" class="form-control bg-light text-dark">
-              <option value="value"></option>
+              <option value=""></option>
               <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option> <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
-              <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> <option value="volvo">[AS]-Assam</option>
-              <option value="[BR]-Bihar">[BR]-Bihar</option> <option value="volvo">[CH]-	Chandhigarh</option><option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
-              <option value="[DD]-Daman Diu">[DD]-Daman Diu</option><option value="volvo">[DL]-	Delhi</option><option value="[GA]-Goa">[GA]-Goa</option> <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
+              <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> <option value="[AS]-Assam">[AS]-Assam</option>
+              <option value="[BR]-Bihar">[BR]-Bihar</option> <option value="[CH]-	Chandhigarh">[CH]-	Chandhigarh</option><option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
+              <option value="[DD]-Daman Diu">[DD]-Daman Diu</option><option value="[DL]-	Delhi">[DL]-	Delhi</option><option value="[GA]-Goa">[GA]-Goa</option> <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
               <option value="[HR]-Haryana">[HR]-Haryana</option> <option value="[HP]-Himachal Pradesh">[HP]-Himachal Pradesh</option>
               <option value="[JK]-Jammu And Kashmir">[JK]-Jammu And Kashmir</option><option value="[JH]-Jharkand">[JH]-Jharkand</option>
               <option value="[KA]-Karnataka">[KA]-Karnataka</option><option value="[KL]-Kerala">[KL]-Kerala</option>
@@ -458,7 +448,7 @@ rel="stylesheet" />
   </div>
   <div class="row mt-2" >
     <div class="col-md-3">
-      <label for="date1">Payment Methode</label>
+      <label for="date1">Payment Method</label>
     </div>
     <div class="col-md-6">
       <select class="form-control text-dark bg-light" name="pay_method" id="pay_method" required>
@@ -690,7 +680,7 @@ rel="stylesheet" />
                   <td style="width: 12%;" class='text-right '> <select name='tax[]' id='tax1'
                           class='form-control bg-light text-dark  text-right border-0 tax px-0' onclick="toggleDateInput()">
                           <optgroup class="text-center" label="GST">
-                            <option value="0" selected></option>
+                            <option value="" selected></option>
                             <option value="0">0% GST(0%)</option>
                             <option value="3">3.0% GST(3%)</option>
                             <option value="5">5.0% GST(5%)</option>
@@ -706,7 +696,10 @@ rel="stylesheet" />
                             <option value="18">18.0% IGST(18%)</option>
                             <option value="28">28.0% IGST(28%)</option>             
                             </optgroup>
-                      </select></td>
+                      </select>
+                      <input type="number" id="gst_val1" class="gstval" style="display: none;">
+                      <input type="number" id="igst_val1" class="igstval" style="display: none;">
+                    </td>
                   <td style="display: none;">
                       <input type="text" name='taxamount' id="taxamount1"
                           class=" taxamount text-dark" />
@@ -834,13 +827,14 @@ rel="stylesheet" />
 
         </div>
     </div>
+    
       <div class="row mt-5 mb-3 m-5 ">
        
     
      
-        <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2" name="Save_Send" value="Save and Send">
-        <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2" name="Save_Draft" value="Save And Draft">
-        <input style="width: 150px;margin-right: 2rem;" class="btn btn-danger mt-2" type="reset" value="Cancel">
+        <input style="width: 150px;margin-right: 1vh; background-color: chocolate;" type="submit" class="btn mt-2" name="Save_Send" value="Save">
+        <input style="width: 150px;margin-right: 1vh; background-color: chocolate;" type="submit" class="btn mt-2" name="Save_Draft" value="Draft">
+        <input style="width: 150px;margin-right: 1vh; background-color: chocolate;" type="reset" class="btn mt-2" type="reset" value="Cancel">
      
         
        
@@ -1121,9 +1115,9 @@ rel="stylesheet" />
                           <select name="source_supply" id="source_supply" class="form-control bg-light text-dark">
                           <option value="value"></option>
                         <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option> <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
-                        <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> <option value="volvo">[AS]-Assam</option>
-                        <option value="[BR]-Bihar">[BR]-Bihar</option> <option value="volvo">[CH]-	Chandhigarh</option><option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
-                        <option value="[DD]-Daman Diu">[DD]-Daman Diu</option><option value="volvo">[DL]-	Delhi</option><option value="[GA]-Goa">[GA]-Goa</option> <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
+                        <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> <option value="[AS]-Assam">[AS]-Assam</option>
+                        <option value="[BR]-Bihar">[BR]-Bihar</option> <option value="[CH]-	Chandhigarh">[CH]-	Chandhigarh</option><option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
+                        <option value="[DD]-Daman Diu">[DD]-Daman Diu</option><option value="[DL]-	Delhi">[DL]-	Delhi</option><option value="[GA]-Goa">[GA]-Goa</option> <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
                         <option value="[HR]-Haryana">[HR]-Haryana</option> <option value="[HP]-Himachal Pradesh">[HP]-Himachal Pradesh</option>
                         <option value="[JK]-Jammu And Kashmir">[JK]-Jammu And Kashmir</option><option value="[JH]-Jharkand">[JH]-Jharkand</option>
                         <option value="[KA]-Karnataka">[KA]-Karnataka</option><option value="[KL]-Kerala">[KL]-Kerala</option>
@@ -2974,7 +2968,25 @@ rel="stylesheet" />
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
 
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- Include Selectize JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var selectElement = document.getElementById('select-tags');
+        var selectize = new Selectize(selectElement, {
+            // Options configuration
+            plugins: ['remove_button'], // Enable the remove button
+            delimiter: ',', // Delimiter to use when multiple items are selected
+            create: true, // Allow the creation of new items
+            placeholder: 'Select tags', // Placeholder text
+            onChange: function(value) {
+                console.log('Selected values:', value);
+            }
+            // Add more options as needed
+        });
+    });
+</script>
 <script>
   
 
@@ -2982,7 +2994,7 @@ rel="stylesheet" />
 
 
   $(document).ready(function() {
-  //   console.log("selectize");
+    console.log("selectize");
   //   $('#vendor').selectize({
   // sortField: 'value',
   // render: {
@@ -3045,6 +3057,13 @@ rel="stylesheet" />
 
                 $('#srcofsupply').val(data.placeofsuply);
 
+                if (data.gst_treatment == 'Unregistered Business-not Registered under GST') {
+                  $("#gstin_row").removeClass('d-flex');
+                    $("#gstin_row").addClass('d-none');
+                 }
+
+                 
+
                 console.log(data.bill_nos);
                 $('#billno').empty();
                 $('#billno').append($('<option>', {value: '',text: 'Select'}));
@@ -3057,6 +3076,7 @@ rel="stylesheet" />
                           }));
                       });
               });
+              item_list = {};
 
                
             }
@@ -3077,6 +3097,7 @@ rel="stylesheet" />
             },
             type : 'POST',
             success: function(data) {
+                item_list = {};
                 console.log(data)
                 item_list=data
             }
@@ -3089,19 +3110,16 @@ rel="stylesheet" />
       var $closestRow = $(this).closest('tr');
 
         var selectedItemId = $(this).val();
-        if (item_list === null || item_list === undefined) {
-            console.log("Item list is null or undefined.");
-            
-            return;
-        }
-        if (item_list[selectedItemId] !== undefined) {
-            console.log("Selected item is in the item list.");
-            console.log("Item name:", selectedItemId);
-            console.log("Item value:", item_list[selectedItemId]);
-            $closestRow.find('.maxqty').val(item_list[selectedItemId]);
-        } else {
-            alert("You have selected a wrong item.");
-            $closestRow.find('.maxqty').val(0);
+        if ($.isEmptyObject(item_list)) {
+             console.log("The item list is empty.");
+          } else if (item_list[selectedItemId] !== undefined) {
+              console.log("Selected item is in the item list.");
+              console.log("Item name:", selectedItemId);
+              console.log("Item value:", item_list[selectedItemId]);
+              $closestRow.find('.maxqty').val(item_list[selectedItemId]);
+          } else {
+              alert("You have selected a wrong item.");
+              $closestRow.find('.maxqty').val(0);
           }
 
     });
@@ -3857,6 +3875,7 @@ function calculateGrandTotal() {
       var dropdown = $('#item' + row);
       
       dropdown.empty();
+      dropdown.append($('<option></option>').attr('value', '').text("select"));
 
       $.each(data, function(key, value) {
           dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
@@ -3927,6 +3946,8 @@ function calculateGrandTotal() {
                             <option value="28">28.0% IGST(28%)</option>             
                             </optgroup>
           </select>
+          <input type="number" id="gst_val${rowCount}" class="gstval" style="display: none;">
+                      <input type="number" id="igst_val${rowCount}" class="igstval" style="display: none;">
         </td>
         
         <td style="display: none;">
@@ -3948,9 +3969,11 @@ function calculateGrandTotal() {
     toggleDateInput();
     calculateSubtotal();
     calculateGrandTotal();
+
+
+    reloadItem(rowCount);
   });
   
-  reloadItem(rowCount);
 
 
 
@@ -3961,8 +3984,34 @@ function calculateGrandTotal() {
     calculateTaxAmount();
   });
   $('#srcofsupply').on('change', function () {
-  var row = $(this).closest('tr');
-  calculateRowAmount(row);
+    var roww = $(this).closest('tr');
+    $('#item_table tbody tr').each(function() {
+    var row = $(this);
+    var taxElement = row.find('.tax');
+    var state = $('#srcofsupply').val();
+    var stateName = state.split('-')[1].trim();
+    var gst = row.find('.gstval').val();
+    var igst = row.find('.igstval').val();
+    
+    if (stateName === "{{ company.state }}") {
+        taxElement.find('optgroup[label="GST"]').show();
+        taxElement.find('optgroup[label="IGST"]').hide();
+        taxElement.find('optgroup[label="GST"] option[value="' + gst + '"]').prop('selected', true);
+    } else {
+        taxElement.find('optgroup[label="GST"]').hide();
+        taxElement.find('optgroup[label="IGST"]').show();
+        taxElement.find('optgroup[label="IGST"] option[value="' + igst + '"]').prop('selected', true);
+    }
+    
+
+   
+
+});
+        // Select a specific value
+
+        
+
+  calculateRowAmount(roww);
   calculateSubtotal();
   calculateGrandTotal();
   toggleDateInput();
@@ -4145,11 +4194,14 @@ function calculateTaxAmount() {
 function toggleDateInput() {
       var checkbox = document.getElementById("srcofsupply");
       var vale=checkbox.value;
+
+      var state = $('#srcofsupply').val();
+      var stateName = state.split('-')[1].trim();
       
       for (var i = 1; i <= rowCount; i++) {
         var taxElement = $('#tax' + i);
 
-        if (vale === "[KL] Kerala") {
+        if (state === "{{company.state}}") {
             taxElement.find('optgroup[label="GST"]').show();
             taxElement.find('optgroup[label="IGST"]').hide();
         } else {
@@ -4157,7 +4209,7 @@ function toggleDateInput() {
             taxElement.find('optgroup[label="IGST"]').show();
         }
     }
-  }
+  }2
 
   function test(taxamount) {
         console.log('test333');
@@ -4170,7 +4222,7 @@ function toggleDateInput() {
         console.log(state)
         console.log('state')
         console.log('----------')
-        if ( vale === "[KL] Kerala") {
+        if ( vale === "[KL]-Kerala") {
             console.log(pos);
             console.log(state);
             console.log(taxamount);
@@ -4253,13 +4305,30 @@ function toggleDateInput() {
             $closestRow.find('.rate').val(data);
             $closestRow.find('.hsn').val(data5);
 
+            $closestRow.find('.gstval').val(response.gst);
+            console.log(response.gst);
+            $closestRow.find('.igstval').val(response.igst);
+            console.log(response.igst);
+
             // Extract state name from source of supply
             var state = $('#srcofsupply').val();
             var stateName = state.split('-')[1].trim();
 
             // Set tax value based on the state name
-            var taxValue = (stateName == '{{ company.state }}') ? data1 : data2;
-            $closestRow.find('.tax').val(taxValue);
+
+            
+            if (stateName === "{{ company.state }}") {
+                $closestRow.find('optgroup[label="GST"]').show();
+                $closestRow.find('optgroup[label="IGST"]').hide();
+                $closestRow.find('optgroup[label="GST"] option[value="' + data1 + '"]').prop('selected', true);
+            } else {
+                $closestRow.find('optgroup[label="GST"]').hide();
+                $closestRow.find('optgroup[label="IGST"]').show();
+                $closestRow.find('optgroup[label="IGST"] option[value="' + data2 + '"]').prop('selected', true);
+            }
+
+            // var taxValue = (stateName == '{{ company.state }}') ? data1 : data2;
+            // $closestRow.find('.tax').val(taxValue);
         }
     });
     var current_item = $closestRow.find('.itm').val();
@@ -4293,4 +4362,6 @@ function toggleDateInput() {
 
   });
 </script>
+
+
 {% endblock %}

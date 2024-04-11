@@ -474,7 +474,7 @@ rel="stylesheet" />
   </div>
   <div class="row mt-2" >
     <div class="col-md-3">
-      <label for="date1">Payment Methode</label>
+      <label for="date1">Payment Method</label>
     </div>
     <div class="col-md-6">
       <select class="form-control text-dark bg-light" name="pay_method" id="pay_method">
@@ -859,7 +859,7 @@ rel="stylesheet" />
     <div class="row mt-5 mb-3">
       <center>
         <input type="submit" class="btn save_btn text-align-center font-weight-bold mt-2" 
-                style="width: 200px; text-align: center ;" value="SAVE CHANGES" id="save">
+                style="width: 200px; text-align: center ;background-color: chocolate;" value="SAVE CHANGES" id="save">
       </center>
       
     </div>
@@ -3061,7 +3061,12 @@ rel="stylesheet" />
                 $('#gstin_inp').val(" " + data.gst_number);
                 $('#address_inp').val(" " + data.baddress);
 
-                $('#srcofsupply').val(data.placeofsuply);
+                // $('#srcofsupply').val(data.placeofsuply);
+
+                if (data.gst_treatment == 'Unregistered Business-not Registered under GST') {
+                  $("#gstin_row").removeClass('d-flex');
+                    $("#gstin_row").addClass('d-none');
+                 }
 
                 console.log(data.bill_nos);
                 $('#billno').empty();
@@ -3745,7 +3750,20 @@ $.ajax({
   success: function (response) {
     console.log("finish")
     document.getElementById("modalItem").reset();
-    reloadItem();
+    // reloadItem();
+    var table = document.getElementById('item_table');
+    var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    console.log(rows.length);
+    
+      console.log("entry", rows.length);
+      for (var i = 1; i <= rows.length; i++) {
+        console.log(i);
+        var dropdown = $('#item' + i);
+        dropdown.append($('<option></option>').attr('value', response.item.Name).text(response.item.Name));
+      
+      
+    
+    }
   },
 });
 });
@@ -3892,6 +3910,36 @@ function calculateGrandTotal() {
     calculateGrandTotal();
   });
 
+
+  function reloadItem(row) {
+  $.ajax({
+    url: "{% url 'vendor_credit_item_dropdown' %}",
+    type: "GET",
+    dataType: "json",
+    data: $(this).serialize(),
+    csrfmiddlewaretoken: '{{ csrf_token }}',
+
+    success: function(data) {
+      console.log(data);
+    
+      var dropdown = $('#item' + row);
+      
+      dropdown.empty();
+      dropdown.append($('<option></option>').attr('value', '').text("select"));
+
+      $.each(data, function(key, value) {
+          dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+          console.log(value);
+      });
+    },
+    error: function(xhr, status, error) {
+    console.error(xhr.responseText);
+    }
+  });
+}
+
+
+
   $('#add-row').click(function () {
     rowCount++; // Increment row counter
     var newRow = `
@@ -3969,7 +4017,14 @@ function calculateGrandTotal() {
     toggleDateInput();
     calculateSubtotal();
     calculateGrandTotal();
+
+
+
+    reloadItem(rowCount)
   });
+
+
+
   $('#item_table').on('click', '.delete-row', function () {
     $(this).closest('tr').remove();
     calculateSubtotal();
@@ -4165,7 +4220,7 @@ function toggleDateInput() {
       for (var i = 1; i <= rowCount; i++) {
         var taxElement = $('#tax' + i);
 
-        if (vale === "[KL] Kerala") {
+        if (vale === "[KL]-Kerala") {
             taxElement.find('optgroup[label="GST"]').show();
             taxElement.find('optgroup[label="IGST"]').hide();
         } else {
@@ -4186,7 +4241,7 @@ function toggleDateInput() {
         console.log(state)
         console.log('state')
         console.log('----------')
-        if ( vale === "[KL] Kerala") {
+        if ( vale === "[KL]-Kerala") {
             console.log(pos);
             console.log(state);
             console.log(taxamount);
