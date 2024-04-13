@@ -137,6 +137,13 @@
 
 <script>
   $(document).ready(function () {
+
+
+    var st1 ="{{company.state}}"
+    // var z= st1.toLowerCase(); 
+    $('#state1').val(st1)
+
+
     $('#forms2').submit(function (e) {
         e.preventDefault(); // Prevent form submission
 
@@ -164,20 +171,22 @@
             this.submit();
         }
     });
+
+
+
 });
 </script>
 <script>
 
 
-  $(document).ready(function () {
-    function extractTaxRate(label) {
-      var match = label.match(/\[(\d+)%\]/);
-      if (match && match[1]) {
-        return parseFloat(match[1]);
-      } else {
-        return 0;
-      }
+    function extractTaxRate(taxlabel) {
+    var matches = taxlabel.match(/\[(\d+(\.\d+)?)%\]$/);
+    if (matches && matches.length > 1) {
+        return parseFloat(matches[1]);
+    } else {
+        return 0; // Default tax rate if not found
     }
+}
 
     function performCalculations(row) {
       var qty = row.find('.qty').val();
@@ -209,7 +218,7 @@
       console.log(row);
       performCalculations(row);
     });
-  });
+ 
 
 
 
@@ -217,6 +226,7 @@
   function calc() {
 
     $('#item_table tbody tr').each(function () {
+      var row = $(this);
       var qty = row.find('.qty').val();
       var price = row.find('.rate').val();
       var dis = row.find('.discount').val();
@@ -226,6 +236,7 @@
       } else {
         var taxlabel = row.find('.itax').val();
       }
+      console.log(taxlabel);
 
       var tax = extractTaxRate(taxlabel);
 
@@ -624,6 +635,8 @@ function reloadUnit() {
       });
 
     });
+
+
 </script>
 
 
@@ -768,7 +781,7 @@ function reloadUnit() {
 
 <form method="POST" action="" enctype="multipart/form-data" novalidate id="forms2">
   {% csrf_token %}
-  <input class="hidden" id="state1" name="hidden_state1" value="{{ company.state }}">
+  <input class="hidden" id="state1" name="hidden_state1" >
   <input class="hidden" id="cstate" name="hidden_state" >
 
   <input class="hidden" type="text" name="samp" id="samp">
@@ -788,9 +801,7 @@ function reloadUnit() {
         {% for cust in customers %}
         <option value="{{cust.id}}">{{cust.customerName}}</option>
         {% endfor %}
-        <!-- <option value="customer">Register as a customer</option> -->
-        <!-- <option value="{{cust.id}}" data-email="{{ cust.customerEmail }}" data-gsttreatment="{{ cust.GSTTreatment }}" data-gstnumber="{{ cust.GSTIN }}" data-placeofsupply="{{ cust.placeofsupply }}"   >{{cust.customerName}}</option> -->
-
+        
       </select>
       <a class="text-center ms-1" href="" data-toggle="modal" data-target="#newcustomer"><i class="fa-solid fs-5 fa fa-plus rounded pt-2"
           style="color: white; background-color: rgb(210, 132, 30);height: 6.4vh;width: 6.4vh;padding: 0.5rem;"></i></a>
@@ -863,6 +874,13 @@ function reloadUnit() {
 
       $(document).on('change', '#place_of_supply', function () {
         console.log($(this).val());
+
+        var inputstring=$(this).val();
+        const parts = inputstring.split("-");   
+        var extractedWord = parts[1];  
+        var y= extractedWord.trim();
+        $('#cstate').val(y);
+
         if ($('#state1').val() == $('#cstate').val()) {
           $('.tax').show();
           $('.itax').hide();

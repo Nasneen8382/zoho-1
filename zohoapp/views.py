@@ -56,6 +56,7 @@ from django.http import HttpResponseServerError
 
 import re
 
+
 def index(request):
 
     return render(request,'landpage.html')
@@ -4752,6 +4753,8 @@ def create_and_send_challan(request):
     return redirect('delivery_chellan_home')
 
 
+
+
 def add_customer_for_challan(request):
    
     return render(request,'create_cust_challan.html')
@@ -4900,7 +4903,7 @@ def delivery_challan_edit(request,id):
 
     items = AddItem.objects.filter(user = request.user,satus='Active')
     estimate = DeliveryChellan.objects.get(id=id)
-    cust = estimate.cu.placeofsupply 
+    cust = estimate.placeofsupply 
     cust_id = estimate.cu.id
     payments=payment_terms.objects.filter(user = request.user)
     
@@ -14044,7 +14047,7 @@ def vendor_credit_dropdown(request):
     option_objects = vendor_table.objects.filter(user = user)
     for option in option_objects:
         
-        options[option.id] = [option.salutation, option.first_name, option.last_name, option.id]
+        options[option.id] = [option.first_name, option.last_name, option.id]
     return JsonResponse(options)
     
     
@@ -14107,8 +14110,16 @@ def get_vendor_credit_det(request):
     vdr = vendor_table.objects.get(user=company.user_id, id=id)
 
     vname = vdr.first_name +' '+vdr.last_name
-    bill= PurchaseBills.objects.filter(vendor_name=vname ,user= request.user,vendor_email=vdr.vendor_email)
-    
+    if vdr.vendor_email is not None:
+        bill = PurchaseBills.objects.filter(
+            vendor_name=vname,
+            user=request.user,
+            vendor_email=vdr.vendor_email
+        )
+    else:
+        bill = PurchaseBills.objects.filter(
+            Q(vendor_name=vname) & Q(user=request.user) & (Q(vendor_email=vdr.vendor_email) | Q(vendor_email__isnull=True))
+        )    
     
     number_prefix_pattern = re.compile(r'^\d+ ')
     rbill = recurring_bills.objects.filter(Q(vendor_name=vname) | Q(vendor_name__regex=fr'^\d+ {vname}'),user= request.user)    
@@ -14429,6 +14440,7 @@ def create_vendor_credit(request):
         billno=request.POST['billno'] 
        
         pay_method=request.POST['pay_method'] 
+        print(pay_method)
         
         if  pay_method == 'Cash':
             upiid=''
@@ -14446,6 +14458,8 @@ def create_vendor_credit(request):
             upiid= '' 
             chequeno=''
             accountno= request.POST['accountno']
+            b = Bankcreation.objects.get(id=pay_method)
+            pay_method = b.name
         if request.POST.get('Save_Send'):
             status = 'Send'
         if request.POST.get('Save_Draft'):
@@ -14557,7 +14571,7 @@ def change_vendor_credits(request,id):
         
         u = User.objects.get(id = request.user.id)
 
-        po_id.bill_number=request.POST['billno'] 
+        po_id.bill_number = request.POST.get('billno', '')
         pay_method=request.POST['pay_method'] 
         print("payment")
         if  pay_method == 'Cash':
@@ -14576,7 +14590,10 @@ def change_vendor_credits(request,id):
         else:
             po_id.upi = '' 
             po_id.cheque=''
-            po_id.acc_no= request.POST['accountno']
+            po_id.acc_no= request.POST['accountno'] 
+            b = Bankcreation.objects.get(id=pay_method)
+            pay_method = b.name
+
         po_id.payment_methode = pay_method
         
             
